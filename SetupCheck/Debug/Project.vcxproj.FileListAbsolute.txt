@@ -1,0 +1,6 @@
+C:\CS271\Project0\Debug\Project.exe
+C:\CS271\Project0\Debug\Project.pdb
+C:\assembly-architecture-CS271\Project0\Debug\Project.exe
+C:\assembly-architecture-CS271\Project0\Debug\Project.pdb
+C:\assembly-architecture-CS271\SetupCheck\Debug\Project.exe
+C:\assembly-architecture-CS271\SetupCheck\Debug\Project.pdb
