@@ -5,19 +5,16 @@ TITLE Basic Logic and Arithmetic Program     (Proj1_SharpKel.asm)
 ; OSU email address: sharpkelD@oregonstate.edu
 ; Course number/section:   CS271 Section 400
 ; Project Number: 01                 Due Date: 1/24/2021
-; Description: Write and test a MASM program to perform the following tasks:
+COMMENT @
+Description: Write and test a MASM program to perform the following tasks:
 
-; Display your name and program title on the output screen.
-; Display instructions for the user.
-; Prompt the user to enter three numbers (A, B, C) in descending order.
-; Calculate and display the sum and differences: (A+B, A-B, A+C, A-C, B+C, B-C, A+B+C).
-; Display a closing message.
+Display your name and program title on the output screen. Display instructions for the user.
+Prompt the user to enter three numbers (A, B, C) in descending order.
+Calculate and display the sum and differences: (A+B, A-B, A+C, A-C, B+C, B-C, A+B+C).
+Display a closing message.
+@
 
 INCLUDE Irvine32.inc
-
-; (insert macro definitions here)
-
-; (insert constant definitions here)
 
 .data
 
@@ -55,6 +52,7 @@ mov EDX, OFFSET Prompt_1
 call WriteString
 call CrLf
 
+	;Get first number
 mov EDX, OFFSET Prompt_A
 call WriteString
 	; Pre-conditions of ReadDec: none
@@ -62,13 +60,13 @@ call ReadDec
 	; Post-conditions of ReadDec: value is stored in EAX
 mov Int_A, EAX
 
-
+	;Get second number
 mov EDX, OFFSET Prompt_B
 call WriteString
 call ReadDec
 mov Int_B, EAX
 
-
+	;Get third number
 mov EDX, OFFSET Prompt_C
 call WriteString
 call ReadDec
@@ -105,9 +103,6 @@ mov B_add_C, EAX
 mov EAX, Int_B
 SUB EAX, Int_C
 mov B_sub_C, EAX
-
-
-
 
 ; Display the results
 	;A+B
@@ -200,18 +195,10 @@ call WriteDec
 call CrLf
 call CrLf
 
-
-
-
 ; Say goodbye
 mov EDX, OFFSET Outro
 call WriteString
 call CrLf
-
-
-
-
-
 
 	Invoke ExitProcess,0	; exit to operating system
 main ENDP
