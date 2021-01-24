@@ -48,6 +48,7 @@ main PROC
 mov EDX, OFFSET Intro
 call WriteString
 call CrLf
+call CrLf
 
 ; Get data from the user
 mov EDX, OFFSET Prompt_1
@@ -73,6 +74,7 @@ call WriteString
 call ReadDec
 mov Int_C, EAX
 call CrLf
+call CrLf
 
 ; Calculate the required values
 	;A+B
@@ -87,7 +89,22 @@ mov A_add_B_add_C, EBX
 mov EAX, Int_A
 SUB EAX, Int_B
 mov A_sub_B, EAX
-	
+	;A+C
+mov EAX, Int_A
+ADD EAX, Int_C
+mov A_add_C, EAX
+	;A-C
+mov EAX, Int_A
+SUB EAX, Int_C
+mov A_sub_C, EAX
+	;B+C
+mov EAX, Int_B
+ADD EAX, Int_C
+mov B_add_C, EAX
+	;B-C	
+mov EAX, Int_B
+SUB EAX, Int_C
+mov B_sub_C, EAX
 
 
 
@@ -117,6 +134,54 @@ call WriteString
 mov EAX, A_sub_B
 call WriteDec
 call CrLf
+	;A+C
+mov EAX, Int_A
+call WriteDec
+mov EDX, OFFSET add_symb
+call WriteString
+mov EAX, Int_C
+call WriteDec
+mov EDX, OFFSET equ_symb
+call WriteString
+mov EAX, A_add_C
+call WriteDec
+call CrLf
+	;A-C
+mov EAX, Int_A
+call WriteDec
+mov EDX, OFFSET sub_symb
+call WriteString
+mov EAX, Int_C
+call WriteDec
+mov EDX, OFFSET equ_symb
+call WriteString
+mov EAX, A_sub_C
+call WriteDec
+call CrLf
+	;B+C
+mov EAX, Int_B
+call WriteDec
+mov EDX, OFFSET add_symb
+call WriteString
+mov EAX, Int_C
+call WriteDec
+mov EDX, OFFSET equ_symb
+call WriteString
+mov EAX, B_add_C
+call WriteDec
+call CrLf
+	;B-C
+mov EAX, Int_B
+call WriteDec
+mov EDX, OFFSET sub_symb
+call WriteString
+mov EAX, Int_C
+call WriteDec
+mov EDX, OFFSET equ_symb
+call WriteString
+mov EAX, B_sub_C
+call WriteDec
+call CrLf
 	;A+B+C
 mov EAX, Int_A
 call WriteDec
@@ -130,8 +195,9 @@ mov EAX, Int_C
 call WriteDec
 mov EDX, OFFSET equ_symb
 call WriteString
-mov EAX, A_add_B_add_C
+mov EAX, A_add_C
 call WriteDec
+call CrLf
 call CrLf
 
 
@@ -140,6 +206,7 @@ call CrLf
 ; Say goodbye
 mov EDX, OFFSET Outro
 call WriteString
+call CrLf
 
 
 

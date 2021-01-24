@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.28.29335.0	    01/23/21 23:49:01
+Microsoft (R) Macro Assembler Version 14.28.29335.0	    01/24/21 14:46:48
 ;Basic Logic and Arithmetic Program     (Proj1_SharpKel.asm  Page 1 - 1
 
 
@@ -111,98 +111,165 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    01/23/21 23:49:01
  00000000  BA 00000000 R	mov EDX, OFFSET Intro
  00000005  E8 00000000 E	call WriteString
  0000000A  E8 00000000 E	call CrLf
+ 0000000F  E8 00000000 E	call CrLf
 
 				; Get data from the user
- 0000000F  BA 00000060 R	mov EDX, OFFSET Prompt_1
- 00000014  E8 00000000 E	call WriteString
- 00000019  E8 00000000 E	call CrLf
+ 00000014  BA 00000060 R	mov EDX, OFFSET Prompt_1
+ 00000019  E8 00000000 E	call WriteString
+ 0000001E  E8 00000000 E	call CrLf
 
- 0000001E  BA 00000092 R	mov EDX, OFFSET Prompt_A
- 00000023  E8 00000000 E	call WriteString
+ 00000023  BA 00000092 R	mov EDX, OFFSET Prompt_A
+ 00000028  E8 00000000 E	call WriteString
 					; Pre-conditions of ReadDec: none
- 00000028  E8 00000000 E	call ReadDec
+ 0000002D  E8 00000000 E	call ReadDec
 					; Post-conditions of ReadDec: value is stored in EAX
- 0000002D  A3 000000C0 R	mov Int_A, EAX
+ 00000032  A3 000000C0 R	mov Int_A, EAX
 
 
- 00000032  BA 000000A1 R	mov EDX, OFFSET Prompt_B
- 00000037  E8 00000000 E	call WriteString
- 0000003C  E8 00000000 E	call ReadDec
- 00000041  A3 000000C4 R	mov Int_B, EAX
+ 00000037  BA 000000A1 R	mov EDX, OFFSET Prompt_B
+ 0000003C  E8 00000000 E	call WriteString
+ 00000041  E8 00000000 E	call ReadDec
+ 00000046  A3 000000C4 R	mov Int_B, EAX
 
 
- 00000046  BA 000000B1 R	mov EDX, OFFSET Prompt_C
- 0000004B  E8 00000000 E	call WriteString
- 00000050  E8 00000000 E	call ReadDec
- 00000055  A3 000000C8 R	mov Int_C, EAX
- 0000005A  E8 00000000 E	call CrLf
+ 0000004B  BA 000000B1 R	mov EDX, OFFSET Prompt_C
+ 00000050  E8 00000000 E	call WriteString
+ 00000055  E8 00000000 E	call ReadDec
+ 0000005A  A3 000000C8 R	mov Int_C, EAX
+ 0000005F  E8 00000000 E	call CrLf
+ 00000064  E8 00000000 E	call CrLf
 
 				; Calculate the required values
 					;A+B
- 0000005F  A1 000000C0 R	mov EAX, Int_A
- 00000064  03 05 000000C4 R	ADD EAX, Int_B
- 0000006A  A3 000000D8 R	mov A_add_B, EAX
+ 00000069  A1 000000C0 R	mov EAX, Int_A
+ 0000006E  03 05 000000C4 R	ADD EAX, Int_B
+ 00000074  A3 000000D8 R	mov A_add_B, EAX
 					;A+B+C
- 0000006F  8B 1D 000000C8 R	mov EBX, Int_C
- 00000075  03 1D 000000D8 R	ADD EBX, A_add_B
- 0000007B  89 1D 000000F0 R	mov A_add_B_add_C, EBX
+ 00000079  8B 1D 000000C8 R	mov EBX, Int_C
+ 0000007F  03 1D 000000D8 R	ADD EBX, A_add_B
+ 00000085  89 1D 000000F0 R	mov A_add_B_add_C, EBX
 					;A-B
- 00000081  A1 000000C0 R	mov EAX, Int_A
- 00000086  2B 05 000000C4 R	SUB EAX, Int_B
- 0000008C  A3 000000DC R	mov A_sub_B, EAX
-					
+ 0000008B  A1 000000C0 R	mov EAX, Int_A
+ 00000090  2B 05 000000C4 R	SUB EAX, Int_B
+ 00000096  A3 000000DC R	mov A_sub_B, EAX
+					;A+C
+ 0000009B  A1 000000C0 R	mov EAX, Int_A
+ 000000A0  03 05 000000C8 R	ADD EAX, Int_C
+ 000000A6  A3 000000E0 R	mov A_add_C, EAX
+					;A-C
+ 000000AB  A1 000000C0 R	mov EAX, Int_A
+ 000000B0  2B 05 000000C8 R	SUB EAX, Int_C
+ 000000B6  A3 000000E4 R	mov A_sub_C, EAX
+					;B+C
+ 000000BB  A1 000000C4 R	mov EAX, Int_B
+ 000000C0  03 05 000000C8 R	ADD EAX, Int_C
+ 000000C6  A3 000000E8 R	mov B_add_C, EAX
+					;B-C	
+ 000000CB  A1 000000C4 R	mov EAX, Int_B
+ 000000D0  2B 05 000000C8 R	SUB EAX, Int_C
+ 000000D6  A3 000000EC R	mov B_sub_C, EAX
 
 
 
 
 				; Display the results
 					;A+B
- 00000091  A1 000000C0 R	mov EAX, Int_A
- 00000096  E8 00000000 E	call WriteDec
- 0000009B  BA 000000CC R	mov EDX, OFFSET add_symb
- 000000A0  E8 00000000 E	call WriteString
- 000000A5  A1 000000C4 R	mov EAX, Int_B
- 000000AA  E8 00000000 E	call WriteDec
- 000000AF  BA 000000D4 R	mov EDX, OFFSET equ_symb
- 000000B4  E8 00000000 E	call WriteString
- 000000B9  A1 000000D8 R	mov EAX, A_add_B
- 000000BE  E8 00000000 E	call WriteDec
- 000000C3  E8 00000000 E	call CrLf
+ 000000DB  A1 000000C0 R	mov EAX, Int_A
+ 000000E0  E8 00000000 E	call WriteDec
+ 000000E5  BA 000000CC R	mov EDX, OFFSET add_symb
+ 000000EA  E8 00000000 E	call WriteString
+ 000000EF  A1 000000C4 R	mov EAX, Int_B
+ 000000F4  E8 00000000 E	call WriteDec
+ 000000F9  BA 000000D4 R	mov EDX, OFFSET equ_symb
+ 000000FE  E8 00000000 E	call WriteString
+ 00000103  A1 000000D8 R	mov EAX, A_add_B
+ 00000108  E8 00000000 E	call WriteDec
+ 0000010D  E8 00000000 E	call CrLf
 					;A-B
- 000000C8  A1 000000C0 R	mov EAX, Int_A
- 000000CD  E8 00000000 E	call WriteDec
- 000000D2  BA 000000D0 R	mov EDX, OFFSET sub_symb
- 000000D7  E8 00000000 E	call WriteString
- 000000DC  A1 000000C4 R	mov EAX, Int_B
- 000000E1  E8 00000000 E	call WriteDec
- 000000E6  BA 000000D4 R	mov EDX, OFFSET equ_symb
- 000000EB  E8 00000000 E	call WriteString
- 000000F0  A1 000000DC R	mov EAX, A_sub_B
- 000000F5  E8 00000000 E	call WriteDec
- 000000FA  E8 00000000 E	call CrLf
+ 00000112  A1 000000C0 R	mov EAX, Int_A
+ 00000117  E8 00000000 E	call WriteDec
+ 0000011C  BA 000000D0 R	mov EDX, OFFSET sub_symb
+ 00000121  E8 00000000 E	call WriteString
+ 00000126  A1 000000C4 R	mov EAX, Int_B
+ 0000012B  E8 00000000 E	call WriteDec
+ 00000130  BA 000000D4 R	mov EDX, OFFSET equ_symb
+ 00000135  E8 00000000 E	call WriteString
+ 0000013A  A1 000000DC R	mov EAX, A_sub_B
+ 0000013F  E8 00000000 E	call WriteDec
+ 00000144  E8 00000000 E	call CrLf
+					;A+C
+ 00000149  A1 000000C0 R	mov EAX, Int_A
+ 0000014E  E8 00000000 E	call WriteDec
+ 00000153  BA 000000CC R	mov EDX, OFFSET add_symb
+ 00000158  E8 00000000 E	call WriteString
+ 0000015D  A1 000000C8 R	mov EAX, Int_C
+ 00000162  E8 00000000 E	call WriteDec
+ 00000167  BA 000000D4 R	mov EDX, OFFSET equ_symb
+ 0000016C  E8 00000000 E	call WriteString
+ 00000171  A1 000000E0 R	mov EAX, A_add_C
+ 00000176  E8 00000000 E	call WriteDec
+ 0000017B  E8 00000000 E	call CrLf
+					;A-C
+ 00000180  A1 000000C0 R	mov EAX, Int_A
+ 00000185  E8 00000000 E	call WriteDec
+ 0000018A  BA 000000D0 R	mov EDX, OFFSET sub_symb
+ 0000018F  E8 00000000 E	call WriteString
+ 00000194  A1 000000C8 R	mov EAX, Int_C
+ 00000199  E8 00000000 E	call WriteDec
+ 0000019E  BA 000000D4 R	mov EDX, OFFSET equ_symb
+ 000001A3  E8 00000000 E	call WriteString
+ 000001A8  A1 000000E4 R	mov EAX, A_sub_C
+ 000001AD  E8 00000000 E	call WriteDec
+ 000001B2  E8 00000000 E	call CrLf
+					;B+C
+ 000001B7  A1 000000C4 R	mov EAX, Int_B
+ 000001BC  E8 00000000 E	call WriteDec
+ 000001C1  BA 000000CC R	mov EDX, OFFSET add_symb
+ 000001C6  E8 00000000 E	call WriteString
+ 000001CB  A1 000000C8 R	mov EAX, Int_C
+ 000001D0  E8 00000000 E	call WriteDec
+ 000001D5  BA 000000D4 R	mov EDX, OFFSET equ_symb
+ 000001DA  E8 00000000 E	call WriteString
+ 000001DF  A1 000000E8 R	mov EAX, B_add_C
+ 000001E4  E8 00000000 E	call WriteDec
+ 000001E9  E8 00000000 E	call CrLf
+					;B-C
+ 000001EE  A1 000000C4 R	mov EAX, Int_B
+ 000001F3  E8 00000000 E	call WriteDec
+ 000001F8  BA 000000D0 R	mov EDX, OFFSET sub_symb
+ 000001FD  E8 00000000 E	call WriteString
+ 00000202  A1 000000C8 R	mov EAX, Int_C
+ 00000207  E8 00000000 E	call WriteDec
+ 0000020C  BA 000000D4 R	mov EDX, OFFSET equ_symb
+ 00000211  E8 00000000 E	call WriteString
+ 00000216  A1 000000EC R	mov EAX, B_sub_C
+ 0000021B  E8 00000000 E	call WriteDec
+ 00000220  E8 00000000 E	call CrLf
 					;A+B+C
- 000000FF  A1 000000C0 R	mov EAX, Int_A
- 00000104  E8 00000000 E	call WriteDec
- 00000109  BA 000000CC R	mov EDX, OFFSET add_symb
- 0000010E  E8 00000000 E	call WriteString
- 00000113  A1 000000C4 R	mov EAX, Int_B
- 00000118  E8 00000000 E	call WriteDec
- 0000011D  BA 000000CC R	mov EDX, OFFSET add_symb
- 00000122  E8 00000000 E	call WriteString
- 00000127  A1 000000C8 R	mov EAX, Int_C
- 0000012C  E8 00000000 E	call WriteDec
- 00000131  BA 000000D4 R	mov EDX, OFFSET equ_symb
- 00000136  E8 00000000 E	call WriteString
- 0000013B  A1 000000F0 R	mov EAX, A_add_B_add_C
- 00000140  E8 00000000 E	call WriteDec
- 00000145  E8 00000000 E	call CrLf
+ 00000225  A1 000000C0 R	mov EAX, Int_A
+ 0000022A  E8 00000000 E	call WriteDec
+ 0000022F  BA 000000CC R	mov EDX, OFFSET add_symb
+ 00000234  E8 00000000 E	call WriteString
+ 00000239  A1 000000C4 R	mov EAX, Int_B
+ 0000023E  E8 00000000 E	call WriteDec
+ 00000243  BA 000000CC R	mov EDX, OFFSET add_symb
+ 00000248  E8 00000000 E	call WriteString
+ 0000024D  A1 000000C8 R	mov EAX, Int_C
+ 00000252  E8 00000000 E	call WriteDec
+ 00000257  BA 000000D4 R	mov EDX, OFFSET equ_symb
+ 0000025C  E8 00000000 E	call WriteString
+ 00000261  A1 000000E0 R	mov EAX, A_add_C
+ 00000266  E8 00000000 E	call WriteDec
+ 0000026B  E8 00000000 E	call CrLf
+ 00000270  E8 00000000 E	call CrLf
 
 
 
 
 				; Say goodbye
- 0000014A  BA 000000F4 R	mov EDX, OFFSET Outro
- 0000014F  E8 00000000 E	call WriteString
+ 00000275  BA 000000F4 R	mov EDX, OFFSET Outro
+ 0000027A  E8 00000000 E	call WriteString
+ 0000027F  E8 00000000 E	call CrLf
 
 
 
@@ -210,14 +277,14 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    01/23/21 23:49:01
 
 
 					Invoke ExitProcess,0	; exit to operating system
- 00000154  6A 00	   *	    push   +000000000h
- 00000156  E8 00000000 E   *	    call   ExitProcess
- 0000015B			main ENDP
+ 00000284  6A 00	   *	    push   +000000000h
+ 00000286  E8 00000000 E   *	    call   ExitProcess
+ 0000028B			main ENDP
 
 				; (insert additional procedures here)
 
 				END main
-Microsoft (R) Macro Assembler Version 14.28.29335.0	    01/23/21 23:49:01
+Microsoft (R) Macro Assembler Version 14.28.29335.0	    01/24/21 14:46:48
 ;Basic Logic and Arithmetic Program     (Proj1_SharpKel.asm  Symbols 2 - 1
 
 
@@ -312,7 +379,7 @@ Segments and Groups:
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
 _DATA  . . . . . . . . . . . . .	32 Bit	 0000011A Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 0000015B Para	  Public  'CODE'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 0000028B Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -419,7 +486,7 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 0000015B Public STDCALL
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 0000028B Public STDCALL
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
