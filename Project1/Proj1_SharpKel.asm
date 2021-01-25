@@ -1,25 +1,18 @@
 TITLE Basic Logic and Arithmetic Program     (Proj1_SharpKel.asm)
 
 ; Author: Kelley Sharp
-; Last Modified: 1/23/2021
+; Last Modified: 1/24/2021
 ; OSU email address: sharpkelD@oregonstate.edu
 ; Course number/section:   CS271 Section 400
 ; Project Number: 01                 Due Date: 1/24/2021
-COMMENT @
-Description: Write and test a MASM program to perform the following tasks:
-
-Display your name and program title on the output screen. Display instructions for the user.
-Prompt the user to enter three numbers (A, B, C) in descending order.
-Calculate and display the sum and differences: (A+B, A-B, A+C, A-C, B+C, B-C, A+B+C).
-Display a closing message.
-@
+; Description: Program that asks the user for three numbers in descending order, calculates basic aritmetic involving these numbers and displays the results
 
 INCLUDE Irvine32.inc
 
 .data
 
 Intro BYTE "Hi, I'm Kelley and I'm here to show you some basic arithmetic based on the numbers you give me.", 0 
-Prompt_1 BYTE "Enter three positive numbers in descending order.", 0
+Prompt_1 BYTE "Enter three numbers in descending order.", 0
 Prompt_A BYTE "First number: ", 0
 Prompt_B BYTE "Second number: ", 0
 Prompt_C BYTE "Third number: ", 0
