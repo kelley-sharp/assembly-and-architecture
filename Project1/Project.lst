@@ -1,22 +1,15 @@
-Microsoft (R) Macro Assembler Version 14.28.29335.0	    01/24/21 14:55:13
+Microsoft (R) Macro Assembler Version 14.28.29335.0	    01/24/21 23:22:47
 ;Basic Logic and Arithmetic Program     (Proj1_SharpKel.asm  Page 1 - 1
 
 
 				TITLE Basic Logic and Arithmetic Program     (Proj1_SharpKel.asm)
 
 				; Author: Kelley Sharp
-				; Last Modified: 1/23/2021
+				; Last Modified: 1/24/2021
 				; OSU email address: sharpkelD@oregonstate.edu
 				; Course number/section:   CS271 Section 400
 				; Project Number: 01                 Due Date: 1/24/2021
-				COMMENT @
-				Description: Write and test a MASM program to perform the following tasks:
-
-				Display your name and program title on the output screen. Display instructions for the user.
-				Prompt the user to enter three numbers (A, B, C) in descending order.
-				Calculate and display the sum and differences: (A+B, A-B, A+C, A-C, B+C, B-C, A+B+C).
-				Display a closing message.
-				@
+				; Description: Program that asks the user for three numbers in descending order, calculates basic aritmetic involving these numbers and displays the results
 
 				INCLUDE Irvine32.inc
 			      C ; Include file for Irvine32.lib             (Irvine32.inc)
@@ -59,40 +52,58 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    01/24/21 14:55:13
 	   75 20 67 69 76
 	   65 20 6D 65 2E
 	   00
- 00000060 45 6E 74 65 72	Prompt_1 BYTE "Enter three positive numbers in descending order.", 0
+ 00000060 2A 2A 45 43 3A	ExtraCredit BYTE "**EC: Repeat until the user chooses to quit", 0
+	   20 52 65 70 65
+	   61 74 20 75 6E
+	   74 69 6C 20 74
+	   68 65 20 75 73
+	   65 72 20 63 68
+	   6F 6F 73 65 73
+	   20 74 6F 20 71
+	   75 69 74 00
+ 0000008C 45 6E 74 65 72	Prompt_1 BYTE "Enter three numbers in descending order.", 0
 	   20 74 68 72 65
-	   65 20 70 6F 73
-	   69 74 69 76 65
-	   20 6E 75 6D 62
-	   65 72 73 20 69
-	   6E 20 64 65 73
-	   63 65 6E 64 69
-	   6E 67 20 6F 72
-	   64 65 72 2E 00
- 00000092 46 69 72 73 74	Prompt_A BYTE "First number: ", 0
+	   65 20 6E 75 6D
+	   62 65 72 73 20
+	   69 6E 20 64 65
+	   73 63 65 6E 64
+	   69 6E 67 20 6F
+	   72 64 65 72 2E
+	   00
+ 000000B5 46 69 72 73 74	Prompt_A BYTE "First number: ", 0
 	   20 6E 75 6D 62
 	   65 72 3A 20 00
- 000000A1 53 65 63 6F 6E	Prompt_B BYTE "Second number: ", 0
+ 000000C4 53 65 63 6F 6E	Prompt_B BYTE "Second number: ", 0
 	   64 20 6E 75 6D
 	   62 65 72 3A 20
 	   00
- 000000B1 54 68 69 72 64	Prompt_C BYTE "Third number: ", 0
+ 000000D4 54 68 69 72 64	Prompt_C BYTE "Third number: ", 0
 	   20 6E 75 6D 62
 	   65 72 3A 20 00
- 000000C0 00000000		Int_A DWORD ?
- 000000C4 00000000		Int_B DWORD ?
- 000000C8 00000000		Int_C DWORD ?
- 000000CC 20 2B 20 00		add_symb BYTE " + ", 0
- 000000D0 20 2D 20 00		sub_symb BYTE " - ", 0
- 000000D4 20 3D 20 00		equ_symb BYTE " = ", 0
- 000000D8 00000000		A_add_B DWORD ?     ; To be calculated
- 000000DC 00000000		A_sub_B DWORD ?     ; To be calculated
- 000000E0 00000000		A_add_C DWORD ?     ; To be calculated
- 000000E4 00000000		A_sub_C DWORD ?     ; To be calculated  
- 000000E8 00000000		B_add_C DWORD ?     ; To be calculated
- 000000EC 00000000		B_sub_C DWORD ?     ; To be calculated
- 000000F0 00000000		A_add_B_add_C DWORD ?     ; To be calculated
- 000000F4 54 68 61 6E 6B	Outro BYTE "Thanks for using my program, goodbye!", 0
+ 000000E3 00000000		Int_A DWORD ?
+ 000000E7 00000000		Int_B DWORD ?
+ 000000EB 00000000		Int_C DWORD ?
+ 000000EF 20 2B 20 00		add_symb BYTE " + ", 0
+ 000000F3 20 2D 20 00		sub_symb BYTE " - ", 0
+ 000000F7 20 3D 20 00		equ_symb BYTE " = ", 0
+ 000000FB 00000000		A_add_B DWORD ?     ; To be calculated
+ 000000FF 00000000		A_sub_B DWORD ?     ; To be calculated
+ 00000103 00000000		A_add_C DWORD ?     ; To be calculated
+ 00000107 00000000		A_sub_C DWORD ?     ; To be calculated  
+ 0000010B 00000000		B_add_C DWORD ?     ; To be calculated
+ 0000010F 00000000		B_sub_C DWORD ?     ; To be calculated
+ 00000113 00000000		A_add_B_add_C DWORD ?     ; To be calculated
+ 00000117 57 6F 75 6C 64	quitPrompt BYTE "Would you like to try again? y/n", 0
+	   20 79 6F 75 20
+	   6C 69 6B 65 20
+	   74 6F 20 74 72
+	   79 20 61 67 61
+	   69 6E 3F 20 79
+	   2F 6E 00
+ 00000138 00000000		y_or_n DWORD ?
+ 0000013C 79			y BYTE 121
+ 0000013D 6E			n BYTE 110
+ 0000013E 54 68 61 6E 6B	Outro BYTE "Thanks for using my program, goodbye!", 0
 	   73 20 66 6F 72
 	   20 75 73 69 6E
 	   67 20 6D 79 20
@@ -108,170 +119,185 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    01/24/21 14:55:13
  00000000  BA 00000000 R	mov EDX, OFFSET Intro
  00000005  E8 00000000 E	call WriteString
  0000000A  E8 00000000 E	call CrLf
- 0000000F  E8 00000000 E	call CrLf
+ 0000000F  BA 00000060 R	mov EDX, OFFSET ExtraCredit
+ 00000014  E8 00000000 E	call WriteString
+ 00000019  E8 00000000 E	call CrLf
 
 				; Get data from the user
- 00000014  BA 00000060 R	mov EDX, OFFSET Prompt_1
- 00000019  E8 00000000 E	call WriteString
- 0000001E  E8 00000000 E	call CrLf
+ 0000001E			_startLoop:
+ 0000001E  E8 00000000 E		call CrLf
+ 00000023  BA 0000008C R		mov EDX, OFFSET Prompt_1
+ 00000028  E8 00000000 E		call WriteString
+ 0000002D  E8 00000000 E		call CrLf
 
-					;Get first number
- 00000023  BA 00000092 R	mov EDX, OFFSET Prompt_A
- 00000028  E8 00000000 E	call WriteString
-					; Pre-conditions of ReadDec: none
- 0000002D  E8 00000000 E	call ReadDec
-					; Post-conditions of ReadDec: value is stored in EAX
- 00000032  A3 000000C0 R	mov Int_A, EAX
+						;Get first number
+ 00000032  BA 000000B5 R		mov EDX, OFFSET Prompt_A
+ 00000037  E8 00000000 E		call WriteString
+						; Pre-conditions of ReadDec: none
+ 0000003C  E8 00000000 E		call ReadDec
+						; Post-conditions of ReadDec: value is stored in EAX
+ 00000041  A3 000000E3 R		mov Int_A, EAX
 
-					;Get second number
- 00000037  BA 000000A1 R	mov EDX, OFFSET Prompt_B
- 0000003C  E8 00000000 E	call WriteString
- 00000041  E8 00000000 E	call ReadDec
- 00000046  A3 000000C4 R	mov Int_B, EAX
+						;Get second number
+ 00000046  BA 000000C4 R		mov EDX, OFFSET Prompt_B
+ 0000004B  E8 00000000 E		call WriteString
+ 00000050  E8 00000000 E		call ReadDec
+ 00000055  A3 000000E7 R		mov Int_B, EAX
 
-					;Get third number
- 0000004B  BA 000000B1 R	mov EDX, OFFSET Prompt_C
- 00000050  E8 00000000 E	call WriteString
- 00000055  E8 00000000 E	call ReadDec
- 0000005A  A3 000000C8 R	mov Int_C, EAX
- 0000005F  E8 00000000 E	call CrLf
- 00000064  E8 00000000 E	call CrLf
+						;Get third number
+ 0000005A  BA 000000D4 R		mov EDX, OFFSET Prompt_C
+ 0000005F  E8 00000000 E		call WriteString
+ 00000064  E8 00000000 E		call ReadDec
+ 00000069  A3 000000EB R		mov Int_C, EAX
+ 0000006E  E8 00000000 E		call CrLf
+ 00000073  E8 00000000 E		call CrLf
 
 				; Calculate the required values
 					;A+B
- 00000069  A1 000000C0 R	mov EAX, Int_A
- 0000006E  03 05 000000C4 R	ADD EAX, Int_B
- 00000074  A3 000000D8 R	mov A_add_B, EAX
+ 00000078  A1 000000E3 R	mov EAX, Int_A
+ 0000007D  03 05 000000E7 R	add EAX, Int_B
+ 00000083  A3 000000FB R	mov A_add_B, EAX
 					;A+B+C
- 00000079  8B 1D 000000C8 R	mov EBX, Int_C
- 0000007F  03 1D 000000D8 R	ADD EBX, A_add_B
- 00000085  89 1D 000000F0 R	mov A_add_B_add_C, EBX
+ 00000088  8B 1D 000000EB R	mov EBX, Int_C
+ 0000008E  03 1D 000000FB R	add EBX, A_add_B
+ 00000094  89 1D 00000113 R	mov A_add_B_add_C, EBX
 					;A-B
- 0000008B  A1 000000C0 R	mov EAX, Int_A
- 00000090  2B 05 000000C4 R	SUB EAX, Int_B
- 00000096  A3 000000DC R	mov A_sub_B, EAX
+ 0000009A  A1 000000E3 R	mov EAX, Int_A
+ 0000009F  2B 05 000000E7 R	sub EAX, Int_B
+ 000000A5  A3 000000FF R	mov A_sub_B, EAX
 					;A+C
- 0000009B  A1 000000C0 R	mov EAX, Int_A
- 000000A0  03 05 000000C8 R	ADD EAX, Int_C
- 000000A6  A3 000000E0 R	mov A_add_C, EAX
+ 000000AA  A1 000000E3 R	mov EAX, Int_A
+ 000000AF  03 05 000000EB R	add EAX, Int_C
+ 000000B5  A3 00000103 R	mov A_add_C, EAX
 					;A-C
- 000000AB  A1 000000C0 R	mov EAX, Int_A
- 000000B0  2B 05 000000C8 R	SUB EAX, Int_C
- 000000B6  A3 000000E4 R	mov A_sub_C, EAX
+ 000000BA  A1 000000E3 R	mov EAX, Int_A
+ 000000BF  2B 05 000000EB R	sub EAX, Int_C
+ 000000C5  A3 00000107 R	mov A_sub_C, EAX
 					;B+C
- 000000BB  A1 000000C4 R	mov EAX, Int_B
- 000000C0  03 05 000000C8 R	ADD EAX, Int_C
- 000000C6  A3 000000E8 R	mov B_add_C, EAX
+ 000000CA  A1 000000E7 R	mov EAX, Int_B
+ 000000CF  03 05 000000EB R	add EAX, Int_C
+ 000000D5  A3 0000010B R	mov B_add_C, EAX
 					;B-C	
- 000000CB  A1 000000C4 R	mov EAX, Int_B
- 000000D0  2B 05 000000C8 R	SUB EAX, Int_C
- 000000D6  A3 000000EC R	mov B_sub_C, EAX
+ 000000DA  A1 000000E7 R	mov EAX, Int_B
+ 000000DF  2B 05 000000EB R	sub EAX, Int_C
+ 000000E5  A3 0000010F R	mov B_sub_C, EAX
 
 				; Display the results
 					;A+B
- 000000DB  A1 000000C0 R	mov EAX, Int_A
- 000000E0  E8 00000000 E	call WriteDec
- 000000E5  BA 000000CC R	mov EDX, OFFSET add_symb
- 000000EA  E8 00000000 E	call WriteString
- 000000EF  A1 000000C4 R	mov EAX, Int_B
- 000000F4  E8 00000000 E	call WriteDec
- 000000F9  BA 000000D4 R	mov EDX, OFFSET equ_symb
- 000000FE  E8 00000000 E	call WriteString
- 00000103  A1 000000D8 R	mov EAX, A_add_B
- 00000108  E8 00000000 E	call WriteDec
- 0000010D  E8 00000000 E	call CrLf
-					;A-B
- 00000112  A1 000000C0 R	mov EAX, Int_A
+ 000000EA  A1 000000E3 R	mov EAX, Int_A
+ 000000EF  E8 00000000 E	call WriteDec
+ 000000F4  BA 000000EF R	mov EDX, OFFSET add_symb
+ 000000F9  E8 00000000 E	call WriteString
+ 000000FE  A1 000000E7 R	mov EAX, Int_B
+ 00000103  E8 00000000 E	call WriteDec
+ 00000108  BA 000000F7 R	mov EDX, OFFSET equ_symb
+ 0000010D  E8 00000000 E	call WriteString
+ 00000112  A1 000000FB R	mov EAX, A_add_B
  00000117  E8 00000000 E	call WriteDec
- 0000011C  BA 000000D0 R	mov EDX, OFFSET sub_symb
- 00000121  E8 00000000 E	call WriteString
- 00000126  A1 000000C4 R	mov EAX, Int_B
- 0000012B  E8 00000000 E	call WriteDec
- 00000130  BA 000000D4 R	mov EDX, OFFSET equ_symb
- 00000135  E8 00000000 E	call WriteString
- 0000013A  A1 000000DC R	mov EAX, A_sub_B
- 0000013F  E8 00000000 E	call WriteDec
- 00000144  E8 00000000 E	call CrLf
-					;A+C
- 00000149  A1 000000C0 R	mov EAX, Int_A
+ 0000011C  E8 00000000 E	call CrLf
+					;A-B
+ 00000121  A1 000000E3 R	mov EAX, Int_A
+ 00000126  E8 00000000 E	call WriteDec
+ 0000012B  BA 000000F3 R	mov EDX, OFFSET sub_symb
+ 00000130  E8 00000000 E	call WriteString
+ 00000135  A1 000000E7 R	mov EAX, Int_B
+ 0000013A  E8 00000000 E	call WriteDec
+ 0000013F  BA 000000F7 R	mov EDX, OFFSET equ_symb
+ 00000144  E8 00000000 E	call WriteString
+ 00000149  A1 000000FF R	mov EAX, A_sub_B
  0000014E  E8 00000000 E	call WriteDec
- 00000153  BA 000000CC R	mov EDX, OFFSET add_symb
- 00000158  E8 00000000 E	call WriteString
- 0000015D  A1 000000C8 R	mov EAX, Int_C
- 00000162  E8 00000000 E	call WriteDec
- 00000167  BA 000000D4 R	mov EDX, OFFSET equ_symb
- 0000016C  E8 00000000 E	call WriteString
- 00000171  A1 000000E0 R	mov EAX, A_add_C
- 00000176  E8 00000000 E	call WriteDec
- 0000017B  E8 00000000 E	call CrLf
-					;A-C
- 00000180  A1 000000C0 R	mov EAX, Int_A
+ 00000153  E8 00000000 E	call CrLf
+					;A+C
+ 00000158  A1 000000E3 R	mov EAX, Int_A
+ 0000015D  E8 00000000 E	call WriteDec
+ 00000162  BA 000000EF R	mov EDX, OFFSET add_symb
+ 00000167  E8 00000000 E	call WriteString
+ 0000016C  A1 000000EB R	mov EAX, Int_C
+ 00000171  E8 00000000 E	call WriteDec
+ 00000176  BA 000000F7 R	mov EDX, OFFSET equ_symb
+ 0000017B  E8 00000000 E	call WriteString
+ 00000180  A1 00000103 R	mov EAX, A_add_C
  00000185  E8 00000000 E	call WriteDec
- 0000018A  BA 000000D0 R	mov EDX, OFFSET sub_symb
- 0000018F  E8 00000000 E	call WriteString
- 00000194  A1 000000C8 R	mov EAX, Int_C
- 00000199  E8 00000000 E	call WriteDec
- 0000019E  BA 000000D4 R	mov EDX, OFFSET equ_symb
- 000001A3  E8 00000000 E	call WriteString
- 000001A8  A1 000000E4 R	mov EAX, A_sub_C
- 000001AD  E8 00000000 E	call WriteDec
- 000001B2  E8 00000000 E	call CrLf
-					;B+C
- 000001B7  A1 000000C4 R	mov EAX, Int_B
+ 0000018A  E8 00000000 E	call CrLf
+					;A-C
+ 0000018F  A1 000000E3 R	mov EAX, Int_A
+ 00000194  E8 00000000 E	call WriteDec
+ 00000199  BA 000000F3 R	mov EDX, OFFSET sub_symb
+ 0000019E  E8 00000000 E	call WriteString
+ 000001A3  A1 000000EB R	mov EAX, Int_C
+ 000001A8  E8 00000000 E	call WriteDec
+ 000001AD  BA 000000F7 R	mov EDX, OFFSET equ_symb
+ 000001B2  E8 00000000 E	call WriteString
+ 000001B7  A1 00000107 R	mov EAX, A_sub_C
  000001BC  E8 00000000 E	call WriteDec
- 000001C1  BA 000000CC R	mov EDX, OFFSET add_symb
- 000001C6  E8 00000000 E	call WriteString
- 000001CB  A1 000000C8 R	mov EAX, Int_C
- 000001D0  E8 00000000 E	call WriteDec
- 000001D5  BA 000000D4 R	mov EDX, OFFSET equ_symb
- 000001DA  E8 00000000 E	call WriteString
- 000001DF  A1 000000E8 R	mov EAX, B_add_C
- 000001E4  E8 00000000 E	call WriteDec
- 000001E9  E8 00000000 E	call CrLf
-					;B-C
- 000001EE  A1 000000C4 R	mov EAX, Int_B
+ 000001C1  E8 00000000 E	call CrLf
+					;B+C
+ 000001C6  A1 000000E7 R	mov EAX, Int_B
+ 000001CB  E8 00000000 E	call WriteDec
+ 000001D0  BA 000000EF R	mov EDX, OFFSET add_symb
+ 000001D5  E8 00000000 E	call WriteString
+ 000001DA  A1 000000EB R	mov EAX, Int_C
+ 000001DF  E8 00000000 E	call WriteDec
+ 000001E4  BA 000000F7 R	mov EDX, OFFSET equ_symb
+ 000001E9  E8 00000000 E	call WriteString
+ 000001EE  A1 0000010B R	mov EAX, B_add_C
  000001F3  E8 00000000 E	call WriteDec
- 000001F8  BA 000000D0 R	mov EDX, OFFSET sub_symb
- 000001FD  E8 00000000 E	call WriteString
- 00000202  A1 000000C8 R	mov EAX, Int_C
- 00000207  E8 00000000 E	call WriteDec
- 0000020C  BA 000000D4 R	mov EDX, OFFSET equ_symb
- 00000211  E8 00000000 E	call WriteString
- 00000216  A1 000000EC R	mov EAX, B_sub_C
- 0000021B  E8 00000000 E	call WriteDec
- 00000220  E8 00000000 E	call CrLf
-					;A+B+C
- 00000225  A1 000000C0 R	mov EAX, Int_A
+ 000001F8  E8 00000000 E	call CrLf
+					;B-C
+ 000001FD  A1 000000E7 R	mov EAX, Int_B
+ 00000202  E8 00000000 E	call WriteDec
+ 00000207  BA 000000F3 R	mov EDX, OFFSET sub_symb
+ 0000020C  E8 00000000 E	call WriteString
+ 00000211  A1 000000EB R	mov EAX, Int_C
+ 00000216  E8 00000000 E	call WriteDec
+ 0000021B  BA 000000F7 R	mov EDX, OFFSET equ_symb
+ 00000220  E8 00000000 E	call WriteString
+ 00000225  A1 0000010F R	mov EAX, B_sub_C
  0000022A  E8 00000000 E	call WriteDec
- 0000022F  BA 000000CC R	mov EDX, OFFSET add_symb
- 00000234  E8 00000000 E	call WriteString
- 00000239  A1 000000C4 R	mov EAX, Int_B
- 0000023E  E8 00000000 E	call WriteDec
- 00000243  BA 000000CC R	mov EDX, OFFSET add_symb
- 00000248  E8 00000000 E	call WriteString
- 0000024D  A1 000000C8 R	mov EAX, Int_C
- 00000252  E8 00000000 E	call WriteDec
- 00000257  BA 000000D4 R	mov EDX, OFFSET equ_symb
- 0000025C  E8 00000000 E	call WriteString
- 00000261  A1 000000E0 R	mov EAX, A_add_C
- 00000266  E8 00000000 E	call WriteDec
- 0000026B  E8 00000000 E	call CrLf
- 00000270  E8 00000000 E	call CrLf
-
-				; Say goodbye
- 00000275  BA 000000F4 R	mov EDX, OFFSET Outro
- 0000027A  E8 00000000 E	call WriteString
+ 0000022F  E8 00000000 E	call CrLf
+					;A+B+C
+ 00000234  A1 000000E3 R	mov EAX, Int_A
+ 00000239  E8 00000000 E	call WriteDec
+ 0000023E  BA 000000EF R	mov EDX, OFFSET add_symb
+ 00000243  E8 00000000 E	call WriteString
+ 00000248  A1 000000E7 R	mov EAX, Int_B
+ 0000024D  E8 00000000 E	call WriteDec
+ 00000252  BA 000000EF R	mov EDX, OFFSET add_symb
+ 00000257  E8 00000000 E	call WriteString
+ 0000025C  A1 000000EB R	mov EAX, Int_C
+ 00000261  E8 00000000 E	call WriteDec
+ 00000266  BA 000000F7 R	mov EDX, OFFSET equ_symb
+ 0000026B  E8 00000000 E	call WriteString
+ 00000270  A1 00000103 R	mov EAX, A_add_C
+ 00000275  E8 00000000 E	call WriteDec
+ 0000027A  E8 00000000 E	call CrLf
  0000027F  E8 00000000 E	call CrLf
 
+				; End of program
+
+ 00000284  BA 00000117 R	mov EDX, OFFSET quitPrompt
+ 00000289  E8 00000000 E	call WriteString
+ 0000028E  E8 00000000 E	call ReadChar
+ 00000293  38 05 0000013C R	cmp y, AL
+ 00000299  0F 84 FFFFFD7F	JE _startLoop
+ 0000029F  38 05 0000013D R	cmp n, AL
+ 000002A5  74 00		JE _goodBye
+
+ 000002A7			_goodBye:
+ 000002A7  E8 00000000 E		call CrLf
+ 000002AC  BA 0000013E R		mov EDX, OFFSET Outro
+ 000002B1  E8 00000000 E		call WriteString
+ 000002B6  E8 00000000 E		call CrLf
+
 					Invoke ExitProcess,0	; exit to operating system
- 00000284  6A 00	   *	    push   +000000000h
- 00000286  E8 00000000 E   *	    call   ExitProcess
- 0000028B			main ENDP
+ 000002BB  6A 00	   *	    push   +000000000h
+ 000002BD  E8 00000000 E   *	    call   ExitProcess
+ 000002C2			main ENDP
 
 				; (insert additional procedures here)
 
 				END main
-Microsoft (R) Macro Assembler Version 14.28.29335.0	    01/24/21 14:55:13
+Microsoft (R) Macro Assembler Version 14.28.29335.0	    01/24/21 23:22:47
 ;Basic Logic and Arithmetic Program     (Proj1_SharpKel.asm  Symbols 2 - 1
 
 
@@ -365,8 +391,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 0000011A Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 0000028B Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 00000164 Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 000002C2 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -473,7 +499,9 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 0000028B Public STDCALL
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 000002C2 Public STDCALL
+  _startLoop . . . . . . . . . .	L Near	 0000001E _TEXT	
+  _goodBye . . . . . . . . . . .	L Near	 000002A7 _TEXT	
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
@@ -493,13 +521,13 @@ Symbols:
 @fardata . . . . . . . . . . . .	Text   	 FLAT
 @stack . . . . . . . . . . . . .	Text   	 FLAT
 ALT_MASK . . . . . . . . . . . .	Number	 00000003h   
-A_add_B_add_C  . . . . . . . . .	DWord	 000000F0 _DATA	
-A_add_B  . . . . . . . . . . . .	DWord	 000000D8 _DATA	
-A_add_C  . . . . . . . . . . . .	DWord	 000000E0 _DATA	
-A_sub_B  . . . . . . . . . . . .	DWord	 000000DC _DATA	
-A_sub_C  . . . . . . . . . . . .	DWord	 000000E4 _DATA	
-B_add_C  . . . . . . . . . . . .	DWord	 000000E8 _DATA	
-B_sub_C  . . . . . . . . . . . .	DWord	 000000EC _DATA	
+A_add_B_add_C  . . . . . . . . .	DWord	 00000113 _DATA	
+A_add_B  . . . . . . . . . . . .	DWord	 000000FB _DATA	
+A_add_C  . . . . . . . . . . . .	DWord	 00000103 _DATA	
+A_sub_B  . . . . . . . . . . . .	DWord	 000000FF _DATA	
+A_sub_C  . . . . . . . . . . . .	DWord	 00000107 _DATA	
+B_add_C  . . . . . . . . . . . .	DWord	 0000010B _DATA	
+B_sub_C  . . . . . . . . . . . .	DWord	 0000010F _DATA	
 CAPSLOCK_ON  . . . . . . . . . .	Number	 00000080h   
 CREATE_ALWAYS  . . . . . . . . .	Number	 00000002h   
 CREATE_NEW . . . . . . . . . . .	Number	 00000001h   
@@ -514,6 +542,7 @@ ENABLE_PROCESSED_OUTPUT  . . . .	Number	 00000001h
 ENABLE_WINDOW_INPUT  . . . . . .	Number	 00000008h   
 ENABLE_WRAP_AT_EOL_OUTPUT  . . .	Number	 00000002h   
 ENHANCED_KEY . . . . . . . . . .	Number	 00000100h   
+ExtraCredit  . . . . . . . . . .	Byte	 00000060 _DATA	
 FALSE  . . . . . . . . . . . . .	Number	 00000000h   
 FILE_APPEND_DATA . . . . . . . .	Number	 00000004h   
 FILE_ATTRIBUTE_ARCHIVE . . . . .	Number	 00000020h   
@@ -567,9 +596,9 @@ IDTIMEOUT  . . . . . . . . . . .	Number	 00007D00h
 IDTRYAGAIN . . . . . . . . . . .	Number	 0000000Ah   
 IDYES  . . . . . . . . . . . . .	Number	 00000006h   
 INVALID_HANDLE_VALUE . . . . . .	Number	 -00000001h   
-Int_A  . . . . . . . . . . . . .	DWord	 000000C0 _DATA	
-Int_B  . . . . . . . . . . . . .	DWord	 000000C4 _DATA	
-Int_C  . . . . . . . . . . . . .	DWord	 000000C8 _DATA	
+Int_A  . . . . . . . . . . . . .	DWord	 000000E3 _DATA	
+Int_B  . . . . . . . . . . . . .	DWord	 000000E7 _DATA	
+Int_C  . . . . . . . . . . . . .	DWord	 000000EB _DATA	
 Intro  . . . . . . . . . . . . .	Byte	 00000000 _DATA	
 KBDOWN_FLAG  . . . . . . . . . .	Number	 00000001h   
 KEY_EVENT  . . . . . . . . . . .	Number	 00000001h   
@@ -607,12 +636,12 @@ NULL . . . . . . . . . . . . . .	Number	 00000000h
 NUMLOCK_ON . . . . . . . . . . .	Number	 00000020h   
 OPEN_ALWAYS  . . . . . . . . . .	Number	 00000004h   
 OPEN_EXISTING  . . . . . . . . .	Number	 00000003h   
-Outro  . . . . . . . . . . . . .	Byte	 000000F4 _DATA	
+Outro  . . . . . . . . . . . . .	Byte	 0000013E _DATA	
 PeekConsoleInput . . . . . . . .	Text   	 PeekConsoleInputA
-Prompt_1 . . . . . . . . . . . .	Byte	 00000060 _DATA	
-Prompt_A . . . . . . . . . . . .	Byte	 00000092 _DATA	
-Prompt_B . . . . . . . . . . . .	Byte	 000000A1 _DATA	
-Prompt_C . . . . . . . . . . . .	Byte	 000000B1 _DATA	
+Prompt_1 . . . . . . . . . . . .	Byte	 0000008C _DATA	
+Prompt_A . . . . . . . . . . . .	Byte	 000000B5 _DATA	
+Prompt_B . . . . . . . . . . . .	Byte	 000000C4 _DATA	
+Prompt_C . . . . . . . . . . . .	Byte	 000000D4 _DATA	
 RIGHT_ALT_PRESSED  . . . . . . .	Number	 00000001h   
 RIGHT_CTRL_PRESSED . . . . . . .	Number	 00000004h   
 ReadConsoleInput . . . . . . . .	Text   	 ReadConsoleInputA
@@ -708,12 +737,12 @@ VK_UP  . . . . . . . . . . . . .	Number	 00000026h
 WINDOW_BUFFER_SIZE_EVENT . . . .	Number	 00000004h   
 WriteConsoleOutputCharacter  . .	Text   	 WriteConsoleOutputCharacterA
 WriteConsole . . . . . . . . . .	Text   	 WriteConsoleA
-add_symb . . . . . . . . . . . .	Byte	 000000CC _DATA	
+add_symb . . . . . . . . . . . .	Byte	 000000EF _DATA	
 black  . . . . . . . . . . . . .	Number	 00000000h   
 blue . . . . . . . . . . . . . .	Number	 00000001h   
 brown  . . . . . . . . . . . . .	Number	 00000006h   
 cyan . . . . . . . . . . . . . .	Number	 00000003h   
-equ_symb . . . . . . . . . . . .	Byte	 000000D4 _DATA	
+equ_symb . . . . . . . . . . . .	Byte	 000000F7 _DATA	
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
 gray . . . . . . . . . . . . . .	Number	 00000008h   
 green  . . . . . . . . . . . . .	Number	 00000002h   
@@ -724,11 +753,15 @@ lightGreen . . . . . . . . . . .	Number	 0000000Ah
 lightMagenta . . . . . . . . . .	Number	 0000000Dh   
 lightRed . . . . . . . . . . . .	Number	 0000000Ch   
 magenta  . . . . . . . . . . . .	Number	 00000005h   
+n  . . . . . . . . . . . . . . .	Byte	 0000013D _DATA	
+quitPrompt . . . . . . . . . . .	Byte	 00000117 _DATA	
 red  . . . . . . . . . . . . . .	Number	 00000004h   
-sub_symb . . . . . . . . . . . .	Byte	 000000D0 _DATA	
+sub_symb . . . . . . . . . . . .	Byte	 000000F3 _DATA	
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
 wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
+y_or_n . . . . . . . . . . . . .	DWord	 00000138 _DATA	
 yellow . . . . . . . . . . . . .	Number	 0000000Eh   
+y  . . . . . . . . . . . . . . .	Byte	 0000013C _DATA	
 
 	   0 Warnings
 	   0 Errors

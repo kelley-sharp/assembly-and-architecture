@@ -12,6 +12,7 @@ INCLUDE Irvine32.inc
 .data
 
 Intro BYTE "Hi, I'm Kelley and I'm here to show you some basic arithmetic based on the numbers you give me.", 0 
+ExtraCredit BYTE "**EC: Repeat until the user chooses to quit.", 0
 Prompt_1 BYTE "Enter three numbers in descending order.", 0
 Prompt_A BYTE "First number: ", 0
 Prompt_B BYTE "Second number: ", 0
@@ -29,6 +30,10 @@ A_sub_C DWORD ?     ; To be calculated
 B_add_C DWORD ?     ; To be calculated
 B_sub_C DWORD ?     ; To be calculated
 A_add_B_add_C DWORD ?     ; To be calculated
+quitPrompt BYTE "Would you like to try again? y/n", 0
+y_or_n DWORD ?
+y BYTE 121
+n BYTE 110
 Outro BYTE "Thanks for using my program, goodbye!", 0
 
 .code
@@ -38,63 +43,67 @@ main PROC
 mov EDX, OFFSET Intro
 call WriteString
 call CrLf
+mov EDX, OFFSET ExtraCredit
+call WriteString
 call CrLf
 
 ; Get data from the user
-mov EDX, OFFSET Prompt_1
-call WriteString
-call CrLf
+_startLoop:
+	call CrLf
+	mov EDX, OFFSET Prompt_1
+	call WriteString
+	call CrLf
 
-	;Get first number
-mov EDX, OFFSET Prompt_A
-call WriteString
-	; Pre-conditions of ReadDec: none
-call ReadDec
-	; Post-conditions of ReadDec: value is stored in EAX
-mov Int_A, EAX
+		;Get first number
+	mov EDX, OFFSET Prompt_A
+	call WriteString
+		; Pre-conditions of ReadDec: none
+	call ReadDec
+		; Post-conditions of ReadDec: value is stored in EAX
+	mov Int_A, EAX
 
-	;Get second number
-mov EDX, OFFSET Prompt_B
-call WriteString
-call ReadDec
-mov Int_B, EAX
+		;Get second number
+	mov EDX, OFFSET Prompt_B
+	call WriteString
+	call ReadDec
+	mov Int_B, EAX
 
-	;Get third number
-mov EDX, OFFSET Prompt_C
-call WriteString
-call ReadDec
-mov Int_C, EAX
-call CrLf
-call CrLf
+		;Get third number
+	mov EDX, OFFSET Prompt_C
+	call WriteString
+	call ReadDec
+	mov Int_C, EAX
+	call CrLf
+	call CrLf
 
 ; Calculate the required values
 	;A+B
 mov EAX, Int_A
-ADD EAX, Int_B
+add EAX, Int_B
 mov A_add_B, EAX
 	;A+B+C
 mov EBX, Int_C
-ADD EBX, A_add_B
+add EBX, A_add_B
 mov A_add_B_add_C, EBX
 	;A-B
 mov EAX, Int_A
-SUB EAX, Int_B
+sub EAX, Int_B
 mov A_sub_B, EAX
 	;A+C
 mov EAX, Int_A
-ADD EAX, Int_C
+add EAX, Int_C
 mov A_add_C, EAX
 	;A-C
 mov EAX, Int_A
-SUB EAX, Int_C
+sub EAX, Int_C
 mov A_sub_C, EAX
 	;B+C
 mov EAX, Int_B
-ADD EAX, Int_C
+add EAX, Int_C
 mov B_add_C, EAX
 	;B-C	
 mov EAX, Int_B
-SUB EAX, Int_C
+sub EAX, Int_C
 mov B_sub_C, EAX
 
 ; Display the results
@@ -188,10 +197,21 @@ call WriteDec
 call CrLf
 call CrLf
 
-; Say goodbye
-mov EDX, OFFSET Outro
+; End of program
+
+mov EDX, OFFSET quitPrompt
 call WriteString
-call CrLf
+call ReadChar
+cmp y, AL
+JE _startLoop
+cmp n, AL
+JE _goodBye
+
+_goodBye:
+	call CrLf
+	mov EDX, OFFSET Outro
+	call WriteString
+	call CrLf
 
 	Invoke ExitProcess,0	; exit to operating system
 main ENDP
