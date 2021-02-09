@@ -13,12 +13,12 @@ INCLUDE Irvine32.inc
 intro		BYTE "Hi, I'm Kelley. Welcome to the Integer Accumulation Game!", 0
 intro_2		BYTE "What is your name? ", 0
 rules_1     BYTE "Please enter a number in ranges [-200, -100] or [-50, -1].", 0
-rules_2		BYTE "Enter a non-negative number when you are finished to see results", 0
+rules_2		BYTE "Enter a non-negative number when you are finished to see results.", 0
 username	BYTE 33 DUP(0) ;string from user input
 hello       BYTE "Hello ", 0
 instruct	BYTE "Enter number: ", 0
 notify		BYTE "Number Invalid!", 0
-count		DWORD ?
+count		DWORD 0
 average		DWORD ?
 max			DWORD ?
 min 		DWORD ?
@@ -81,13 +81,25 @@ _LessThan100Signed:
 	JGE  _TallyNumber ; if the number is in between -200 and -100
 	JL  _NotifyUser ; if the number is less than -200
 
+; Do Computations
 _TallyNumber:
-	; Increment Count
+	; Increment Count 
+	INC count
 	; Compute min/max
+	cmp min, EAX
+	JL _UpdateMin
+	cmp max, EAX
+	JG _UpdateMax
 	; Sum
+	ADD sum, EAX
 	; Compute current Rounded Avg
+	DIV 
 	JMP _DisplayInstructions
 
+_UpdateMin:
+	mov min, EAX
+_UpdateMax:
+	mov max, EAX
 
 ; Notify the user of invalid negative numbers
 _NotifyUser:
@@ -96,10 +108,7 @@ _NotifyUser:
 	call CrLf
 	JMP _DisplayInstructions
 
-
-; Count and accumulate the valid user inputs
 _DisplayData:
-; Calculate the (rounded integer) average of the valid numbers
 ; Display count, sum, max, min, and average of the valid numbers 
 ; Say goodbye (with the user's name)
 
