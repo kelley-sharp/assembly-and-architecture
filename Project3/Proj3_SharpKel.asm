@@ -20,15 +20,17 @@ instruct	BYTE "Enter number: ", 0
 notify		BYTE "Number Invalid!", 0
 count		DWORD 0
 average		DWORD ?
-max			DWORD -201
-min 		DWORD 0
+max			DWORD -201 ; set max to below the lower bound
+min 		DWORD 0 ; set min to above the upper bound
 sum			DWORD ?
 val_nums1	BYTE "You entered ", 0
 val_nums2	BYTE " valid numbers.", 0
 max_msg		BYTE "The maximum valid number is ", 0
 min_msg		BYTE "The minimum valid number is ", 0
 sum_msg		BYTE "The sum of your valid numbers is ", 0
-ave_msg		BYTE "The rounded average is ", 0
+avg_msg		BYTE "The rounded average is ", 0
+remainder	DWORD 0
+half        DWORD 2
 
 
 .code
@@ -93,15 +95,39 @@ _TallyNumber:
 	INC count
 	; Sum
 	ADD sum, EAX
-	; Compute current Rounded Avg
-
+ 
 _UpdateMinMax:
 	; Compute min/max
 	cmp EAX, min
 	JL _UpdateMin
 	cmp EAX, max
 	JG _UpdateMax
-	; loop back to display instructions
+	JMP _CalculateAverage
+
+_CalculateAverage:
+	; Compute current rounded average
+
+	; First divide the sum by the count (integer division)
+	mov EAX, sum
+	CDQ
+	IDIV count
+	mov average, EAX
+
+	; Then, determine if we need to round up
+	; We round up if the remainder is greater than
+	;  half of the count
+	mov remainder, EDX
+	mov EAX, count
+	CDQ
+	IDIV half
+	NEG remainder
+	cmp remainder, EAX
+	JGE _RoundUp
+	JMP _DisplayInstructions
+
+; Rounding "up" is actually decrementing b/c negative
+_RoundUp:
+	DEC average
 	JMP _DisplayInstructions
 
 _UpdateMin:
@@ -149,7 +175,7 @@ _DisplayData:
 	call WriteInt
 	call CrLf
 	; display the rounded average
-	mov EDX, OFFSET ave_msg
+	mov EDX, OFFSET avg_msg
 	call WriteString
 	mov EAX, average
 	call WriteInt

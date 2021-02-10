@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/09/21 20:08:54
+Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/09/21 21:34:25
 <Data Validation, Looping, and Constants     (Proj3_SharpKel  Page 1 - 1
 
 
@@ -87,8 +87,8 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/09/21 20:08:54
 	   00
  00000112 00000000		count		DWORD 0
  00000116 00000000		average		DWORD ?
- 0000011A FFFFFF37		max			DWORD -201
- 0000011E 00000000		min 		DWORD 0
+ 0000011A FFFFFF37		max			DWORD -201 ; set max to below the lower bound
+ 0000011E 00000000		min 		DWORD 0 ; set min to above the upper bound
  00000122 00000000		sum			DWORD ?
  00000126 59 6F 75 20 65	val_nums1	BYTE "You entered ", 0
 	   6E 74 65 72 65
@@ -116,11 +116,13 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/09/21 20:08:54
 	   64 20 6E 75 6D
 	   62 65 72 73 20
 	   69 73 20 00
- 0000019F 54 68 65 20 72	ave_msg		BYTE "The rounded average is ", 0
+ 0000019F 54 68 65 20 72	avg_msg		BYTE "The rounded average is ", 0
 	   6F 75 6E 64 65
 	   64 20 61 76 65
 	   72 61 67 65 20
 	   69 73 20 00
+ 000001B7 00000000		remainder	DWORD 0
+ 000001BB 00000002		half        DWORD 2
 
 
  00000000			.code
@@ -163,102 +165,126 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/09/21 20:08:54
 
 				; Validate the user input
  00000078  83 F8 9C			cmp EAX, -100
- 0000007B  74 19			JE  _TallyNumber ; if the number is equal to -100
+ 0000007B  74 1D			JE  _TallyNumber ; if the number is equal to -100
  0000007D  7F 02			JG	_GreaterThan100Signed ; if the number is greater than -100
- 0000007F  7C 0C			JL  _LessThan100Signed ; if the number is less than -100
+ 0000007F  7C 10			JL  _LessThan100Signed ; if the number is less than -100
 
  00000081			_GreaterThan100Signed:
  00000081  83 F8 00			cmp EAX, 0 
- 00000084  7D 4D			JGE _DisplayData ; if the number is greater than or equal to zero
- 00000086  83 F8 CE			cmp EAX, -50
- 00000089  7D 0B			JGE  _TallyNumber ; if the number is between -50 and -1
- 0000008B  7C 35			JL  _NotifyUser ; if the number is also less than -50 (between -100 and -50)
+ 00000084  0F 8D 00000091		JGE _DisplayData ; if the number is greater than or equal to zero
+ 0000008A  83 F8 CE			cmp EAX, -50
+ 0000008D  7D 0B			JGE  _TallyNumber ; if the number is between -50 and -1
+ 0000008F  7C 76			JL  _NotifyUser ; if the number is also less than -50 (between -100 and -50)
 
- 0000008D			_LessThan100Signed:
- 0000008D  3D FFFFFF38			cmp EAX, -200
- 00000092  7D 02			JGE  _TallyNumber ; if the number is in between -200 and -100
- 00000094  7C 2C			JL  _NotifyUser ; if the number is less than -200
+ 00000091			_LessThan100Signed:
+ 00000091  3D FFFFFF38			cmp EAX, -200
+ 00000096  7D 02			JGE  _TallyNumber ; if the number is in between -200 and -100
+ 00000098  7C 6D			JL  _NotifyUser ; if the number is less than -200
 
 				; Do Computations
- 00000096			_TallyNumber:
+ 0000009A			_TallyNumber:
 					; Increment Count 
- 00000096  FF 05 00000112 R		INC count
+ 0000009A  FF 05 00000112 R		INC count
 					; Sum
- 0000009C  01 05 00000122 R		ADD sum, EAX
-					; Compute current Rounded Avg
-
- 000000A2			_UpdateMinMax:
+ 000000A0  01 05 00000122 R		ADD sum, EAX
+				 
+ 000000A6			_UpdateMinMax:
 					; Compute min/max
- 000000A2  3B 05 0000011E R		cmp EAX, min
- 000000A8  7C 0A			JL _UpdateMin
- 000000AA  3B 05 0000011A R		cmp EAX, max
- 000000B0  7F 09			JG _UpdateMax
-					; loop back to display instructions
- 000000B2  EB B5			JMP _DisplayInstructions
+ 000000A6  3B 05 0000011E R		cmp EAX, min
+ 000000AC  7C 4B			JL _UpdateMin
+ 000000AE  3B 05 0000011A R		cmp EAX, max
+ 000000B4  7F 4A			JG _UpdateMax
+ 000000B6  EB 00			JMP _CalculateAverage
 
- 000000B4			_UpdateMin:
- 000000B4  A3 0000011E R		mov min, EAX
- 000000B9  EB E7			JMP _UpdateMinMax
+ 000000B8			_CalculateAverage:
+					; Compute current rounded average
 
- 000000BB			_UpdateMax:
- 000000BB  A3 0000011A R		mov max, EAX
- 000000C0  EB E0			JMP _UpdateMinMax
+					; First divide the sum by the count (integer division)
+ 000000B8  A1 00000122 R		mov EAX, sum
+ 000000BD  99				CDQ
+ 000000BE  F7 3D 00000112 R		IDIV count
+ 000000C4  A3 00000116 R		mov average, EAX
+
+					; Then, determine if we need to round up
+					; We round up if the remainder is greater than
+					;  half of the count
+ 000000C9  89 15 000001B7 R		mov remainder, EDX
+ 000000CF  A1 00000112 R		mov EAX, count
+ 000000D4  99				CDQ
+ 000000D5  F7 3D 000001BB R		IDIV half
+ 000000DB  F7 1D 000001B7 R		NEG remainder
+ 000000E1  39 05 000001B7 R		cmp remainder, EAX
+ 000000E7  7D 05			JGE _RoundUp
+ 000000E9  E9 FFFFFF7B			JMP _DisplayInstructions
+
+				; Rounding "up" is actually decrementing b/c negative
+ 000000EE			_RoundUp:
+ 000000EE  FF 0D 00000116 R		DEC average
+ 000000F4  E9 FFFFFF70			JMP _DisplayInstructions
+
+ 000000F9			_UpdateMin:
+ 000000F9  A3 0000011E R		mov min, EAX
+ 000000FE  EB A6			JMP _UpdateMinMax
+
+ 00000100			_UpdateMax:
+ 00000100  A3 0000011A R		mov max, EAX
+ 00000105  EB 9F			JMP _UpdateMinMax
 
 
 				; Notify the user of invalid negative numbers
- 000000C2			_NotifyUser:
- 000000C2  BA 00000102 R		mov EDX, OFFSET notify
- 000000C7  E8 00000000 E		call WriteString
- 000000CC  E8 00000000 E		call CrLf
- 000000D1  EB 96			JMP _DisplayInstructions
+ 00000107			_NotifyUser:
+ 00000107  BA 00000102 R		mov EDX, OFFSET notify
+ 0000010C  E8 00000000 E		call WriteString
+ 00000111  E8 00000000 E		call CrLf
+ 00000116  E9 FFFFFF4E			JMP _DisplayInstructions
 
 				; Display data 
- 000000D3			_DisplayData:
+ 0000011B			_DisplayData:
 					; display the number of valid numbers entered
- 000000D3  BA 00000126 R		mov EDX, OFFSET val_nums1
- 000000D8  E8 00000000 E		call WriteString
- 000000DD  A1 00000112 R		mov EAX, count
- 000000E2  E8 00000000 E		call WriteDec
- 000000E7  BA 00000133 R		mov EDX, OFFSET val_nums2
- 000000EC  E8 00000000 E		call WriteString
- 000000F1  E8 00000000 E		call CrLf
+ 0000011B  BA 00000126 R		mov EDX, OFFSET val_nums1
+ 00000120  E8 00000000 E		call WriteString
+ 00000125  A1 00000112 R		mov EAX, count
+ 0000012A  E8 00000000 E		call WriteDec
+ 0000012F  BA 00000133 R		mov EDX, OFFSET val_nums2
+ 00000134  E8 00000000 E		call WriteString
+ 00000139  E8 00000000 E		call CrLf
 					; display the max 
- 000000F6  BA 00000143 R		mov EDX, OFFSET max_msg
- 000000FB  E8 00000000 E		call WriteString
- 00000100  A1 0000011A R		mov EAX, max
- 00000105  E8 00000000 E		call WriteInt
- 0000010A  E8 00000000 E		call CrLf
+ 0000013E  BA 00000143 R		mov EDX, OFFSET max_msg
+ 00000143  E8 00000000 E		call WriteString
+ 00000148  A1 0000011A R		mov EAX, max
+ 0000014D  E8 00000000 E		call WriteInt
+ 00000152  E8 00000000 E		call CrLf
 					; display the min
- 0000010F  BA 00000160 R		mov EDX, OFFSET min_msg
- 00000114  E8 00000000 E		call WriteString
- 00000119  A1 0000011E R		mov EAX, min
- 0000011E  E8 00000000 E		call WriteInt
- 00000123  E8 00000000 E		call CrLf	
+ 00000157  BA 00000160 R		mov EDX, OFFSET min_msg
+ 0000015C  E8 00000000 E		call WriteString
+ 00000161  A1 0000011E R		mov EAX, min
+ 00000166  E8 00000000 E		call WriteInt
+ 0000016B  E8 00000000 E		call CrLf	
 					; display the sum
- 00000128  BA 0000017D R		mov EDX, OFFSET sum_msg
- 0000012D  E8 00000000 E		call WriteString
- 00000132  A1 00000122 R		mov EAX, sum
- 00000137  E8 00000000 E		call WriteInt
- 0000013C  E8 00000000 E		call CrLf
+ 00000170  BA 0000017D R		mov EDX, OFFSET sum_msg
+ 00000175  E8 00000000 E		call WriteString
+ 0000017A  A1 00000122 R		mov EAX, sum
+ 0000017F  E8 00000000 E		call WriteInt
+ 00000184  E8 00000000 E		call CrLf
 					; display the rounded average
- 00000141  BA 0000019F R		mov EDX, OFFSET ave_msg
- 00000146  E8 00000000 E		call WriteString
- 0000014B  A1 00000116 R		mov EAX, average
- 00000150  E8 00000000 E		call WriteInt
- 00000155  E8 00000000 E		call CrLf
+ 00000189  BA 0000019F R		mov EDX, OFFSET avg_msg
+ 0000018E  E8 00000000 E		call WriteString
+ 00000193  A1 00000116 R		mov EAX, average
+ 00000198  E8 00000000 E		call WriteInt
+ 0000019D  E8 00000000 E		call CrLf
 
 
 				; Say goodbye (with the user's name)
 
 					Invoke ExitProcess,0	; exit to operating system
- 0000015A  6A 00	   *	    push   +000000000h
- 0000015C  E8 00000000 E   *	    call   ExitProcess
- 00000161			main ENDP
+ 000001A2  6A 00	   *	    push   +000000000h
+ 000001A4  E8 00000000 E   *	    call   ExitProcess
+ 000001A9			main ENDP
 
 				; (insert additional procedures here)
 
 				END main
-Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/09/21 20:08:54
+Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/09/21 21:34:25
 <Data Validation, Looping, and Constants     (Proj3_SharpKel  Symbols 2 - 1
 
 
@@ -352,8 +378,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 000001B7 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000161 Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 000001BF Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 000001A9 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -460,16 +486,18 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000161 Public STDCALL
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 000001A9 Public STDCALL
   _DisplayInstructions . . . . .	L Near	 00000069 _TEXT	
   _GreaterThan100Signed  . . . .	L Near	 00000081 _TEXT	
-  _LessThan100Signed . . . . . .	L Near	 0000008D _TEXT	
-  _TallyNumber . . . . . . . . .	L Near	 00000096 _TEXT	
-  _UpdateMinMax  . . . . . . . .	L Near	 000000A2 _TEXT	
-  _UpdateMin . . . . . . . . . .	L Near	 000000B4 _TEXT	
-  _UpdateMax . . . . . . . . . .	L Near	 000000BB _TEXT	
-  _NotifyUser  . . . . . . . . .	L Near	 000000C2 _TEXT	
-  _DisplayData . . . . . . . . .	L Near	 000000D3 _TEXT	
+  _LessThan100Signed . . . . . .	L Near	 00000091 _TEXT	
+  _TallyNumber . . . . . . . . .	L Near	 0000009A _TEXT	
+  _UpdateMinMax  . . . . . . . .	L Near	 000000A6 _TEXT	
+  _CalculateAverage  . . . . . .	L Near	 000000B8 _TEXT	
+  _RoundUp . . . . . . . . . . .	L Near	 000000EE _TEXT	
+  _UpdateMin . . . . . . . . . .	L Near	 000000F9 _TEXT	
+  _UpdateMax . . . . . . . . . .	L Near	 00000100 _TEXT	
+  _NotifyUser  . . . . . . . . .	L Near	 00000107 _TEXT	
+  _DisplayData . . . . . . . . .	L Near	 0000011B _TEXT	
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
@@ -688,8 +716,8 @@ VK_UP  . . . . . . . . . . . . .	Number	 00000026h
 WINDOW_BUFFER_SIZE_EVENT . . . .	Number	 00000004h   
 WriteConsoleOutputCharacter  . .	Text   	 WriteConsoleOutputCharacterA
 WriteConsole . . . . . . . . . .	Text   	 WriteConsoleA
-ave_msg  . . . . . . . . . . . .	Byte	 0000019F _DATA	
 average  . . . . . . . . . . . .	DWord	 00000116 _DATA	
+avg_msg  . . . . . . . . . . . .	Byte	 0000019F _DATA	
 black  . . . . . . . . . . . . .	Number	 00000000h   
 blue . . . . . . . . . . . . . .	Number	 00000001h   
 brown  . . . . . . . . . . . . .	Number	 00000006h   
@@ -698,6 +726,7 @@ cyan . . . . . . . . . . . . . .	Number	 00000003h
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
 gray . . . . . . . . . . . . . .	Number	 00000008h   
 green  . . . . . . . . . . . . .	Number	 00000002h   
+half . . . . . . . . . . . . . .	DWord	 000001BB _DATA	
 hello  . . . . . . . . . . . . .	Byte	 000000EC _DATA	
 instruct . . . . . . . . . . . .	Byte	 000000F3 _DATA	
 intro_2  . . . . . . . . . . . .	Byte	 0000003A _DATA	
@@ -715,6 +744,7 @@ min_msg  . . . . . . . . . . . .	Byte	 00000160 _DATA
 min  . . . . . . . . . . . . . .	DWord	 0000011E _DATA	
 notify . . . . . . . . . . . . .	Byte	 00000102 _DATA	
 red  . . . . . . . . . . . . . .	Number	 00000004h   
+remainder  . . . . . . . . . . .	DWord	 000001B7 _DATA	
 rules_1  . . . . . . . . . . . .	Byte	 0000004E _DATA	
 rules_2  . . . . . . . . . . . .	Byte	 00000089 _DATA	
 sum_msg  . . . . . . . . . . . .	Byte	 0000017D _DATA	
