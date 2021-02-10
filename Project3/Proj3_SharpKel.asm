@@ -20,9 +20,15 @@ instruct	BYTE "Enter number: ", 0
 notify		BYTE "Number Invalid!", 0
 count		DWORD 0
 average		DWORD ?
-max			DWORD ?
-min 		DWORD ?
+max			DWORD -201
+min 		DWORD 0
 sum			DWORD ?
+val_nums1	BYTE "You entered ", 0
+val_nums2	BYTE " valid numbers.", 0
+max_msg		BYTE "The maximum valid number is ", 0
+min_msg		BYTE "The minimum valid number is ", 0
+sum_msg		BYTE "The sum of your valid numbers is ", 0
+ave_msg		BYTE "The rounded average is ", 0
 
 
 .code
@@ -85,21 +91,27 @@ _LessThan100Signed:
 _TallyNumber:
 	; Increment Count 
 	INC count
-	; Compute min/max
-	cmp min, EAX
-	JL _UpdateMin
-	cmp max, EAX
-	JG _UpdateMax
 	; Sum
 	ADD sum, EAX
 	; Compute current Rounded Avg
-	DIV 
+
+_UpdateMinMax:
+	; Compute min/max
+	cmp EAX, min
+	JL _UpdateMin
+	cmp EAX, max
+	JG _UpdateMax
+	; loop back to display instructions
 	JMP _DisplayInstructions
 
 _UpdateMin:
 	mov min, EAX
+	JMP _UpdateMinMax
+
 _UpdateMax:
 	mov max, EAX
+	JMP _UpdateMinMax
+
 
 ; Notify the user of invalid negative numbers
 _NotifyUser:
@@ -108,8 +120,42 @@ _NotifyUser:
 	call CrLf
 	JMP _DisplayInstructions
 
+; Display data 
 _DisplayData:
-; Display count, sum, max, min, and average of the valid numbers 
+	; display the number of valid numbers entered
+	mov EDX, OFFSET val_nums1
+	call WriteString
+	mov EAX, count
+	call WriteDec
+	mov EDX, OFFSET val_nums2
+	call WriteString
+	call CrLf
+	; display the max 
+	mov EDX, OFFSET max_msg
+	call WriteString
+	mov EAX, max
+	call WriteInt
+	call CrLf
+	; display the min
+	mov EDX, OFFSET min_msg
+	call WriteString
+	mov EAX, min
+	call WriteInt
+	call CrLf	
+	; display the sum
+	mov EDX, OFFSET sum_msg
+	call WriteString
+	mov EAX, sum
+	call WriteInt
+	call CrLf
+	; display the rounded average
+	mov EDX, OFFSET ave_msg
+	call WriteString
+	mov EAX, average
+	call WriteInt
+	call CrLf
+
+
 ; Say goodbye (with the user's name)
 
 	Invoke ExitProcess,0	; exit to operating system
