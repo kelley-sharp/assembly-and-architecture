@@ -24,6 +24,9 @@ rules_1     BYTE "I'll show you between ", LOWER_T," and ", UPPER_T," prime numb
 rules_2		BYTE "Please enter the number of primes you'd like to see.", 0
 notify		BYTE "I can't fulfill that request. Your number is outside my range.", 0
 
+; numerical variables
+number		DWORD ?
+
 ; Summary & Conclusion Strings
 goodbye		BYTE "I hope you've enjoyed your prime time. Goodbye!", 0
 
@@ -56,9 +59,47 @@ introduction PROC
 	mov EDX, OFFSET rules_2
 	call WriteString
 	call CrLf
-	call farewell
 
 introduction ENDP
+
+; ---------------------------------------------------------------------------------
+; Name: getUserData
+;
+; Takes user input and validates it
+;
+; Preconditions: The input number is type DWORD.
+;
+; Postconditions: Changes register EAX.
+;
+; Receives: None
+;
+; Returns: The valid number of primes the user has requested.
+;
+; ---------------------------------------------------------------------------------
+getUserData PROC
+	call ReadInt
+	call validate
+getUserData ENDP
+; ---------------------------------------------------------------------------------
+; Name: validate
+;
+; Subprocedure of getUserData. If the user input is a number between 1 and 200,
+;  that number is stored in the global "number" variable.
+; ---------------------------------------------------------------------------------
+validate PROC
+	CMP EAX, LOWER
+	JL _NotifyUser ; If number is less than 1
+	CMP EAX, UPPER
+	JG _NotifyUser ; If number is greater than 200
+	mov number, EAX
+	_NotifyUser:
+	mov EDX, OFFSET notify 
+	call WriteString
+validate ENDP
+
+
+		
+
 
 ; ---------------------------------------------------------------------------------
 ; Name: farewell

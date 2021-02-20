@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/18/21 22:39:17
+Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/19/21 21:21:16
 4Nested Loops and Procedures     (Proj4_SharpKel.asm	     Page 1 - 1
 
 
@@ -86,8 +86,11 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/18/21 22:39:17
 	   20 72 61 6E 67
 	   65 2E 00
 
+				; numerical variables
+ 000000DA 00000000		number		DWORD ?
+
 				; Summary & Conclusion Strings
- 000000DA 49 20 68 6F 70	goodbye		BYTE "I hope you've enjoyed your prime time. Goodbye!", 0
+ 000000DE 49 20 68 6F 70	goodbye		BYTE "I hope you've enjoyed your prime time. Goodbye!", 0
 	   65 20 79 6F 75
 	   27 76 65 20 65
 	   6E 6A 6F 79 65
@@ -129,24 +132,62 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/18/21 22:39:17
  0000002A  BA 00000066 R		mov EDX, OFFSET rules_2
  0000002F  E8 00000000 E		call WriteString
  00000034  E8 00000000 E		call CrLf
- 00000039  E8 00000000			call farewell
 
- 0000003E			introduction ENDP
+ 00000039			introduction ENDP
+
+				; ---------------------------------------------------------------------------------
+				; Name: getUserData
+				;
+				; Takes user input and validates it
+				;
+				; Preconditions: The input number is type DWORD.
+				;
+				; Postconditions: Changes register EAX.
+				;
+				; Receives: None
+				;
+				; Returns: The valid number of primes the user has requested.
+				;
+				; ---------------------------------------------------------------------------------
+ 00000039			getUserData PROC
+ 00000039  E8 00000000 E		call ReadInt
+ 0000003E  E8 00000000			call validate
+ 00000043			getUserData ENDP
+				; ---------------------------------------------------------------------------------
+				; Name: validate
+				;
+				; Subprocedure of getUserData. If the user input is a number between 1 and 200,
+				;  that number is stored in the global "number" variable.
+				; ---------------------------------------------------------------------------------
+ 00000043			validate PROC
+ 00000043  83 F8 01			CMP EAX, LOWER
+ 00000046  7C 0C			JL _NotifyUser ; If number is less than 1
+ 00000048  3D 000000C8			CMP EAX, UPPER
+ 0000004D  7F 05			JG _NotifyUser ; If number is greater than 200
+ 0000004F  A3 000000DA R		mov number, EAX
+ 00000054				_NotifyUser:
+ 00000054  BA 0000009B R		mov EDX, OFFSET notify 
+ 00000059  E8 00000000 E		call WriteString
+ 0000005E			validate ENDP
+
+
+						
+
 
 				; ---------------------------------------------------------------------------------
 				; Name: farewell
 				;
 				; Displays parting message with a goodbye
 				; ---------------------------------------------------------------------------------	
- 0000003E			farewell PROC
+ 0000005E			farewell PROC
 
- 0000003E  BA 000000DA R		mov EDX, OFFSET goodbye
- 00000043  E8 00000000 E		call CrLf
+ 0000005E  BA 000000DE R		mov EDX, OFFSET goodbye
+ 00000063  E8 00000000 E		call CrLf
 
- 00000048			farewell ENDP
+ 00000068			farewell ENDP
 
 				END main
-Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/18/21 22:39:17
+Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/19/21 21:21:16
 4Nested Loops and Procedures     (Proj4_SharpKel.asm	     Symbols 2 - 1
 
 
@@ -240,8 +281,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 0000010A Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000048 Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 0000010E Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00000068 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -348,11 +389,14 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-farewell . . . . . . . . . . . .	P Near	 0000003E _TEXT	Length= 0000000A Public STDCALL
-introduction . . . . . . . . . .	P Near	 0000000C _TEXT	Length= 00000032 Public STDCALL
+farewell . . . . . . . . . . . .	P Near	 0000005E _TEXT	Length= 0000000A Public STDCALL
+getUserData  . . . . . . . . . .	P Near	 00000039 _TEXT	Length= 0000000A Public STDCALL
+introduction . . . . . . . . . .	P Near	 0000000C _TEXT	Length= 0000002D Public STDCALL
 main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 0000000C Public STDCALL
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
+validate . . . . . . . . . . . .	P Near	 00000043 _TEXT	Length= 0000001B Public STDCALL
+  _NotifyUser  . . . . . . . . .	L Near	 00000054 _TEXT	
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 
 
@@ -578,7 +622,7 @@ blue . . . . . . . . . . . . . .	Number	 00000001h
 brown  . . . . . . . . . . . . .	Number	 00000006h   
 cyan . . . . . . . . . . . . . .	Number	 00000003h   
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
-goodbye  . . . . . . . . . . . .	Byte	 000000DA _DATA	
+goodbye  . . . . . . . . . . . .	Byte	 000000DE _DATA	
 gray . . . . . . . . . . . . . .	Number	 00000008h   
 green  . . . . . . . . . . . . .	Number	 00000002h   
 intro  . . . . . . . . . . . . .	Byte	 00000000 _DATA	
@@ -590,6 +634,7 @@ lightMagenta . . . . . . . . . .	Number	 0000000Dh
 lightRed . . . . . . . . . . . .	Number	 0000000Ch   
 magenta  . . . . . . . . . . . .	Number	 00000005h   
 notify . . . . . . . . . . . . .	Byte	 0000009B _DATA	
+number . . . . . . . . . . . . .	DWord	 000000DA _DATA	
 red  . . . . . . . . . . . . . .	Number	 00000004h   
 rules_1  . . . . . . . . . . . .	Byte	 00000037 _DATA	
 rules_2  . . . . . . . . . . . .	Byte	 00000066 _DATA	
