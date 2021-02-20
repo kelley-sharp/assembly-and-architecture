@@ -11,11 +11,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="Proj3_SharpKel.asm" />
     <MASM Include="Proj4_SharpKel.asm" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Irvine32.inc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="irvine\Irvine32.lib" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{4164AA65-1EF9-4E69-899B-D1BED776070B}</ProjectGuid>

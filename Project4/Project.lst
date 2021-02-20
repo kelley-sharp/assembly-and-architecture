@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/19/21 21:21:16
+Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/19/21 21:45:46
 4Nested Loops and Procedures     (Proj4_SharpKel.asm	     Page 1 - 1
 
 
@@ -31,6 +31,7 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/19/21 21:21:16
 			      C .NOLIST
 			      C .LIST
 			      C 
+				ExitProcess proto, dwExitCode:dword
 
  00000000			.data
 				; Constants with text-equivalents for easier string interpolation
@@ -147,7 +148,6 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/19/21 21:21:16
 				; Receives: None
 				;
 				; Returns: The valid number of primes the user has requested.
-				;
 				; ---------------------------------------------------------------------------------
  00000039			getUserData PROC
  00000039  E8 00000000 E		call ReadInt
@@ -161,33 +161,30 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/19/21 21:21:16
 				; ---------------------------------------------------------------------------------
  00000043			validate PROC
  00000043  83 F8 01			CMP EAX, LOWER
- 00000046  7C 0C			JL _NotifyUser ; If number is less than 1
+ 00000046  7C 0D			JL _NotifyUser ; If number is less than 1
  00000048  3D 000000C8			CMP EAX, UPPER
- 0000004D  7F 05			JG _NotifyUser ; If number is greater than 200
+ 0000004D  7F 06			JG _NotifyUser ; If number is greater than 200
  0000004F  A3 000000DA R		mov number, EAX
- 00000054				_NotifyUser:
- 00000054  BA 0000009B R		mov EDX, OFFSET notify 
- 00000059  E8 00000000 E		call WriteString
- 0000005E			validate ENDP
-
-
-						
-
-
+ 00000054  C3				RET
+ 00000055				_NotifyUser:
+ 00000055  BA 0000009B R		mov EDX, OFFSET notify 
+ 0000005A  E8 00000000 E		call WriteString
+ 0000005F  E8 00000000 E		call CrLf
+ 00000064			validate ENDP
 				; ---------------------------------------------------------------------------------
 				; Name: farewell
 				;
 				; Displays parting message with a goodbye
 				; ---------------------------------------------------------------------------------	
- 0000005E			farewell PROC
+ 00000064			farewell PROC
 
- 0000005E  BA 000000DE R		mov EDX, OFFSET goodbye
- 00000063  E8 00000000 E		call CrLf
+ 00000064  BA 000000DE R		mov EDX, OFFSET goodbye
+ 00000069  E8 00000000 E		call CrLf
 
- 00000068			farewell ENDP
+ 0000006E			farewell ENDP
 
 				END main
-Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/19/21 21:21:16
+Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/19/21 21:45:46
 4Nested Loops and Procedures     (Proj4_SharpKel.asm	     Symbols 2 - 1
 
 
@@ -282,7 +279,7 @@ Segments and Groups:
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
 _DATA  . . . . . . . . . . . . .	32 Bit	 0000010E Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000068 Para	  Public  'CODE'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 0000006E Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -389,14 +386,14 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-farewell . . . . . . . . . . . .	P Near	 0000005E _TEXT	Length= 0000000A Public STDCALL
+farewell . . . . . . . . . . . .	P Near	 00000064 _TEXT	Length= 0000000A Public STDCALL
 getUserData  . . . . . . . . . .	P Near	 00000039 _TEXT	Length= 0000000A Public STDCALL
 introduction . . . . . . . . . .	P Near	 0000000C _TEXT	Length= 0000002D Public STDCALL
 main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 0000000C Public STDCALL
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
-validate . . . . . . . . . . . .	P Near	 00000043 _TEXT	Length= 0000001B Public STDCALL
-  _NotifyUser  . . . . . . . . .	L Near	 00000054 _TEXT	
+validate . . . . . . . . . . . .	P Near	 00000043 _TEXT	Length= 00000021 Public STDCALL
+  _NotifyUser  . . . . . . . . .	L Near	 00000055 _TEXT	
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 
 

@@ -10,6 +10,7 @@ TITLE Nested Loops and Procedures     (Proj4_SharpKel.asm)
 ;	If user enters a valid number, that number of primes will be printed starting with "2". 
 
 INCLUDE Irvine32.inc
+ExitProcess proto, dwExitCode:dword
 
 .data
 ; Constants with text-equivalents for easier string interpolation
@@ -74,7 +75,6 @@ introduction ENDP
 ; Receives: None
 ;
 ; Returns: The valid number of primes the user has requested.
-;
 ; ---------------------------------------------------------------------------------
 getUserData PROC
 	call ReadInt
@@ -92,15 +92,12 @@ validate PROC
 	CMP EAX, UPPER
 	JG _NotifyUser ; If number is greater than 200
 	mov number, EAX
+	RET
 	_NotifyUser:
 	mov EDX, OFFSET notify 
 	call WriteString
+	call CrLf
 validate ENDP
-
-
-		
-
-
 ; ---------------------------------------------------------------------------------
 ; Name: farewell
 ;
