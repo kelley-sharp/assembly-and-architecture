@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/21/21 23:13:35
+Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/21/21 23:30:36
 4Nested Loops and Procedures     (Proj4_SharpKel.asm	     Page 1 - 1
 
 
@@ -34,7 +34,7 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/21/21 23:13:35
 				ExitProcess proto, dwExitCode:dword
 
  00000000			.data
-				; Constants with text-equivalents for easier string interpolation
+				; Global Constants (with text-equivalents for easier string interpolation)
  = 00000001			LOWER    EQU 1
  = "1"				LOWER_T  EQU <"1"> 
  = 000000C8			UPPER	 EQU 200
@@ -91,8 +91,8 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/21/21 23:13:35
 
 				; numerical variables
  000000E1 00000000		numberOfPrimes		DWORD ?  ; what the user will input
- 000000E5 00000002		currentNum          DWORD 2  ; for storing prime candidates
- 000000E9 00000002		currentDivisor		DWORD 2  ; for checking whether the current candidate is prime
+ 000000E5 00000002		currentNum          DWORD 2  ; for storing prime candidates. Start from 2 since 1 is not prime.
+ 000000E9 00000002		currentDivisor		DWORD 2  ; for checking whether the currentNum is prime. Divide starting from 2.
  000000ED 00000000		numberPrintedSoFar  DWORD 0  ; ensuring we only print 10 per line
 
 				; variables for formatting the primes (with extra credit column alignment)
@@ -119,7 +119,7 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/21/21 23:13:35
  00000000  E8 00000016			CALL introduction
  00000005  E8 00000030			CALL getUserData
  0000000A  E8 00000075			CALL showPrimes
- 0000000F  E8 00000154			CALL farewell	
+ 0000000F  E8 0000014E			CALL farewell	
 
 					Invoke ExitProcess, 0
  00000014  6A 00	   *	    push   +000000000h
@@ -208,10 +208,10 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/21/21 23:13:35
 				; Returns: Nothing (void)
 				; ---------------------------------------------------------------------------------
  00000084			showPrimes PROC
- 00000084  8B 0D 000000E1 R		MOV ECX, numberOfPrimes  ; loop this many times
- 0000008A  C7 05 000000E5 R		MOV currentNum, 2  ; 1 is not prime by definition, so start counting from 2
+ 00000084  E8 00000000 E		CALL CrLf
+ 00000089  C7 05 000000E5 R		MOV currentNum, 2  ; start from 2 b/c 1 is not defined as prime
 	   00000002
- 00000094  E8 00000000 E		CALL CrLf
+ 00000093  8B 0D 000000E1 R		MOV ECX, numberOfPrimes  ; loop this many times
  00000099				_enumeratePrimesUpToNumberOfPrimes:
  00000099  51					PUSH ECX  ; Preserve outer loop counter
  0000009A  E8 00000009				CALL isPrime
@@ -225,118 +225,118 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/21/21 23:13:35
 				; ---------------------------------------------------------------------------------
 				; Name: isPrime
 				;
-				; Subprocedure of showPrimes, this one computes whether the current number is prime or not.
+				; Subprocedure of showPrimes, this computes whether the current number is prime or not.
 				; If the current number isn't a prime, it increments until it finds a prime. Then it prints 
 				; and returns control to the outer loop
 				; ---------------------------------------------------------------------------------
  000000A8			isPrime PROC
 				    
- 000000A8  8B 0D 000000E5 R		MOV ECX, currentNum
- 000000AE  C7 05 000000E9 R		MOV currentDivisor, 2  ; primes are divisible by 1, so start testing divisors from 2
+ 000000A8  C7 05 000000E9 R		MOV currentDivisor, 2  ; primes are divisible by 1, so start testing divisors from 2
 	   00000002
- 000000B8				_findNextPrime:
+ 000000B2				_findNextPrime:
 						; break condition - if we made it to where currentDivisor == currentNum, then it's prime
- 000000B8  A1 000000E9 R			mov EAX, currentDivisor
- 000000BD  3B 05 000000E5 R			CMP EAX, currentNum  
- 000000C3  74 2B				JE _isPrime  
+ 000000B2  A1 000000E9 R			mov EAX, currentDivisor
+ 000000B7  3B 05 000000E5 R			CMP EAX, currentNum  
+ 000000BD  74 2B				JE _isPrime  
 
 						; if the current number divides cleanly by something other than 1 or itself it's not a prime
- 000000C5  A1 000000E5 R			MOV EAX, currentNum
- 000000CA  99					CDQ
- 000000CB  F7 35 000000E9 R			DIV currentDivisor
- 000000D1  83 FA 00				CMP EDX, 0
- 000000D4  74 08				JE _isNotPrime
+ 000000BF  A1 000000E5 R			MOV EAX, currentNum
+ 000000C4  99					CDQ
+ 000000C5  F7 35 000000E9 R			DIV currentDivisor
+ 000000CB  83 FA 00				CMP EDX, 0
+ 000000CE  74 08				JE _isNotPrime
 
 						; this continues this "while" loop
- 000000D6  FF 05 000000E9 R			INC currentDivisor
- 000000DC  EB DA				JMP _findNextPrime
+ 000000D0  FF 05 000000E9 R			INC currentDivisor
+ 000000D6  EB DA				JMP _findNextPrime
 
- 000000DE				_isNotPrime:
+ 000000D8				_isNotPrime:
 						; this ensures we skip over non-prime numbers
- 000000DE  FF 05 000000E5 R		    INC currentNum
- 000000E4  C7 05 000000E9 R			MOV currentDivisor, 2  ; reset divisor
+ 000000D8  FF 05 000000E5 R		    INC currentNum
+ 000000DE  C7 05 000000E9 R			MOV currentDivisor, 2  ; reset divisor
 	   00000002
- 000000EE  EB C8				JMP _findNextPrime
+ 000000E8  EB C8				JMP _findNextPrime
 					
- 000000F0				_isPrime:
+ 000000EA				_isPrime:
 						; when we've found a prime, we can print it and conclude this iteration of the outer loop
- 000000F0  E8 00000007				CALL printPrime	
- 000000F5  FF 05 000000E5 R			INC currentNum
- 000000FB  C3					RET
+ 000000EA  E8 00000007				CALL printPrime	
+ 000000EF  FF 05 000000E5 R			INC currentNum
+ 000000F5  C3					RET
 						
- 000000FC			isPrime ENDP
+ 000000F6			isPrime ENDP
 
 				; ---------------------------------------------------------------------------------
 				; Name: printPrime
 				;
-				; Subprocedure of isPrime. This is specifically for formatting the primes in a column
+				; Subprocedure of isPrime. This is specifically for formatting the primes in a
+				; column, with the correct number printed per line.
 				; ---------------------------------------------------------------------------------
- 000000FC			printPrime PROC
+ 000000F6			printPrime PROC
 
- 000000FC  A1 000000E5 R		MOV EAX, currentNum
- 00000101  E8 00000000 E		CALL WriteDec
- 00000106  BA 000000F1 R		MOV EDX, OFFSET spacer
- 0000010B  E8 00000000 E		CALL WriteString
+ 000000F6  A1 000000E5 R		MOV EAX, currentNum
+ 000000FB  E8 00000000 E		CALL WriteDec
+ 00000100  BA 000000F1 R		MOV EDX, OFFSET spacer
+ 00000105  E8 00000000 E		CALL WriteString
 
 					 ; extra credit - align the output columns
- 00000110  83 F8 0A			CMP EAX, 10    
- 00000113  7C 0E			JL  _addDigitSpacers
- 00000115  83 F8 64			CMP EAX, 100
- 00000118  7C 15			JL _addDoubleDigitSpacers
- 0000011A  3D 000003E8			CMP EAX, 1000
- 0000011F  7C 1A			JL _addTripleDigitSpacers
+ 0000010A  83 F8 0A			CMP EAX, 10    
+ 0000010D  7C 0E			JL  _addDigitSpacers
+ 0000010F  83 F8 64			CMP EAX, 100
+ 00000112  7C 15			JL _addDoubleDigitSpacers
+ 00000114  3D 000003E8			CMP EAX, 1000
+ 00000119  7C 1A			JL _addTripleDigitSpacers
 
- 00000121  EB 24			JMP _determineNewLine
+ 0000011B  EB 24			JMP _determineNewLine
 
- 00000123				_addDigitSpacers:
- 00000123  BA 000000F5 R			MOV EDX, OFFSET digitSpacer
- 00000128  E8 00000000 E			CALL WriteString
- 0000012D  EB 18				JMP _determineNewLine
+ 0000011D				_addDigitSpacers:
+ 0000011D  BA 000000F5 R			MOV EDX, OFFSET digitSpacer
+ 00000122  E8 00000000 E			CALL WriteString
+ 00000127  EB 18				JMP _determineNewLine
 
- 0000012F				_addDoubleDigitSpacers:
- 0000012F  BA 000000F9 R			MOV EDX, OFFSET doubleDigitSpacer
- 00000134  E8 00000000 E			CALL WriteString
- 00000139  EB 0C				JMP _determineNewLine
+ 00000129				_addDoubleDigitSpacers:
+ 00000129  BA 000000F9 R			MOV EDX, OFFSET doubleDigitSpacer
+ 0000012E  E8 00000000 E			CALL WriteString
+ 00000133  EB 0C				JMP _determineNewLine
 
- 0000013B				_addTripleDigitSpacers:
- 0000013B  BA 000000FC R			MOV EDX, OFFSET tripleDigitSpacer
- 00000140  E8 00000000 E			CALL WriteString
- 00000145  EB 00				JMP _determineNewLine
+ 00000135				_addTripleDigitSpacers:
+ 00000135  BA 000000FC R			MOV EDX, OFFSET tripleDigitSpacer
+ 0000013A  E8 00000000 E			CALL WriteString
+ 0000013F  EB 00				JMP _determineNewLine
 
- 00000147				_determineNewLine:
+ 00000141				_determineNewLine:
 						; ensure we only print 10 primes per line
- 00000147  FF 05 000000ED R			INC numberPrintedSoFar
- 0000014D  A1 000000ED R			MOV EAX, numberPrintedSoFar
- 00000152  83 F8 0A				CMP EAX, PER_LINE    
- 00000155  74 01				JE _addNewLine
- 00000157  C3					RET
+ 00000141  FF 05 000000ED R			INC numberPrintedSoFar
+ 00000147  A1 000000ED R			MOV EAX, numberPrintedSoFar
+ 0000014C  83 F8 0A				CMP EAX, PER_LINE    
+ 0000014F  74 01				JE _addNewLine
+ 00000151  C3					RET
 
- 00000158				_addNewLine:
- 00000158  E8 00000000 E			CALL CrLf
- 0000015D  C7 05 000000ED R			MOV numberPrintedSoFar, 0
+ 00000152				_addNewLine:
+ 00000152  E8 00000000 E			CALL CrLf
+ 00000157  C7 05 000000ED R			MOV numberPrintedSoFar, 0
 	   00000000
- 00000167  C3					RET
+ 00000161  C3					RET
 
- 00000168			printPrime ENDP
+ 00000162			printPrime ENDP
 
 				; ---------------------------------------------------------------------------------
 				; Name: farewell
 				;
 				; Displays parting message with a goodbye
 				; ---------------------------------------------------------------------------------	
- 00000168			farewell PROC
+ 00000162			farewell PROC
 
- 00000168  E8 00000000 E		CALL CrLf
- 0000016D  BA 000000FE R		MOV EDX, OFFSET goodbye
- 00000172  E8 00000000 E		CALL WriteString
- 00000177  E8 00000000 E		CALL CrLf
+ 00000162  E8 00000000 E		CALL CrLf
+ 00000167  BA 000000FE R		MOV EDX, OFFSET goodbye
+ 0000016C  E8 00000000 E		CALL WriteString
+ 00000171  E8 00000000 E		CALL CrLf
 
- 0000017C  C3				RET
+ 00000176  C3				RET
 
- 0000017D			farewell ENDP
+ 00000177			farewell ENDP
 
 				END main
-Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/21/21 23:13:35
+Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/21/21 23:30:36
 4Nested Loops and Procedures     (Proj4_SharpKel.asm	     Symbols 2 - 1
 
 
@@ -431,7 +431,7 @@ Segments and Groups:
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
 _DATA  . . . . . . . . . . . . .	32 Bit	 0000012E Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 0000017D Para	  Public  'CODE'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00000177 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -538,20 +538,20 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-farewell . . . . . . . . . . . .	P Near	 00000168 _TEXT	Length= 00000015 Public STDCALL
+farewell . . . . . . . . . . . .	P Near	 00000162 _TEXT	Length= 00000015 Public STDCALL
 getUserData  . . . . . . . . . .	P Near	 0000003A _TEXT	Length= 0000001F Public STDCALL
 introduction . . . . . . . . . .	P Near	 0000001B _TEXT	Length= 0000001F Public STDCALL
-isPrime  . . . . . . . . . . . .	P Near	 000000A8 _TEXT	Length= 00000054 Public STDCALL
-  _findNextPrime . . . . . . . .	L Near	 000000B8 _TEXT	
-  _isNotPrime  . . . . . . . . .	L Near	 000000DE _TEXT	
-  _isPrime . . . . . . . . . . .	L Near	 000000F0 _TEXT	
+isPrime  . . . . . . . . . . . .	P Near	 000000A8 _TEXT	Length= 0000004E Public STDCALL
+  _findNextPrime . . . . . . . .	L Near	 000000B2 _TEXT	
+  _isNotPrime  . . . . . . . . .	L Near	 000000D8 _TEXT	
+  _isPrime . . . . . . . . . . .	L Near	 000000EA _TEXT	
 main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 0000001B Public STDCALL
-printPrime . . . . . . . . . . .	P Near	 000000FC _TEXT	Length= 0000006C Public STDCALL
-  _addDigitSpacers . . . . . . .	L Near	 00000123 _TEXT	
-  _addDoubleDigitSpacers . . . .	L Near	 0000012F _TEXT	
-  _addTripleDigitSpacers . . . .	L Near	 0000013B _TEXT	
-  _determineNewLine  . . . . . .	L Near	 00000147 _TEXT	
-  _addNewLine  . . . . . . . . .	L Near	 00000158 _TEXT	
+printPrime . . . . . . . . . . .	P Near	 000000F6 _TEXT	Length= 0000006C Public STDCALL
+  _addDigitSpacers . . . . . . .	L Near	 0000011D _TEXT	
+  _addDoubleDigitSpacers . . . .	L Near	 00000129 _TEXT	
+  _addTripleDigitSpacers . . . .	L Near	 00000135 _TEXT	
+  _determineNewLine  . . . . . .	L Near	 00000141 _TEXT	
+  _addNewLine  . . . . . . . . .	L Near	 00000152 _TEXT	
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 showPrimes . . . . . . . . . . .	P Near	 00000084 _TEXT	Length= 00000024 Public STDCALL

@@ -132,9 +132,9 @@ validate ENDP
 ; Returns: Nothing (void)
 ; ---------------------------------------------------------------------------------
 showPrimes PROC
-	MOV ECX, numberOfPrimes  ; loop this many times
-	MOV currentNum, 2  ; 1 is not prime by definition, so start counting from 2
 	CALL CrLf
+	MOV currentNum, 2  ; start from 2 b/c 1 is not defined as prime
+	MOV ECX, numberOfPrimes  ; loop this many times
 	_enumeratePrimesUpToNumberOfPrimes:
 		PUSH ECX  ; Preserve outer loop counter
 		CALL isPrime
@@ -154,7 +154,6 @@ showPrimes ENDP
 ; ---------------------------------------------------------------------------------
 isPrime PROC
     
-	MOV ECX, currentNum
 	MOV currentDivisor, 2  ; primes are divisible by 1, so start testing divisors from 2
 	_findNextPrime:
 		; break condition - if we made it to where currentDivisor == currentNum, then it's prime
