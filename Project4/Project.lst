@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/21/21 23:30:36
+Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/21/21 23:50:32
 4Nested Loops and Procedures     (Proj4_SharpKel.asm	     Page 1 - 1
 
 
@@ -11,7 +11,9 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/21/21 23:30:36
 				; Project Number: 04                 Due Date: 2/21/2021
 				; Description: Program prompts user to enter number of prime numbers they would like to see (between 1 and 200 prime numbers).
 				;	If user enters an invalid number, notifies them of the number being out of range.
-				;	If user enters a valid number, that number of primes will be printed starting with "2". 
+				;	If user enters a valid number, that number of primes will be printed starting with "2".
+				;   The program will print up to 10 primes per line (the final line can have less than 10).
+				;   (Extra Credit) Also the prime numbers are aligned into columns.
 
 				INCLUDE Irvine32.inc
 			      C ; Include file for Irvine32.lib             (Irvine32.inc)
@@ -53,7 +55,14 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/21/21 23:30:36
 	   62 65 72 20 47
 	   65 6E 65 72 61
 	   74 6F 72 21 00
- 00000037 49 20 63 61 6E	rules		BYTE "I can show you between ", LOWER_T," and ", UPPER_T," prime numbers.", 0
+ 00000037 2A 2A 45 43 3A	eCred		BYTE "**EC: Align the output columns", 0
+	   20 41 6C 69 67
+	   6E 20 74 68 65
+	   20 6F 75 74 70
+	   75 74 20 63 6F
+	   6C 75 6D 6E 73
+	   00
+ 00000056 49 20 63 61 6E	rules		BYTE "I can show you between ", LOWER_T," and ", UPPER_T," prime numbers.", 0
 	   20 73 68 6F 77
 	   20 79 6F 75 20
 	   62 65 74 77 65
@@ -63,7 +72,7 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/21/21 23:30:36
 	   69 6D 65 20 6E
 	   75 6D 62 65 72
 	   73 2E 00
- 00000067 50 6C 65 61 73	prompt		BYTE "Please enter the # of primes you'd like to see [", LOWER_T, "...", UPPER_T, "]: ", 0
+ 00000086 50 6C 65 61 73	prompt		BYTE "Please enter the # of primes you'd like to see [", LOWER_T, "...", UPPER_T, "]: ", 0
 	   65 20 65 6E 74
 	   65 72 20 74 68
 	   65 20 23 20 6F
@@ -75,7 +84,7 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/21/21 23:30:36
 	   65 20 5B 31 2E
 	   2E 2E 32 30 30
 	   5D 3A 20 00
- 000000A2 49 20 63 61 6E	invalid_n	BYTE "I can't fulfill that request. Your number is outside my range.", 0
+ 000000C1 49 20 63 61 6E	invalid_n	BYTE "I can't fulfill that request. Your number is outside my range.", 0
 	   27 74 20 66 75
 	   6C 66 69 6C 6C
 	   20 74 68 61 74
@@ -90,19 +99,19 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/21/21 23:30:36
 	   65 2E 00
 
 				; numerical variables
- 000000E1 00000000		numberOfPrimes		DWORD ?  ; what the user will input
- 000000E5 00000002		currentNum          DWORD 2  ; for storing prime candidates. Start from 2 since 1 is not prime.
- 000000E9 00000002		currentDivisor		DWORD 2  ; for checking whether the currentNum is prime. Divide starting from 2.
- 000000ED 00000000		numberPrintedSoFar  DWORD 0  ; ensuring we only print 10 per line
+ 00000100 00000000		numberOfPrimes		DWORD ?  ; what the user will input
+ 00000104 00000002		currentNum          DWORD 2  ; for storing prime candidates. Start from 2 since 1 is not prime.
+ 00000108 00000002		currentDivisor		DWORD 2  ; for checking whether the currentNum is prime. Divide starting from 2.
+ 0000010C 00000000		numberPrintedSoFar  DWORD 0  ; ensuring we only print 10 per line
 
 				; variables for formatting the primes (with extra credit column alignment)
- 000000F1 20 20 20 00		spacer				BYTE "   ", 0
- 000000F5 20 20 20 00		digitSpacer			BYTE "   ", 0 ; single digits need this much padding, e.g. "1   "
- 000000F9 20 20 00		doubleDigitSpacer	BYTE "  ", 0  ; same as above for double digits, e.g.	   "10  "
- 000000FC 20 00			tripleDigitSpacer   BYTE " ", 0   ; same as above for triple digits, e.g.      "100 "
+ 00000110 20 20 20 00		spacer				BYTE "   ", 0
+ 00000114 20 20 20 00		digitSpacer			BYTE "   ", 0 ; single digits need this much padding, e.g. "1   "
+ 00000118 20 20 00		doubleDigitSpacer	BYTE "  ", 0  ; same as above for double digits, e.g.	   "10  "
+ 0000011B 20 00			tripleDigitSpacer   BYTE " ", 0   ; same as above for triple digits, e.g.      "100 "
 
 				; Summary & Conclusion Strings
- 000000FE 49 20 68 6F 70	goodbye		BYTE "I hope you've enjoyed your prime time. Goodbye!", 0
+ 0000011D 49 20 68 6F 70	goodbye		BYTE "I hope you've enjoyed your prime time. Goodbye!", 0
 	   65 20 79 6F 75
 	   27 76 65 20 65
 	   6E 6A 6F 79 65
@@ -117,9 +126,9 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/21/21 23:30:36
  00000000			main PROC
 
  00000000  E8 00000016			CALL introduction
- 00000005  E8 00000030			CALL getUserData
- 0000000A  E8 00000075			CALL showPrimes
- 0000000F  E8 0000014E			CALL farewell	
+ 00000005  E8 0000003F			CALL getUserData
+ 0000000A  E8 00000084			CALL showPrimes
+ 0000000F  E8 0000015D			CALL farewell	
 
 					Invoke ExitProcess, 0
  00000014  6A 00	   *	    push   +000000000h
@@ -137,14 +146,19 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/21/21 23:30:36
  00000020  E8 00000000 E		CALL WriteString
  00000025  E8 00000000 E		CALL CrLf
 
-				; Display objective
- 0000002A  BA 00000037 R		MOV EDX, OFFSET rules
+				; Display extra credit statement
+ 0000002A  BA 00000037 R		MOV EDX, OFFSET eCred
  0000002F  E8 00000000 E		CALL WriteString
  00000034  E8 00000000 E		CALL CrLf
 
- 00000039  C3				RET
+				; Display objective
+ 00000039  BA 00000056 R		MOV EDX, OFFSET rules
+ 0000003E  E8 00000000 E		CALL WriteString
+ 00000043  E8 00000000 E		CALL CrLf
 
- 0000003A			introduction ENDP
+ 00000048  C3				RET
+
+ 00000049			introduction ENDP
 
 				; ---------------------------------------------------------------------------------
 				; Name: getUserData
@@ -159,17 +173,18 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/21/21 23:30:36
 				;
 				; Returns: Nothing (void)
 				; ---------------------------------------------------------------------------------
- 0000003A			getUserData PROC
+ 00000049			getUserData PROC
 					; prompt the user for input
- 0000003A  E8 00000000 E		CALL CrLf
- 0000003F  BA 00000067 R		MOV EDX, OFFSET prompt
- 00000044  E8 00000000 E		CALL WriteString
- 00000049  E8 00000000 E		CALL ReadInt
+ 00000049  E8 00000000 E		CALL CrLf
+ 0000004E  BA 00000086 R		MOV EDX, OFFSET prompt
+ 00000053  E8 00000000 E		CALL WriteString
+ 00000058  E8 00000000 E		CALL ReadInt
+
 					; validate input
- 0000004E  A3 000000E1 R		MOV numberOfPrimes, EAX
- 00000053  E8 00000001			CALL validate
- 00000058  C3				RET
- 00000059			getUserData ENDP
+ 0000005D  A3 00000100 R		MOV numberOfPrimes, EAX
+ 00000062  E8 00000001			CALL validate
+ 00000067  C3				RET
+ 00000068			getUserData ENDP
 
 				; ---------------------------------------------------------------------------------
 				; Name: validate
@@ -178,28 +193,29 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/21/21 23:30:36
 				;   that numberOfPrimes is stored in the global "numberOfPrimes" variable, otherwise the user is
 				;	prompted to enter a valid numberOfPrimes.
 				; ---------------------------------------------------------------------------------
- 00000059			validate PROC
- 00000059  83 3D 000000E1 R		CMP numberOfPrimes, LOWER
+ 00000068			validate PROC
+ 00000068  83 3D 00000100 R		CMP numberOfPrimes, LOWER
 	   01
- 00000060  7C 0D			JL _NotifyUser ; If numberOfPrimes is less than 1
- 00000062  81 3D 000000E1 R		CMP numberOfPrimes, UPPER
+ 0000006F  7C 0D			JL _NotifyUser ; If numberOfPrimes is less than 1
+ 00000071  81 3D 00000100 R		CMP numberOfPrimes, UPPER
 	   000000C8
- 0000006C  7F 01			JG _NotifyUser ; If numberOfPrimes is greater than 200
- 0000006E  C3				RET
- 0000006F				_NotifyUser:
- 0000006F  BA 000000A2 R			MOV EDX, OFFSET invalid_n ; says "out of range"
- 00000074  E8 00000000 E			CALL WriteString
- 00000079  E8 00000000 E			CALL CrLf
- 0000007E  E8 FFFFFFB7				CALL getUserData
- 00000083  C3					RET
- 00000084			validate ENDP
+ 0000007B  7F 01			JG _NotifyUser ; If numberOfPrimes is greater than 200
+ 0000007D  C3				RET
+
+ 0000007E				_NotifyUser:
+ 0000007E  BA 000000C1 R			MOV EDX, OFFSET invalid_n ; says "out of range"
+ 00000083  E8 00000000 E			CALL WriteString
+ 00000088  E8 00000000 E			CALL CrLf
+ 0000008D  E8 FFFFFFB7				CALL getUserData
+ 00000092  C3					RET
+ 00000093			validate ENDP
 
 				; ---------------------------------------------------------------------------------
 				; Name: showPrimes
 				;
 				; Takes a valid numberOfPrimes, calculates that many prime numbers, and displays them to user.
 				;
-				; Preconditions: The input numberOfPrimes is type DWORD.
+				; Preconditions: The global variable numberOfPrimes is type DWORD.
 				;
 				; Postconditions: Changes registers EAX (division, comparisons), ECX (loop counter, division), EDX (division, printing) 
 				;
@@ -207,20 +223,22 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/21/21 23:30:36
 				;
 				; Returns: Nothing (void)
 				; ---------------------------------------------------------------------------------
- 00000084			showPrimes PROC
- 00000084  E8 00000000 E		CALL CrLf
- 00000089  C7 05 000000E5 R		MOV currentNum, 2  ; start from 2 b/c 1 is not defined as prime
+ 00000093			showPrimes PROC
+ 00000093  E8 00000000 E		CALL CrLf
+ 00000098  C7 05 00000104 R		MOV currentNum, 2  ; start from 2 b/c 1 is not defined as prime
 	   00000002
- 00000093  8B 0D 000000E1 R		MOV ECX, numberOfPrimes  ; loop this many times
- 00000099				_enumeratePrimesUpToNumberOfPrimes:
- 00000099  51					PUSH ECX  ; Preserve outer loop counter
- 0000009A  E8 00000009				CALL isPrime
- 0000009F  59					POP ECX   ; Restore outer loop counter
- 000000A0  E2 F7				LOOP _enumeratePrimesUpToNumberOfPrimes
- 000000A2  E8 00000000 E		CALL CrLf
- 000000A7  C3				RET
+
+ 000000A2  8B 0D 00000100 R		MOV ECX, numberOfPrimes  ; loop this many times
+ 000000A8				_enumeratePrimesUpToNumberOfPrimes:
+ 000000A8  51					PUSH ECX  ; Preserve outer loop counter
+ 000000A9  E8 00000009				CALL isPrime
+ 000000AE  59					POP ECX   ; Restore outer loop counter
+ 000000AF  E2 F7				LOOP _enumeratePrimesUpToNumberOfPrimes
+
+ 000000B1  E8 00000000 E		CALL CrLf
+ 000000B6  C3				RET
 					
- 000000A8			showPrimes ENDP
+ 000000B7			showPrimes ENDP
 
 				; ---------------------------------------------------------------------------------
 				; Name: isPrime
@@ -228,115 +246,133 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/21/21 23:30:36
 				; Subprocedure of showPrimes, this computes whether the current number is prime or not.
 				; If the current number isn't a prime, it increments until it finds a prime. Then it prints 
 				; and returns control to the outer loop
+				;
+				; Preconditions: The global variables currentNum and currentDivisor are of type DWORD
+				;
+				; Postconditions: Changes registers EAX (division, comparisons), ECX (division), EDX (division, printing),
+				;                 global variables currentDivisor, currentNum
+				;
+				; Receives: None
+				;
+				; Returns: Nothing (void)
 				; ---------------------------------------------------------------------------------
- 000000A8			isPrime PROC
+ 000000B7			isPrime PROC
 				    
- 000000A8  C7 05 000000E9 R		MOV currentDivisor, 2  ; primes are divisible by 1, so start testing divisors from 2
+ 000000B7  C7 05 00000108 R		MOV currentDivisor, 2  ; primes are divisible by 1, so start testing divisors from 2
 	   00000002
- 000000B2				_findNextPrime:
+ 000000C1				_findNextPrime:
 						; break condition - if we made it to where currentDivisor == currentNum, then it's prime
- 000000B2  A1 000000E9 R			mov EAX, currentDivisor
- 000000B7  3B 05 000000E5 R			CMP EAX, currentNum  
- 000000BD  74 2B				JE _isPrime  
+ 000000C1  A1 00000108 R			mov EAX, currentDivisor
+ 000000C6  3B 05 00000104 R			CMP EAX, currentNum  
+ 000000CC  74 2B				JE _isPrime  
 
 						; if the current number divides cleanly by something other than 1 or itself it's not a prime
- 000000BF  A1 000000E5 R			MOV EAX, currentNum
- 000000C4  99					CDQ
- 000000C5  F7 35 000000E9 R			DIV currentDivisor
- 000000CB  83 FA 00				CMP EDX, 0
- 000000CE  74 08				JE _isNotPrime
+ 000000CE  A1 00000104 R			MOV EAX, currentNum
+ 000000D3  99					CDQ
+ 000000D4  F7 35 00000108 R			DIV currentDivisor
+ 000000DA  83 FA 00				CMP EDX, 0
+ 000000DD  74 08				JE _isNotPrime
 
 						; this continues this "while" loop
- 000000D0  FF 05 000000E9 R			INC currentDivisor
- 000000D6  EB DA				JMP _findNextPrime
+ 000000DF  FF 05 00000108 R			INC currentDivisor
+ 000000E5  EB DA				JMP _findNextPrime
 
- 000000D8				_isNotPrime:
+ 000000E7				_isNotPrime:
 						; this ensures we skip over non-prime numbers
- 000000D8  FF 05 000000E5 R		    INC currentNum
- 000000DE  C7 05 000000E9 R			MOV currentDivisor, 2  ; reset divisor
+ 000000E7  FF 05 00000104 R		    INC currentNum
+ 000000ED  C7 05 00000108 R			MOV currentDivisor, 2  ; reset divisor
 	   00000002
- 000000E8  EB C8				JMP _findNextPrime
+ 000000F7  EB C8				JMP _findNextPrime
 					
- 000000EA				_isPrime:
+ 000000F9				_isPrime:
 						; when we've found a prime, we can print it and conclude this iteration of the outer loop
- 000000EA  E8 00000007				CALL printPrime	
- 000000EF  FF 05 000000E5 R			INC currentNum
- 000000F5  C3					RET
+ 000000F9  E8 00000007				CALL printPrime	
+ 000000FE  FF 05 00000104 R			INC currentNum
+ 00000104  C3					RET
 						
- 000000F6			isPrime ENDP
+ 00000105			isPrime ENDP
 
 				; ---------------------------------------------------------------------------------
 				; Name: printPrime
 				;
 				; Subprocedure of isPrime. This is specifically for formatting the primes in a
 				; column, with the correct number printed per line.
+				;
+				; Preconditions: The global variables currentNum is of type DWORD; the other global variables are byte strings
+				;
+				; Postconditions: Changes registers EAX (comparisons), EDX (printing), global variable numberPrintedSoFar
+				;
+				; Receives: None
+				;
+				; Returns: Nothing (void)
 				; ---------------------------------------------------------------------------------
- 000000F6			printPrime PROC
+ 00000105			printPrime PROC
 
- 000000F6  A1 000000E5 R		MOV EAX, currentNum
- 000000FB  E8 00000000 E		CALL WriteDec
- 00000100  BA 000000F1 R		MOV EDX, OFFSET spacer
- 00000105  E8 00000000 E		CALL WriteString
+					; print the number itself with minimum spacing applied
+ 00000105  A1 00000104 R		MOV EAX, currentNum
+ 0000010A  E8 00000000 E		CALL WriteDec
+ 0000010F  BA 00000110 R		MOV EDX, OFFSET spacer
+ 00000114  E8 00000000 E		CALL WriteString
 
-					 ; extra credit - align the output columns
- 0000010A  83 F8 0A			CMP EAX, 10    
- 0000010D  7C 0E			JL  _addDigitSpacers
- 0000010F  83 F8 64			CMP EAX, 100
- 00000112  7C 15			JL _addDoubleDigitSpacers
- 00000114  3D 000003E8			CMP EAX, 1000
- 00000119  7C 1A			JL _addTripleDigitSpacers
+					; extra credit - align the output columns by applying extra spacing
+ 00000119  83 F8 0A			CMP EAX, 10    
+ 0000011C  7C 0E			JL  _addDigitSpacers
+ 0000011E  83 F8 64			CMP EAX, 100
+ 00000121  7C 15			JL _addDoubleDigitSpacers
+ 00000123  3D 000003E8			CMP EAX, 1000
+ 00000128  7C 1A			JL _addTripleDigitSpacers
 
- 0000011B  EB 24			JMP _determineNewLine
+ 0000012A  EB 24			JMP _determineNewLine
 
- 0000011D				_addDigitSpacers:
- 0000011D  BA 000000F5 R			MOV EDX, OFFSET digitSpacer
- 00000122  E8 00000000 E			CALL WriteString
- 00000127  EB 18				JMP _determineNewLine
+ 0000012C				_addDigitSpacers:
+ 0000012C  BA 00000114 R			MOV EDX, OFFSET digitSpacer
+ 00000131  E8 00000000 E			CALL WriteString
+ 00000136  EB 18				JMP _determineNewLine
 
- 00000129				_addDoubleDigitSpacers:
- 00000129  BA 000000F9 R			MOV EDX, OFFSET doubleDigitSpacer
- 0000012E  E8 00000000 E			CALL WriteString
- 00000133  EB 0C				JMP _determineNewLine
+ 00000138				_addDoubleDigitSpacers:
+ 00000138  BA 00000118 R			MOV EDX, OFFSET doubleDigitSpacer
+ 0000013D  E8 00000000 E			CALL WriteString
+ 00000142  EB 0C				JMP _determineNewLine
 
- 00000135				_addTripleDigitSpacers:
- 00000135  BA 000000FC R			MOV EDX, OFFSET tripleDigitSpacer
- 0000013A  E8 00000000 E			CALL WriteString
- 0000013F  EB 00				JMP _determineNewLine
+ 00000144				_addTripleDigitSpacers:
+ 00000144  BA 0000011B R			MOV EDX, OFFSET tripleDigitSpacer
+ 00000149  E8 00000000 E			CALL WriteString
+ 0000014E  EB 00				JMP _determineNewLine
 
- 00000141				_determineNewLine:
+ 00000150				_determineNewLine:
 						; ensure we only print 10 primes per line
- 00000141  FF 05 000000ED R			INC numberPrintedSoFar
- 00000147  A1 000000ED R			MOV EAX, numberPrintedSoFar
- 0000014C  83 F8 0A				CMP EAX, PER_LINE    
- 0000014F  74 01				JE _addNewLine
- 00000151  C3					RET
+ 00000150  FF 05 0000010C R			INC numberPrintedSoFar
+ 00000156  A1 0000010C R			MOV EAX, numberPrintedSoFar
+ 0000015B  83 F8 0A				CMP EAX, PER_LINE    
+ 0000015E  74 01				JE _addNewLine
+ 00000160  C3					RET
 
- 00000152				_addNewLine:
- 00000152  E8 00000000 E			CALL CrLf
- 00000157  C7 05 000000ED R			MOV numberPrintedSoFar, 0
+ 00000161				_addNewLine:
+ 00000161  E8 00000000 E			CALL CrLf
+ 00000166  C7 05 0000010C R			MOV numberPrintedSoFar, 0
 	   00000000
- 00000161  C3					RET
+ 00000170  C3					RET
 
- 00000162			printPrime ENDP
+ 00000171			printPrime ENDP
 
 				; ---------------------------------------------------------------------------------
 				; Name: farewell
 				;
 				; Displays parting message with a goodbye
 				; ---------------------------------------------------------------------------------	
- 00000162			farewell PROC
+ 00000171			farewell PROC
 
- 00000162  E8 00000000 E		CALL CrLf
- 00000167  BA 000000FE R		MOV EDX, OFFSET goodbye
- 0000016C  E8 00000000 E		CALL WriteString
  00000171  E8 00000000 E		CALL CrLf
+ 00000176  BA 0000011D R		MOV EDX, OFFSET goodbye
+ 0000017B  E8 00000000 E		CALL WriteString
+ 00000180  E8 00000000 E		CALL CrLf
 
- 00000176  C3				RET
+ 00000185  C3				RET
 
- 00000177			farewell ENDP
+ 00000186			farewell ENDP
 
 				END main
-Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/21/21 23:30:36
+Microsoft (R) Macro Assembler Version 14.28.29335.0	    02/21/21 23:50:32
 4Nested Loops and Procedures     (Proj4_SharpKel.asm	     Symbols 2 - 1
 
 
@@ -430,8 +466,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 0000012E Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000177 Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 0000014D Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00000186 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -538,26 +574,26 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-farewell . . . . . . . . . . . .	P Near	 00000162 _TEXT	Length= 00000015 Public STDCALL
-getUserData  . . . . . . . . . .	P Near	 0000003A _TEXT	Length= 0000001F Public STDCALL
-introduction . . . . . . . . . .	P Near	 0000001B _TEXT	Length= 0000001F Public STDCALL
-isPrime  . . . . . . . . . . . .	P Near	 000000A8 _TEXT	Length= 0000004E Public STDCALL
-  _findNextPrime . . . . . . . .	L Near	 000000B2 _TEXT	
-  _isNotPrime  . . . . . . . . .	L Near	 000000D8 _TEXT	
-  _isPrime . . . . . . . . . . .	L Near	 000000EA _TEXT	
+farewell . . . . . . . . . . . .	P Near	 00000171 _TEXT	Length= 00000015 Public STDCALL
+getUserData  . . . . . . . . . .	P Near	 00000049 _TEXT	Length= 0000001F Public STDCALL
+introduction . . . . . . . . . .	P Near	 0000001B _TEXT	Length= 0000002E Public STDCALL
+isPrime  . . . . . . . . . . . .	P Near	 000000B7 _TEXT	Length= 0000004E Public STDCALL
+  _findNextPrime . . . . . . . .	L Near	 000000C1 _TEXT	
+  _isNotPrime  . . . . . . . . .	L Near	 000000E7 _TEXT	
+  _isPrime . . . . . . . . . . .	L Near	 000000F9 _TEXT	
 main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 0000001B Public STDCALL
-printPrime . . . . . . . . . . .	P Near	 000000F6 _TEXT	Length= 0000006C Public STDCALL
-  _addDigitSpacers . . . . . . .	L Near	 0000011D _TEXT	
-  _addDoubleDigitSpacers . . . .	L Near	 00000129 _TEXT	
-  _addTripleDigitSpacers . . . .	L Near	 00000135 _TEXT	
-  _determineNewLine  . . . . . .	L Near	 00000141 _TEXT	
-  _addNewLine  . . . . . . . . .	L Near	 00000152 _TEXT	
+printPrime . . . . . . . . . . .	P Near	 00000105 _TEXT	Length= 0000006C Public STDCALL
+  _addDigitSpacers . . . . . . .	L Near	 0000012C _TEXT	
+  _addDoubleDigitSpacers . . . .	L Near	 00000138 _TEXT	
+  _addTripleDigitSpacers . . . .	L Near	 00000144 _TEXT	
+  _determineNewLine  . . . . . .	L Near	 00000150 _TEXT	
+  _addNewLine  . . . . . . . . .	L Near	 00000161 _TEXT	
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
-showPrimes . . . . . . . . . . .	P Near	 00000084 _TEXT	Length= 00000024 Public STDCALL
-  _enumeratePrimesUpToNumberOfPrimes .	L Near	 00000099 _TEXT	
-validate . . . . . . . . . . . .	P Near	 00000059 _TEXT	Length= 0000002B Public STDCALL
-  _NotifyUser  . . . . . . . . .	L Near	 0000006F _TEXT	
+showPrimes . . . . . . . . . . .	P Near	 00000093 _TEXT	Length= 00000024 Public STDCALL
+  _enumeratePrimesUpToNumberOfPrimes .	L Near	 000000A8 _TEXT	
+validate . . . . . . . . . . . .	P Near	 00000068 _TEXT	Length= 0000002B Public STDCALL
+  _NotifyUser  . . . . . . . . .	L Near	 0000007E _TEXT	
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 
 
@@ -782,17 +818,18 @@ WriteConsole . . . . . . . . . .	Text   	 WriteConsoleA
 black  . . . . . . . . . . . . .	Number	 00000000h   
 blue . . . . . . . . . . . . . .	Number	 00000001h   
 brown  . . . . . . . . . . . . .	Number	 00000006h   
-currentDivisor . . . . . . . . .	DWord	 000000E9 _DATA	
-currentNum . . . . . . . . . . .	DWord	 000000E5 _DATA	
+currentDivisor . . . . . . . . .	DWord	 00000108 _DATA	
+currentNum . . . . . . . . . . .	DWord	 00000104 _DATA	
 cyan . . . . . . . . . . . . . .	Number	 00000003h   
-digitSpacer  . . . . . . . . . .	Byte	 000000F5 _DATA	
-doubleDigitSpacer  . . . . . . .	Byte	 000000F9 _DATA	
+digitSpacer  . . . . . . . . . .	Byte	 00000114 _DATA	
+doubleDigitSpacer  . . . . . . .	Byte	 00000118 _DATA	
+eCred  . . . . . . . . . . . . .	Byte	 00000037 _DATA	
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
-goodbye  . . . . . . . . . . . .	Byte	 000000FE _DATA	
+goodbye  . . . . . . . . . . . .	Byte	 0000011D _DATA	
 gray . . . . . . . . . . . . . .	Number	 00000008h   
 green  . . . . . . . . . . . . .	Number	 00000002h   
 intro  . . . . . . . . . . . . .	Byte	 00000000 _DATA	
-invalid_n  . . . . . . . . . . .	Byte	 000000A2 _DATA	
+invalid_n  . . . . . . . . . . .	Byte	 000000C1 _DATA	
 lightBlue  . . . . . . . . . . .	Number	 00000009h   
 lightCyan  . . . . . . . . . . .	Number	 0000000Bh   
 lightGray  . . . . . . . . . . .	Number	 00000007h   
@@ -800,13 +837,13 @@ lightGreen . . . . . . . . . . .	Number	 0000000Ah
 lightMagenta . . . . . . . . . .	Number	 0000000Dh   
 lightRed . . . . . . . . . . . .	Number	 0000000Ch   
 magenta  . . . . . . . . . . . .	Number	 00000005h   
-numberOfPrimes . . . . . . . . .	DWord	 000000E1 _DATA	
-numberPrintedSoFar . . . . . . .	DWord	 000000ED _DATA	
-prompt . . . . . . . . . . . . .	Byte	 00000067 _DATA	
+numberOfPrimes . . . . . . . . .	DWord	 00000100 _DATA	
+numberPrintedSoFar . . . . . . .	DWord	 0000010C _DATA	
+prompt . . . . . . . . . . . . .	Byte	 00000086 _DATA	
 red  . . . . . . . . . . . . . .	Number	 00000004h   
-rules  . . . . . . . . . . . . .	Byte	 00000037 _DATA	
-spacer . . . . . . . . . . . . .	Byte	 000000F1 _DATA	
-tripleDigitSpacer  . . . . . . .	Byte	 000000FC _DATA	
+rules  . . . . . . . . . . . . .	Byte	 00000056 _DATA	
+spacer . . . . . . . . . . . . .	Byte	 00000110 _DATA	
+tripleDigitSpacer  . . . . . . .	Byte	 0000011B _DATA	
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
 wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
 yellow . . . . . . . . . . . . .	Number	 0000000Eh   

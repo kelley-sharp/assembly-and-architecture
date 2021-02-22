@@ -7,7 +7,9 @@ TITLE Nested Loops and Procedures     (Proj4_SharpKel.asm)
 ; Project Number: 04                 Due Date: 2/21/2021
 ; Description: Program prompts user to enter number of prime numbers they would like to see (between 1 and 200 prime numbers).
 ;	If user enters an invalid number, notifies them of the number being out of range.
-;	If user enters a valid number, that number of primes will be printed starting with "2". 
+;	If user enters a valid number, that number of primes will be printed starting with "2".
+;   The program will print up to 10 primes per line (the final line can have less than 10).
+;   (Extra Credit) Also the prime numbers are aligned into columns.
 
 INCLUDE Irvine32.inc
 ExitProcess proto, dwExitCode:dword
@@ -22,6 +24,7 @@ PER_LINE EQU 10
 
 ; Intro & Prompt Strings
 intro		BYTE "Hi, I'm Kelley. Welcome to the Prime Number Generator!", 0
+eCred		BYTE "**EC: Align the output columns", 0
 rules		BYTE "I can show you between ", LOWER_T," and ", UPPER_T," prime numbers.", 0
 prompt		BYTE "Please enter the # of primes you'd like to see [", LOWER_T, "...", UPPER_T, "]: ", 0
 invalid_n	BYTE "I can't fulfill that request. Your number is outside my range.", 0
@@ -63,6 +66,11 @@ introduction PROC
 	CALL WriteString
 	CALL CrLf
 
+; Display extra credit statement
+	MOV EDX, OFFSET eCred
+	CALL WriteString
+	CALL CrLf
+
 ; Display objective
 	MOV EDX, OFFSET rules
 	CALL WriteString
@@ -91,6 +99,7 @@ getUserData PROC
 	MOV EDX, OFFSET prompt
 	CALL WriteString
 	CALL ReadInt
+
 	; validate input
 	MOV numberOfPrimes, EAX
 	CALL validate
@@ -110,6 +119,7 @@ validate PROC
 	CMP numberOfPrimes, UPPER
 	JG _NotifyUser ; If numberOfPrimes is greater than 200
 	RET
+
 	_NotifyUser:
 		MOV EDX, OFFSET invalid_n ; says "out of range"
 		CALL WriteString
@@ -123,7 +133,7 @@ validate ENDP
 ;
 ; Takes a valid numberOfPrimes, calculates that many prime numbers, and displays them to user.
 ;
-; Preconditions: The input numberOfPrimes is type DWORD.
+; Preconditions: The global variable numberOfPrimes is type DWORD.
 ;
 ; Postconditions: Changes registers EAX (division, comparisons), ECX (loop counter, division), EDX (division, printing) 
 ;
@@ -134,12 +144,14 @@ validate ENDP
 showPrimes PROC
 	CALL CrLf
 	MOV currentNum, 2  ; start from 2 b/c 1 is not defined as prime
+
 	MOV ECX, numberOfPrimes  ; loop this many times
 	_enumeratePrimesUpToNumberOfPrimes:
 		PUSH ECX  ; Preserve outer loop counter
 		CALL isPrime
 		POP ECX   ; Restore outer loop counter
 		LOOP _enumeratePrimesUpToNumberOfPrimes
+
 	CALL CrLf
 	RET
 	
@@ -151,6 +163,15 @@ showPrimes ENDP
 ; Subprocedure of showPrimes, this computes whether the current number is prime or not.
 ; If the current number isn't a prime, it increments until it finds a prime. Then it prints 
 ; and returns control to the outer loop
+;
+; Preconditions: The global variables currentNum and currentDivisor are of type DWORD
+;
+; Postconditions: Changes registers EAX (division, comparisons), ECX (division), EDX (division, printing),
+;                 global variables currentDivisor, currentNum
+;
+; Receives: None
+;
+; Returns: Nothing (void)
 ; ---------------------------------------------------------------------------------
 isPrime PROC
     
@@ -191,15 +212,24 @@ isPrime ENDP
 ;
 ; Subprocedure of isPrime. This is specifically for formatting the primes in a
 ; column, with the correct number printed per line.
+;
+; Preconditions: The global variables currentNum is of type DWORD; the other global variables are byte strings
+;
+; Postconditions: Changes registers EAX (comparisons), EDX (printing), global variable numberPrintedSoFar
+;
+; Receives: None
+;
+; Returns: Nothing (void)
 ; ---------------------------------------------------------------------------------
 printPrime PROC
 
+	; print the number itself with minimum spacing applied
 	MOV EAX, currentNum
 	CALL WriteDec
 	MOV EDX, OFFSET spacer
 	CALL WriteString
 
-	 ; extra credit - align the output columns
+	; extra credit - align the output columns by applying extra spacing
 	CMP EAX, 10    
 	JL  _addDigitSpacers
 	CMP EAX, 100
