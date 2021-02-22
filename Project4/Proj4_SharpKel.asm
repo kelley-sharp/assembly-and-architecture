@@ -22,28 +22,24 @@ PER_LINE EQU 10
 
 ; Intro & Prompt Strings
 intro		BYTE "Hi, I'm Kelley. Welcome to the Prime Number Generator!", 0
-rules_1     BYTE "I'll show you between ", LOWER_T," and ", UPPER_T," prime numbers.", 0
-rules_2		BYTE "Please enter the number of primes you'd like to see: ", 0
-notify_1	BYTE "I can't fulfill that request. Your number is outside my range.", 0
-notify_2	BYTE "Enter a number between 1 and 200", 0
+rules		BYTE "I can show you between ", LOWER_T," and ", UPPER_T," prime numbers.", 0
+prompt		BYTE "Please enter the # of primes you'd like to see [", LOWER_T, "...", UPPER_T, "]: ", 0
+invalid_n	BYTE "I can't fulfill that request. Your number is outside my range.", 0
 
 ; numerical variables
-numberOfPrimes		DWORD ?
-currentNum          DWORD ?
-currentDivisor		DWORD ?
-numberPrintedSoFar  DWORD 0
+numberOfPrimes		DWORD ?  ; what the user will input
+currentNum          DWORD 2  ; for storing prime candidates
+currentDivisor		DWORD 2  ; for checking whether the current candidate is prime
+numberPrintedSoFar  DWORD 0  ; ensuring we only print 10 per line
 
-; variables for formatting the primes
+; variables for formatting the primes (with extra credit column alignment)
 spacer				BYTE "   ", 0
-digitSpacer			BYTE "  ", 0  ; this and the one below are for extra credit
-doubleDigitSpacer	BYTE " ", 0
+digitSpacer			BYTE "   ", 0 ; single digits need this much padding, e.g. "1   "
+doubleDigitSpacer	BYTE "  ", 0  ; same as above for double digits, e.g.	   "10  "
+tripleDigitSpacer   BYTE " ", 0   ; same as above for triple digits, e.g.      "100 "
 
 ; Summary & Conclusion Strings
 goodbye		BYTE "I hope you've enjoyed your prime time. Goodbye!", 0
-
-; Debugging
-outerLoop	BYTE "OUTER LOOP", 0
-innerLoop	BYTE "INNER LOOP", 0
 
 .code
 main PROC
@@ -53,7 +49,7 @@ main PROC
 	CALL showPrimes
 	CALL farewell	
 
-	Invoke ExitProcess,0	; exit to operating system
+	Invoke ExitProcess, 0
 main ENDP
 
 ; ---------------------------------------------------------------------------------
@@ -68,15 +64,12 @@ introduction PROC
 	CALL CrLf
 
 ; Display objective
-	MOV EDX, OFFSET rules_1
+	MOV EDX, OFFSET rules
 	CALL WriteString
 	CALL CrLf
 
-; Display instructions
-	MOV EDX, OFFSET rules_2
-	CALL WriteString
-
 	RET
+
 introduction ENDP
 
 ; ---------------------------------------------------------------------------------
@@ -86,14 +79,19 @@ introduction ENDP
 ;
 ; Preconditions: The input number is type DWORD.
 ;
-; Postconditions: Changes register EAX.
+; Postconditions: Changes registers EAX (input) and EDX (printing). Sets numberOfPrimes variable.
 ;
 ; Receives: None
 ;
-; Returns: The valid number of primes the user has requested.
+; Returns: Nothing (void)
 ; ---------------------------------------------------------------------------------
 getUserData PROC
+	; prompt the user for input
+	CALL CrLf
+	MOV EDX, OFFSET prompt
+	CALL WriteString
 	CALL ReadInt
+	; validate input
 	MOV numberOfPrimes, EAX
 	CALL validate
 	RET
@@ -113,10 +111,7 @@ validate PROC
 	JG _NotifyUser ; If numberOfPrimes is greater than 200
 	RET
 	_NotifyUser:
-		MOV EDX, OFFSET notify_1 ; says "out of range"
-		CALL WriteString
-		CALL CrLf
-		MOV EDX, OFFSET notify_2 ; says "try again"
+		MOV EDX, OFFSET invalid_n ; says "out of range"
 		CALL WriteString
 		CALL CrLf
 		CALL getUserData
@@ -130,20 +125,22 @@ validate ENDP
 ;
 ; Preconditions: The input numberOfPrimes is type DWORD.
 ;
-; Postconditions: Changes register EAX.
+; Postconditions: Changes registers EAX (division, comparisons), ECX (loop counter, division), EDX (division, printing) 
 ;
 ; Receives: None
 ;
-; Returns: The valid number of primes the user has requested.
+; Returns: Nothing (void)
 ; ---------------------------------------------------------------------------------
 showPrimes PROC
-	MOV ECX, numberOfPrimes
-	MOV currentNum, 2
+	MOV ECX, numberOfPrimes  ; loop this many times
+	MOV currentNum, 2  ; 1 is not prime by definition, so start counting from 2
+	CALL CrLf
 	_enumeratePrimesUpToNumberOfPrimes:
 		PUSH ECX  ; Preserve outer loop counter
 		CALL isPrime
 		POP ECX   ; Restore outer loop counter
 		LOOP _enumeratePrimesUpToNumberOfPrimes
+	CALL CrLf
 	RET
 	
 showPrimes ENDP
@@ -151,32 +148,39 @@ showPrimes ENDP
 ; ---------------------------------------------------------------------------------
 ; Name: isPrime
 ;
-; Subprocedure of showPrimes, this one computes whether the current number is prime or not
+; Subprocedure of showPrimes, this one computes whether the current number is prime or not.
+; If the current number isn't a prime, it increments until it finds a prime. Then it prints 
+; and returns control to the outer loop
 ; ---------------------------------------------------------------------------------
 isPrime PROC
     
 	MOV ECX, currentNum
-	MOV currentDivisor, 2
+	MOV currentDivisor, 2  ; primes are divisible by 1, so start testing divisors from 2
 	_findNextPrime:
+		; break condition - if we made it to where currentDivisor == currentNum, then it's prime
 		mov EAX, currentDivisor
 		CMP EAX, currentNum  
-		JE _isPrime  ; if we made it to where currentDivisor == currentNum, then it's prime
+		JE _isPrime  
 
+		; if the current number divides cleanly by something other than 1 or itself it's not a prime
 		MOV EAX, currentNum
 		CDQ
 		DIV currentDivisor
 		CMP EDX, 0
-		JE _isNotPrime  ; if the current number divides cleanly by something other than 1 or itself
+		JE _isNotPrime
+
+		; this continues this "while" loop
 		INC currentDivisor
-
-		LOOP _findNextPrime
-
+		JMP _findNextPrime
 
 	_isNotPrime:
+		; this ensures we skip over non-prime numbers
 	    INC currentNum
+		MOV currentDivisor, 2  ; reset divisor
 		JMP _findNextPrime
 	
 	_isPrime:
+		; when we've found a prime, we can print it and conclude this iteration of the outer loop
 		CALL printPrime	
 		INC currentNum
 		RET
@@ -194,10 +198,15 @@ printPrime PROC
 	CALL WriteDec
 	MOV EDX, OFFSET spacer
 	CALL WriteString
-	CMP EAX, 10     ; extra credit - align the output columns
+
+	 ; extra credit - align the output columns
+	CMP EAX, 10    
 	JL  _addDigitSpacers
 	CMP EAX, 100
 	JL _addDoubleDigitSpacers
+	CMP EAX, 1000
+	JL _addTripleDigitSpacers
+
 	JMP _determineNewLine
 
 	_addDigitSpacers:
@@ -210,10 +219,16 @@ printPrime PROC
 		CALL WriteString
 		JMP _determineNewLine
 
+	_addTripleDigitSpacers:
+		MOV EDX, OFFSET tripleDigitSpacer
+		CALL WriteString
+		JMP _determineNewLine
+
 	_determineNewLine:
+		; ensure we only print 10 primes per line
 		INC numberPrintedSoFar
 		MOV EAX, numberPrintedSoFar
-		CMP EAX, PER_LINE
+		CMP EAX, PER_LINE    
 		JE _addNewLine
 		RET
 
@@ -231,8 +246,12 @@ printPrime ENDP
 ; ---------------------------------------------------------------------------------	
 farewell PROC
 
-	MOV EDX, OFFSET goodbye
 	CALL CrLf
+	MOV EDX, OFFSET goodbye
+	CALL WriteString
+	CALL CrLf
+
+	RET
 
 farewell ENDP
 
