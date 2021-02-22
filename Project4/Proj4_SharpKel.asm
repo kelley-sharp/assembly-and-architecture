@@ -13,7 +13,7 @@ INCLUDE Irvine32.inc
 ExitProcess proto, dwExitCode:dword
 
 .data
-; Constants with text-equivalents for easier string interpolation
+; Global Constants (with text-equivalents for easier string interpolation)
 LOWER    EQU 1
 LOWER_T  EQU <"1"> 
 UPPER	 EQU 200
@@ -28,8 +28,8 @@ invalid_n	BYTE "I can't fulfill that request. Your number is outside my range.",
 
 ; numerical variables
 numberOfPrimes		DWORD ?  ; what the user will input
-currentNum          DWORD 2  ; for storing prime candidates
-currentDivisor		DWORD 2  ; for checking whether the current candidate is prime
+currentNum          DWORD 2  ; for storing prime candidates. Start from 2 since 1 is not prime.
+currentDivisor		DWORD 2  ; for checking whether the currentNum is prime. Divide starting from 2.
 numberPrintedSoFar  DWORD 0  ; ensuring we only print 10 per line
 
 ; variables for formatting the primes (with extra credit column alignment)
@@ -148,7 +148,7 @@ showPrimes ENDP
 ; ---------------------------------------------------------------------------------
 ; Name: isPrime
 ;
-; Subprocedure of showPrimes, this one computes whether the current number is prime or not.
+; Subprocedure of showPrimes, this computes whether the current number is prime or not.
 ; If the current number isn't a prime, it increments until it finds a prime. Then it prints 
 ; and returns control to the outer loop
 ; ---------------------------------------------------------------------------------
@@ -190,7 +190,8 @@ isPrime ENDP
 ; ---------------------------------------------------------------------------------
 ; Name: printPrime
 ;
-; Subprocedure of isPrime. This is specifically for formatting the primes in a column
+; Subprocedure of isPrime. This is specifically for formatting the primes in a
+; column, with the correct number printed per line.
 ; ---------------------------------------------------------------------------------
 printPrime PROC
 
