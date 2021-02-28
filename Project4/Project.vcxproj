@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <MASM Include="..\..\Users\kelle\Desktop\test_proj_4.asm" />
     <MASM Include="Proj4_SharpKel.asm" />
   </ItemGroup>
   <ItemGroup>

@@ -1,2 +1,11 @@
-﻿  Assembling Proj4_SharpKel.asm...
-  Project.vcxproj -> C:\assembly-architecture-CS271\Project4\Debug\Project.exe
+﻿  Assembling ..\..\Users\kelle\Desktop\test_proj_4.asm...
+  Assembling Proj4_SharpKel.asm...
+Proj4_SharpKel.obj : error LNK2005: _main@0 already defined in test_proj_4.obj
+Proj4_SharpKel.obj : error LNK2005: _introduction@0 already defined in test_proj_4.obj
+Proj4_SharpKel.obj : error LNK2005: _getUserData@0 already defined in test_proj_4.obj
+Proj4_SharpKel.obj : error LNK2005: _validate@0 already defined in test_proj_4.obj
+Proj4_SharpKel.obj : error LNK2005: _showPrimes@0 already defined in test_proj_4.obj
+Proj4_SharpKel.obj : error LNK2005: _isPrime@0 already defined in test_proj_4.obj
+Proj4_SharpKel.obj : error LNK2005: _printPrime@0 already defined in test_proj_4.obj
+Proj4_SharpKel.obj : error LNK2005: _farewell@0 already defined in test_proj_4.obj
+C:\assembly-architecture-CS271\Project4\Debug\Project.exe : fatal error LNK1169: one or more multiply defined symbols found
