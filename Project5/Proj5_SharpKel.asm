@@ -70,14 +70,14 @@ main ENDP
 ; Displays programmer's name and a description of the program.
 ; ---------------------------------------------------------------------------------
 introduction PROC
-; Display programmer's name and enthusiastic message
 	PUSH EBP
 	MOV  EBP, ESP 
 
-; Display description
+	; Display programmer's name and enthusiastic message
 	MOV  EDX, [EBP + 24]
 	CALL WriteString
 	CALL CrLf
+	; Display description
 	MOV  EDX, [EBP + 20]
 	CALL WriteString
 	CALL CrLf
