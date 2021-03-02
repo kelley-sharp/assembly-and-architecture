@@ -46,13 +46,19 @@ goodbye		BYTE "Hope this wasn't too random, bye!", 0
 .code
 main PROC
 
+	PUSH OFFSET intro
+	PUSH OFFSET describe1
+	PUSH OFFSET describe2
+	PUSH OFFSET describe3
+	PUSH OFFSET describe4
 	CALL introduction
-	CALL fillArray
-	CALL sortList
-	CALL exchangeElements
-	CALL displayMedian
-	CALL displayList
-	CALL countList
+	; CALL fillArray
+	; CALL sortList
+	; CALL exchangeElements
+	; CALL displayMedian
+	; CALL displayList
+	; CALL countList
+	PUSH OFFSET goodbye
 	CALL farewell
 
 	Invoke ExitProcess, 0
@@ -65,25 +71,28 @@ main ENDP
 ; ---------------------------------------------------------------------------------
 introduction PROC
 ; Display programmer's name and enthusiastic message
-	MOV EDX, OFFSET intro
-	CALL WriteString
-	CALL CrLf
+	PUSH EBP
+	MOV  EBP, ESP 
 
 ; Display description
-	MOV EDX, OFFSET describe1
+	MOV  EDX, [EBP + 24]
 	CALL WriteString
 	CALL CrLf
-	MOV EDX, OFFSET describe2
+	MOV  EDX, [EBP + 20]
 	CALL WriteString
 	CALL CrLf
-	MOV EDX, OFFSET describe3
+	MOV  EDX, [EBP + 16]
 	CALL WriteString
 	CALL CrLf
-	MOV EDX, OFFSET describe4
+	MOV  EDX, [EBP + 12]
 	CALL WriteString
 	CALL CrLf
+	MOV  EDX, [EBP + 8]
+	CALL WriteString
+	CALL CrLf	
 
-	RET
+	POP  EBP
+	RET  20
 
 introduction ENDP
 
@@ -190,13 +199,16 @@ countList ENDP
 ; Displays parting message with a goodbye
 ; ---------------------------------------------------------------------------------	
 farewell PROC
+	PUSH EBP
+	MOV  EBP, ESP
 
 	CALL CrLf
-	MOV EDX, OFFSET goodbye
+	MOV  EDX, [EBP + 8]
 	CALL WriteString
 	CALL CrLf
 
-	RET
+	POP EBP
+	RET  4
 
 farewell ENDP
 
