@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/01/21 23:03:15
+Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/02/21 21:39:54
 <Arrays, Addressing, and Stack-Passed Parameters     (Proj5_  Page 1 - 1
 
 
@@ -43,6 +43,7 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/01/21 23:03:15
  = "29"				Hi_T		EQU <"29">
  = 000000C8			ARRAYSIZE	EQU 200
  = "200"			ARRAYSIZE_T EQU <"200">
+ = 00000014			PER_LINE    EQU 20
 
 				; Intro Strings
  00000000 48 69 2C 20 49	intro		BYTE "Hi, I'm Kelley. Let's do some random numbers stuff!", 0
@@ -120,7 +121,7 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/01/21 23:03:15
 	   20 31 30 73 2E
 	   00
 
-				; Label Strings
+				; Label/Misc Strings
  00000163 48 65 72 65 27	random_msg	BYTE "Here's ", ARRAYSIZE_T, " random numbers, all disorganized:", 0 
 	   73 20 32 30 30
 	   20 72 61 6E 64
@@ -147,7 +148,7 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/01/21 23:03:15
 	   6B 65 20 73 6F
 	   72 74 65 64 3A
 	   00
- 000001DB 41 6E 64 20 68	list_msg	BYTE "And here's the counts of each number, starting with how many ", LO_T, "s there were:", 0 
+ 000001DB 41 6E 64 20 68	list_msg	BYTE "And here's the counts of each number, starting with how many ", LO_T, "s there were:", 0
 	   65 72 65 27 73
 	   20 74 68 65 20
 	   63 6F 75 6E 74
@@ -163,12 +164,19 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/01/21 23:03:15
 	   74 68 65 72 65
 	   20 77 65 72 65
 	   3A 00
+ 00000228 20 00			space       BYTE " ", 0
 
 				; Numerical variables
- 00000228 00000000		median_num  DWORD ?  ; To be calculated
+ 0000022A  000000C8 [		arr			DWORD ARRAYSIZE DUP(?)
+	    00000000
+	   ]
+ 0000054A 00000004		arrType		DWORD TYPE arr
+ 0000054E 00000320		arrBytes    DWORD SIZEOF arr
+ 00000552 00000000		median_num  DWORD ?  ; To be calculated
+ 00000556 00000000		perLineIdx  DWORD 0 ; for iterating displayList per line
 
 				; Summary & Conclusion Strings
- 0000022C 48 6F 70 65 20	goodbye		BYTE "Hope this wasn't too random, bye!", 0
+ 0000055A 48 6F 70 65 20	goodbye		BYTE "Hope this wasn't too random, bye!", 0
 	   74 68 69 73 20
 	   77 61 73 6E 27
 	   74 20 74 6F 6F
@@ -184,52 +192,67 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/01/21 23:03:15
  0000000A  68 00000088 R		PUSH OFFSET describe2
  0000000F  68 000000BC R		PUSH OFFSET describe3
  00000014  68 0000010D R		PUSH OFFSET describe4
- 00000019  E8 00000011			CALL introduction
-					; CALL fillArray
+ 00000019  E8 00000045			CALL introduction
+
+ 0000001E  68 0000022A R		PUSH OFFSET arr
+ 00000023  6A 0A			PUSH LO
+ 00000025  6A 1D			PUSH HI
+ 00000027  68 000000C8			PUSH ARRAYSIZE
+ 0000002C  E8 0000007F			CALL fillArray
+
+ 00000031  FF 35 00000556 R		PUSH perLineIdx
+ 00000037  68 00000228 R		PUSH OFFSET space
+ 0000003C  6A 14			PUSH PER_LINE
+ 0000003E  68 0000022A R		PUSH OFFSET arr
+ 00000043  68 000000C8			PUSH ARRAYSIZE
+ 00000048  68 00000163 R		PUSH OFFSET random_msg
+ 0000004D  E8 00000099			CALL displayList
+
 					; CALL sortList
 					; CALL exchangeElements
 					; CALL displayMedian
-					; CALL displayList
+					; 
 					; CALL countList
- 0000001E  68 0000022C R		PUSH OFFSET goodbye
- 00000023  E8 0000004F			CALL farewell
+ 00000052  68 0000055A R		PUSH OFFSET goodbye
+ 00000057  E8 000000EC			CALL farewell
 
 					Invoke ExitProcess, 0
- 00000028  6A 00	   *	    push   +000000000h
- 0000002A  E8 00000000 E   *	    call   ExitProcess
- 0000002F			main ENDP
+ 0000005C  6A 00	   *	    push   +000000000h
+ 0000005E  E8 00000000 E   *	    call   ExitProcess
+ 00000063			main ENDP
 
 				; ---------------------------------------------------------------------------------
 				; Name: introduction
 				;
 				; Displays programmer's name and a description of the program.
 				; ---------------------------------------------------------------------------------
- 0000002F			introduction PROC
-				; Display programmer's name and enthusiastic message
- 0000002F  55				PUSH EBP
- 00000030  8B EC			MOV  EBP, ESP 
+ 00000063			introduction PROC
+ 00000063  55				PUSH EBP
+ 00000064  8B EC			MOV  EBP, ESP 
 
-				; Display description
- 00000032  8B 55 18			MOV  EDX, [EBP + 24]
- 00000035  E8 00000000 E		CALL WriteString
- 0000003A  E8 00000000 E		CALL CrLf
- 0000003F  8B 55 14			MOV  EDX, [EBP + 20]
- 00000042  E8 00000000 E		CALL WriteString
- 00000047  E8 00000000 E		CALL CrLf
- 0000004C  8B 55 10			MOV  EDX, [EBP + 16]
- 0000004F  E8 00000000 E		CALL WriteString
- 00000054  E8 00000000 E		CALL CrLf
- 00000059  8B 55 0C			MOV  EDX, [EBP + 12]
- 0000005C  E8 00000000 E		CALL WriteString
- 00000061  E8 00000000 E		CALL CrLf
- 00000066  8B 55 08			MOV  EDX, [EBP + 8]
+					; Display programmer's name and enthusiastic message
+ 00000066  8B 55 18			MOV  EDX, [EBP+24]
  00000069  E8 00000000 E		CALL WriteString
- 0000006E  E8 00000000 E		CALL CrLf	
+ 0000006E  E8 00000000 E		CALL CrLf
+ 00000073  E8 00000000 E		CALL CrLf
+					; Display description
+ 00000078  8B 55 14			MOV  EDX, [EBP+20]
+ 0000007B  E8 00000000 E		CALL WriteString
+ 00000080  E8 00000000 E		CALL CrLf
+ 00000085  8B 55 10			MOV  EDX, [EBP+16]
+ 00000088  E8 00000000 E		CALL WriteString
+ 0000008D  E8 00000000 E		CALL CrLf
+ 00000092  8B 55 0C			MOV  EDX, [EBP+12]
+ 00000095  E8 00000000 E		CALL WriteString
+ 0000009A  E8 00000000 E		CALL CrLf
+ 0000009F  8B 55 08			MOV  EDX, [EBP+8]
+ 000000A2  E8 00000000 E		CALL WriteString
+ 000000A7  E8 00000000 E		CALL CrLf	
 
- 00000073  5D				POP  EBP
- 00000074  C2 0014			RET  20
+ 000000AC  5D				POP  EBP
+ 000000AD  C2 0014			RET  20
 
- 00000077			introduction ENDP
+ 000000B0			introduction ENDP
 
 				; ---------------------------------------------------------------------------------
 				; Name: fillArray
@@ -244,8 +267,47 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/01/21 23:03:15
 				;
 				; Returns: someArray
 				; ---------------------------------------------------------------------------------
- 00000077			fillArray PROC
- 00000077			fillArray ENDP
+ 000000B0			fillArray PROC
+					LOCAL hiAdjusted:DWORD  ; store the value of HI - LO for randomization
+
+ 000000B0  55		   *	    push   ebp
+ 000000B1  8B EC	   *	    mov    ebp, esp
+ 000000B3  83 C4 FC	   *	    add    esp, 0FFFFFFFCh
+ 000000B6				_preserveRegisters:
+ 000000B6  50					PUSH  EAX
+ 000000B7  51					PUSH  ECX
+ 000000B8  57					PUSH  EDI
+
+ 000000B9  E8 00000000 E		CALL Randomize
+
+ 000000BE				_generateHiAdjusted:
+ 000000BE  8B 45 0C				MOV   EAX, [EBP+12] ; HI
+ 000000C1  8B 5D 10				MOV   EBX, [EBP+16] ; LO
+ 000000C4  2B C3				SUB   EAX, EBX
+ 000000C6  40					INC   EAX
+ 000000C7  89 45 FC				MOV   hiAdjusted, EAX
+
+ 000000CA				_setupLoop:
+ 000000CA  8B 4D 08				MOV   ECX, [EBP+8]  ; loop counter through length of array
+ 000000CD  8B 7D 14				MOV   EDI, [EBP+20]  ; set EDI to first array element
+
+ 000000D0				_fillLoop:
+ 000000D0  8B 45 FC				MOV   EAX, hiAdjusted  ; get a random number between [LO, HI]
+ 000000D3  E8 00000000 E			CALL  RandomRange
+ 000000D8  03 45 10				ADD   EAX, [EBP+16] ; add LO to randomized number
+ 000000DB  89 07				MOV   [EDI], EAX  ; set array element
+ 000000DD  8B 07				MOV   EAX, [EDI]
+ 000000DF  83 C7 04				ADD   EDI, 4  ; go to next array element
+ 000000E2  E2 EC				LOOP  _fillLoop
+
+ 000000E4				_restoreRegisters:
+ 000000E4  5F					POP   EDI
+ 000000E5  59					POP   ECX
+ 000000E6  58					POP   EAX
+
+ 000000E7  C9		   *	    leave  
+ 000000E8  C2 0010			RET  16
+ 000000EB			fillArray ENDP
 
 				; ---------------------------------------------------------------------------------
 				; Name: sortList
@@ -260,8 +322,8 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/01/21 23:03:15
 				;
 				; Returns: someArray (sorted)
 				; ---------------------------------------------------------------------------------
- 00000077			sortList PROC
- 00000077			sortList ENDP
+ 000000EB			sortList PROC
+ 000000EB			sortList ENDP
 
 				; ---------------------------------------------------------------------------------
 				; Name: exchangeElements
@@ -277,8 +339,8 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/01/21 23:03:15
 				;
 				; Returns: The new values of someArray[i] and someArray[j] 
 				; ---------------------------------------------------------------------------------
- 00000077			exchangeElements PROC	
- 00000077			exchangeElements ENDP
+ 000000EB			exchangeElements PROC	
+ 000000EB			exchangeElements ENDP
 
 				; ---------------------------------------------------------------------------------
 				; Name: displayMedian
@@ -293,8 +355,8 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/01/21 23:03:15
 				;
 				; Returns: None
 				; ---------------------------------------------------------------------------------
- 00000077			displayMedian PROC
- 00000077			displayMedian ENDP
+ 000000EB			displayMedian PROC
+ 000000EB			displayMedian ENDP
 
 				; ---------------------------------------------------------------------------------
 				; Name: displayList
@@ -309,8 +371,63 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/01/21 23:03:15
 				;
 				; Returns: None
 				; ---------------------------------------------------------------------------------
- 00000077			displayList PROC
- 00000077			displayList ENDP
+ 000000EB			displayList PROC
+
+ 000000EB				_preserveRegisters:
+ 000000EB  55					PUSH EBP
+ 000000EC  8B EC				MOV  EBP, ESP
+ 000000EE  52					PUSH EDX
+ 000000EF  51					PUSH ECX
+ 000000F0  53					PUSH EBX
+ 000000F1  50					PUSH EAX
+ 000000F2  57					PUSH EDI
+
+ 000000F3				_printTitle:
+ 000000F3  E8 00000000 E			CALL CrLf
+ 000000F8  8B 55 08				MOV  EDX, [EBP+8]
+ 000000FB  E8 00000000 E			CALL WriteString
+ 00000100  E8 00000000 E			CALL CrLf
+
+ 00000105				_setUpLoop:
+ 00000105  8B 4D 0C				MOV  ECX, [EBP+12]  ; loop counter through length of array
+ 00000108  8B 7D 10				MOV  EDI, [EBP+16]  ; set EDI to first array element
+ 0000010B  EB 00				JMP  _printLoop
+
+ 0000010D				_printLoop:
+						; print the number
+ 0000010D  8B 07				MOV  EAX, [EDI]
+ 0000010F  E8 00000000 E			CALL WriteDec
+						; print the space between
+ 00000114  8B 55 18				MOV  EDX, [EBP+24]
+ 00000117  E8 00000000 E			CALL WriteString
+ 0000011C  83 C7 04				ADD  EDI, 4  ; go to next array element
+
+						; check if newline is needed
+ 0000011F  8B 5D 1C				MOV  EBX, [EBP+28]
+ 00000122  43					INC  EBX ; increment perLineIdx
+ 00000123  89 5D 1C				MOV  [EBP+28], EBX
+ 00000126  8B 5D 14				MOV  EBX, [EBP+20] ; perLine 
+ 00000129  3B 5D 1C				CMP  EBX, [EBP+28] ; perLineIdx == perLine ?
+ 0000012C  74 02				JE   _newLine
+ 0000012E  75 0D				JNE  _noNewLine
+
+ 00000130					_newLine:
+ 00000130  E8 00000000 E				CALL CrLf
+ 00000135  BB 00000000					MOV EBX, 0
+ 0000013A  89 5D 1C					MOV [EBP+28], EBX ; reset perLineIdx
+
+ 0000013D					_noNewLine:
+ 0000013D  E2 CE					LOOP _printLoop
+
+ 0000013F				_restoreRegisters:
+ 0000013F  5F					POP  EDI
+ 00000140  5A					POP  EDX
+ 00000141  59					POP  ECX
+ 00000142  5B					POP  EBX
+ 00000143  58					POP  EAX
+ 00000144  5D					POP  EBP
+ 00000145  C2 0018				RET  24
+ 00000148			displayList ENDP
 
 				; ---------------------------------------------------------------------------------
 				; Name: countList
@@ -325,30 +442,30 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/01/21 23:03:15
 				;
 				; Returns: someArray2
 				; ---------------------------------------------------------------------------------
- 00000077			countList PROC
- 00000077			countList ENDP
+ 00000148			countList PROC
+ 00000148			countList ENDP
 
 				; ---------------------------------------------------------------------------------
 				; Name: farewell
 				;
 				; Displays parting message with a goodbye
 				; ---------------------------------------------------------------------------------	
- 00000077			farewell PROC
- 00000077  55				PUSH EBP
- 00000078  8B EC			MOV  EBP, ESP
+ 00000148			farewell PROC
+ 00000148  55				PUSH EBP
+ 00000149  8B EC			MOV  EBP, ESP
 
- 0000007A  E8 00000000 E		CALL CrLf
- 0000007F  8B 55 08			MOV  EDX, [EBP + 8]
- 00000082  E8 00000000 E		CALL WriteString
- 00000087  E8 00000000 E		CALL CrLf
+ 0000014B  E8 00000000 E		CALL CrLf
+ 00000150  8B 55 08			MOV  EDX, [EBP+8]
+ 00000153  E8 00000000 E		CALL WriteString
+ 00000158  E8 00000000 E		CALL CrLf
 
- 0000008C  5D				POP EBP
- 0000008D  C2 0004			RET  4
+ 0000015D  5D				POP EBP
+ 0000015E  C2 0004			RET  4
 
- 00000090			farewell ENDP
+ 00000161			farewell ENDP
 
 				END main
-Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/01/21 23:03:15
+Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/02/21 21:39:54
 <Arrays, Addressing, and Stack-Passed Parameters     (Proj5_  Symbols 2 - 1
 
 
@@ -442,8 +559,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 0000024E Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000090 Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 0000057C Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00000161 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -550,17 +667,30 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-countList  . . . . . . . . . . .	P Near	 00000077 _TEXT	Length= 00000000 Public STDCALL
-displayList  . . . . . . . . . .	P Near	 00000077 _TEXT	Length= 00000000 Public STDCALL
-displayMedian  . . . . . . . . .	P Near	 00000077 _TEXT	Length= 00000000 Public STDCALL
-exchangeElements . . . . . . . .	P Near	 00000077 _TEXT	Length= 00000000 Public STDCALL
-farewell . . . . . . . . . . . .	P Near	 00000077 _TEXT	Length= 00000019 Public STDCALL
-fillArray  . . . . . . . . . . .	P Near	 00000077 _TEXT	Length= 00000000 Public STDCALL
-introduction . . . . . . . . . .	P Near	 0000002F _TEXT	Length= 00000048 Public STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 0000002F Public STDCALL
+countList  . . . . . . . . . . .	P Near	 00000148 _TEXT	Length= 00000000 Public STDCALL
+displayList  . . . . . . . . . .	P Near	 000000EB _TEXT	Length= 0000005D Public STDCALL
+  _preserveRegisters . . . . . .	L Near	 000000EB _TEXT	
+  _printTitle  . . . . . . . . .	L Near	 000000F3 _TEXT	
+  _setUpLoop . . . . . . . . . .	L Near	 00000105 _TEXT	
+  _printLoop . . . . . . . . . .	L Near	 0000010D _TEXT	
+  _newLine . . . . . . . . . . .	L Near	 00000130 _TEXT	
+  _noNewLine . . . . . . . . . .	L Near	 0000013D _TEXT	
+  _restoreRegisters  . . . . . .	L Near	 0000013F _TEXT	
+displayMedian  . . . . . . . . .	P Near	 000000EB _TEXT	Length= 00000000 Public STDCALL
+exchangeElements . . . . . . . .	P Near	 000000EB _TEXT	Length= 00000000 Public STDCALL
+farewell . . . . . . . . . . . .	P Near	 00000148 _TEXT	Length= 00000019 Public STDCALL
+fillArray  . . . . . . . . . . .	P Near	 000000B0 _TEXT	Length= 0000003B Public STDCALL
+  hiAdjusted . . . . . . . . . .	DWord	 bp - 00000004
+  _preserveRegisters . . . . . .	L Near	 000000B6 _TEXT	
+  _generateHiAdjusted  . . . . .	L Near	 000000BE _TEXT	
+  _setupLoop . . . . . . . . . .	L Near	 000000CA _TEXT	
+  _fillLoop  . . . . . . . . . .	L Near	 000000D0 _TEXT	
+  _restoreRegisters  . . . . . .	L Near	 000000E4 _TEXT	
+introduction . . . . . . . . . .	P Near	 00000063 _TEXT	Length= 0000004D Public STDCALL
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000063 Public STDCALL
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
-sortList . . . . . . . . . . . .	P Near	 00000077 _TEXT	Length= 00000000 Public STDCALL
+sortList . . . . . . . . . . . .	P Near	 000000EB _TEXT	Length= 00000000 Public STDCALL
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 
 
@@ -687,6 +817,7 @@ NULL . . . . . . . . . . . . . .	Number	 00000000h
 NUMLOCK_ON . . . . . . . . . . .	Number	 00000020h   
 OPEN_ALWAYS  . . . . . . . . . .	Number	 00000004h   
 OPEN_EXISTING  . . . . . . . . .	Number	 00000003h   
+PER_LINE . . . . . . . . . . . .	Number	 00000014h   
 PeekConsoleInput . . . . . . . .	Text   	 PeekConsoleInputA
 RIGHT_ALT_PRESSED  . . . . . . .	Number	 00000001h   
 RIGHT_CTRL_PRESSED . . . . . . .	Number	 00000004h   
@@ -783,6 +914,9 @@ VK_UP  . . . . . . . . . . . . .	Number	 00000026h
 WINDOW_BUFFER_SIZE_EVENT . . . .	Number	 00000004h   
 WriteConsoleOutputCharacter  . .	Text   	 WriteConsoleOutputCharacterA
 WriteConsole . . . . . . . . . .	Text   	 WriteConsoleA
+arrBytes . . . . . . . . . . . .	DWord	 0000054E _DATA	
+arrType  . . . . . . . . . . . .	DWord	 0000054A _DATA	
+arr  . . . . . . . . . . . . . .	DWord	 0000022A _DATA	
 black  . . . . . . . . . . . . .	Number	 00000000h   
 blue . . . . . . . . . . . . . .	Number	 00000001h   
 brown  . . . . . . . . . . . . .	Number	 00000006h   
@@ -793,7 +927,7 @@ describe3  . . . . . . . . . . .	Byte	 000000BC _DATA
 describe4  . . . . . . . . . . .	Byte	 0000010D _DATA	
 exclaim  . . . . . . . . . . . .	Byte	 000001B5 _DATA	
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
-goodbye  . . . . . . . . . . . .	Byte	 0000022C _DATA	
+goodbye  . . . . . . . . . . . .	Byte	 0000055A _DATA	
 gray . . . . . . . . . . . . . .	Number	 00000008h   
 green  . . . . . . . . . . . . .	Number	 00000002h   
 intro  . . . . . . . . . . . . .	Byte	 00000000 _DATA	
@@ -806,10 +940,12 @@ lightRed . . . . . . . . . . . .	Number	 0000000Ch
 list_msg . . . . . . . . . . . .	Byte	 000001DB _DATA	
 magenta  . . . . . . . . . . . .	Number	 00000005h   
 median_msg . . . . . . . . . . .	Byte	 00000190 _DATA	
-median_num . . . . . . . . . . .	DWord	 00000228 _DATA	
+median_num . . . . . . . . . . .	DWord	 00000552 _DATA	
+perLineIdx . . . . . . . . . . .	DWord	 00000556 _DATA	
 random_msg . . . . . . . . . . .	Byte	 00000163 _DATA	
 red  . . . . . . . . . . . . . .	Number	 00000004h   
 sorted_msg . . . . . . . . . . .	Byte	 000001B7 _DATA	
+space  . . . . . . . . . . . . .	Byte	 00000228 _DATA	
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
 wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
 yellow . . . . . . . . . . . . .	Number	 0000000Eh   
