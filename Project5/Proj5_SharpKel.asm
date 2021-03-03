@@ -77,6 +77,12 @@ main PROC
 	PUSH ARRAYSIZE
 	CALL sortList
 
+	PUSH OFFSET arr
+	PUSH ARRAYSIZE
+	PUSH OFFSET median_msg
+	CALL displayMedian
+
+
 	PUSH perLineIdx
 	PUSH OFFSET space
 	PUSH PER_LINE
@@ -84,9 +90,7 @@ main PROC
 	PUSH ARRAYSIZE
 	PUSH OFFSET sorted_msg
 	CALL displayList
-	; CALL exchangeElements
-	; CALL displayMedian
-	; 
+
 	; CALL countList
 	PUSH OFFSET goodbye
 	CALL farewell
@@ -296,6 +300,62 @@ exchangeElements ENDP
 ; Returns: None
 ; ---------------------------------------------------------------------------------
 displayMedian PROC
+	_preserveRegisters:
+		PUSH  EBP
+		MOV   EBP, ESP
+		PUSH  EAX
+		PUSH  EBX
+		PUSH  ECX
+		PUSH  EDX
+		PUSH  EDI
+
+	_displayMsg:
+		CALL CrLf
+		CALL CrLf
+		MOV  EDX, [EBP+8] 
+		CALL WriteString
+		CALL CrLf
+
+	_computeMedian:
+		MOV  EDI, [EBP+16] ; array itself
+		MOV  EAX, [EBP+12] ; size of array
+		CDQ
+		MOV EBX, 2 ; divide by 2 and check remainder
+		DIV EBX
+		CMP EDX, 0
+		JE _even
+		MOV ECX, [EDI+EAX*4] ; get the middle element
+		MOV EAX, ECX
+		JMP _printMedian
+
+	_even:
+		MOV ECX, [EDI+EAX*4] ; get lower middle
+		INC EAX
+		MOV EDX, [EDI+EAX*4] ; get upper middle
+		ADD ECX, EDX
+		MOV EAX, ECX
+		CDQ
+		MOV EBX, 2
+		DIV EBX
+		JMP _printMedian
+
+	_printMedian:
+		CALL WriteDec
+		CALL CrLF
+		jmp _restoreRegisters
+
+
+
+	_restoreRegisters:
+	    POP   EDI
+		POP   EDX
+		POP   ECX
+		POP   EBX
+		POP   EAX
+		POP   EBP
+
+	RET  12
+
 displayMedian ENDP
 
 ; ---------------------------------------------------------------------------------
