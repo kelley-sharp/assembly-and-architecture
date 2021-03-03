@@ -43,6 +43,7 @@ space       BYTE " ", 0
 arr			DWORD ARRAYSIZE DUP(?)
 arrType		DWORD TYPE arr
 arrBytes    DWORD SIZEOF arr
+countsArr    DWORD ARRAYSIZE DUP(?)
 median_num  DWORD ?  ; To be calculated
 perLineIdx  DWORD 0 ; for iterating displayList per line
 
@@ -91,7 +92,16 @@ main PROC
 	PUSH OFFSET sorted_msg
 	CALL displayList
 
+	; <--- below is incomplete - ran out of time :-(  ---->
+	; PUSH OFFSET space
+	; PUSH LO
+	; PUSH HI
+	; PUSH OFFSET countsArr
+	; PUSH OFFSET arr
+	; PUSH ARRAYSIZE
+	; PUSH OFFSET list_msg
 	; CALL countList
+
 	PUSH OFFSET goodbye
 	CALL farewell
 
@@ -136,13 +146,12 @@ introduction ENDP
 ;
 ; Fills an array with randomly generated numbers.
 ;
-; Preconditions: 
+; Preconditions: empty arr, two inclusive bounds
 ;
-; Postconditions: 
+; Postconditions: arr is populated with random numbers within bounds
 ;
-; Receives: LO, HI, ARRAYSIZE
+; Receives: ARRAYSIZE, HI, LO, arr
 ;
-; Returns: someArray
 ; ---------------------------------------------------------------------------------
 fillArray PROC
 	LOCAL hiAdjusted:DWORD  ; store the value of HI - LO for randomization
@@ -185,15 +194,14 @@ fillArray ENDP
 ; ---------------------------------------------------------------------------------
 ; Name: sortList
 ;
-; Sorts an array in ascending order.
+; Sorts an array in ascending order using a bubble-sort algorithm.
 ;
-; Preconditions: 
+; Preconditions: arr is unsorted random array
 ;
-; Postconditions:  
+; Postconditions:  arr is sorted in-place
 ;
-; Receives: someArray, ARRAYSIZE
+; Receives: ARRAYSIZE, arr
 ;
-; Returns: someArray (sorted)
 ; ---------------------------------------------------------------------------------
 sortList PROC
 	_preserveRegisters:
@@ -221,7 +229,7 @@ sortList PROC
 		CMP   EBX, EAX
 		JGE    _continueInnerLoop
 
-		; otherwise swap
+		; otherwise swap to ensure ascending order
 		PUSH  EDI
 		CALL exchangeElements
 
@@ -248,16 +256,14 @@ sortList ENDP
 ; ---------------------------------------------------------------------------------
 ; Name: exchangeElements
 ;
-; If your sorting algo exchanges element positions, this would loop through the array
-;	and swap values at the indicated positions, i and j. 
+; This is the swap procedure of the above sorting algorithm
 ;
-; Preconditions: 
+; Preconditions: arr[i] and arr[j] are in unsorted order
 ;
-; Postconditions:  
+; Postconditions:  arr[i] and arr[j] are swapped
 ;
-; Receives: someArray[i], someArray[j]
+; Receives: arr[i], arr[j]
 ;
-; Returns: The new values of someArray[i] and someArray[j] 
 ; ---------------------------------------------------------------------------------
 exchangeElements PROC
 	_preserveRegisters:
@@ -291,13 +297,12 @@ exchangeElements ENDP
 ;
 ; Prints the median of values in the array.
 ;
-; Preconditions: 
+; Preconditions: sorted arr
 ;
-; Postconditions: 
+; Postconditions: median value of sorted arr calculated & printed
 ;
-; Receives: median_msg, someArray, ARRAYSIZE
+; Receives: median_msg, ARRAYSIZE, arr
 ;
-; Returns: None
 ; ---------------------------------------------------------------------------------
 displayMedian PROC
 	_preserveRegisters:
@@ -361,15 +366,14 @@ displayMedian ENDP
 ; ---------------------------------------------------------------------------------
 ; Name: displayList
 ;
-; Prints the array.
+; Prints the array with a specific number of items per line (default is 20).
 ;
-; Preconditions: 
+; Preconditions: arr is populated
 ;
-; Postconditions: 
+; Postconditions: arr is printed to the console
 ;
-; Receives: someArray
+; Receives: sorted_msg, ARRAYSIZE, arr, PER_LINE, space, perLineIdx
 ;
-; Returns: None
 ; ---------------------------------------------------------------------------------
 displayList PROC
 
@@ -432,17 +436,55 @@ displayList ENDP
 ; ---------------------------------------------------------------------------------
 ; Name: countList
 ;
+; TBD
 ;
-;
-; Preconditions: 
-;
-; Postconditions: 
-;
-; Receives: someArray, ARRAYSIZE, LO, HI
-;
-; Returns: someArray2
 ; ---------------------------------------------------------------------------------
 countList PROC
+
+	_preserveRegisters:
+		PUSH EBP
+		MOV  EBP, ESP
+		PUSH EDX
+		PUSH ECX
+		PUSH EBX
+		PUSH EAX
+		PUSH EDI
+
+	_printTitle:
+		CALL CrLf
+		MOV  EDX, [EBP+8]
+		CALL WriteString
+		CALL CrLf
+
+	_setUpLoop:
+		MOV  ECX, [EBP+12]  ; loop counter through length of array
+		MOV  EDI, [EBP+16]  ; set EDI to first array element
+		MOV  EAX, 0   ; store counts
+
+	_countLoop:
+		INC  EAX
+		MOV EBX, [EDI] ; store value at EDI
+		ADD EDI, 4
+		CMP EBX, [EDI] ; check if the next is the same
+		JNE  _printCount
+
+	_printCount:
+		; print the number and reset EAX
+		CALL WriteDec
+		MOV EAX, 0
+		; print the space between
+		MOV  EDX, [EBP+36]
+		CALL WriteString
+
+	_restoreRegisters:
+		POP  EDI
+		POP  EDX
+		POP  ECX
+		POP  EBX
+		POP  EAX
+		POP  EBP
+		RET  28
+
 countList ENDP
 
 ; ---------------------------------------------------------------------------------
