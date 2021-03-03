@@ -73,7 +73,17 @@ main PROC
 	PUSH OFFSET random_msg
 	CALL displayList
 
-	; CALL sortList
+	PUSH OFFSET arr
+	PUSH ARRAYSIZE
+	CALL sortList
+
+	PUSH perLineIdx
+	PUSH OFFSET space
+	PUSH PER_LINE
+	PUSH OFFSET arr
+	PUSH ARRAYSIZE
+	PUSH OFFSET sorted_msg
+	CALL displayList
 	; CALL exchangeElements
 	; CALL displayMedian
 	; 
@@ -182,6 +192,53 @@ fillArray ENDP
 ; Returns: someArray (sorted)
 ; ---------------------------------------------------------------------------------
 sortList PROC
+	_preserveRegisters:
+	    PUSH  EBP
+		MOV   EBP, ESP
+		PUSH  EAX
+		PUSH  EBX
+		PUSH  ECX
+		PUSH  EDX
+		PUSH  EDI
+		PUSH  ESI
+
+	_setupLoop:
+		MOV   ECX, [EBP+8]  ; loop counter through length of array
+		DEC   ECX  ; loop up to n - 1
+
+	_outerLoop:
+		PUSH  ECX  ; store ECX (inner loop will change this)
+		MOV   EDI, [EBP+12]
+
+	_innerLoop:
+		; comparison of i with j
+		MOV   EAX, [EDI]
+		MOV   EBX, [EDI+4]
+		CMP   EBX, EAX
+		JGE    _continueInnerLoop
+
+		; otherwise swap
+		PUSH  EDI
+		CALL exchangeElements
+
+	_continueInnerLoop:
+		ADD   EDI, 4
+		LOOP  _innerLoop
+
+	_continueOuterLoop:
+		POP  ECX
+		LOOP _outerLoop
+
+	_restoreRegisters:
+	    POP   ESI
+		POP   EDI
+		POP   EDX
+		POP   ECX
+		POP   EBX
+		POP   EAX
+		POP   EBP
+
+	RET  16
 sortList ENDP
 
 ; ---------------------------------------------------------------------------------
@@ -198,7 +255,31 @@ sortList ENDP
 ;
 ; Returns: The new values of someArray[i] and someArray[j] 
 ; ---------------------------------------------------------------------------------
-exchangeElements PROC	
+exchangeElements PROC
+	_preserveRegisters:
+		PUSH  EBP
+		MOV   EBP, ESP
+		PUSH  EAX
+		PUSH  EBX
+		PUSH  ECX
+		PUSH  EDI
+
+	_swap:
+		MOV EDI, [EBP+8]  ; move first index into EDI
+		MOV EAX, [EDI]  ; move first element to EAX
+		MOV EBX, [EDI+4] ; move second element to EBX
+		MOV [EDI], EBX ; assign first index to second element
+		MOV [EDI+4], EAX  ; assign second index to first element
+
+
+	_restoreRegisters:
+		POP   EDI
+		POP   ECX
+		POP   EBX
+		POP   EAX
+		POP   EBP
+
+	RET  4
 exchangeElements ENDP
 
 ; ---------------------------------------------------------------------------------
