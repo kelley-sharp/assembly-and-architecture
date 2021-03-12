@@ -12,6 +12,40 @@ TITLE String Primitives and Macros     (Proj6_SharpKel.asm)
 INCLUDE Irvine32.inc
 ExitProcess proto, dwExitCode:dword
 
+mGetString MACRO prompt, strInput, count
+	; preserve registers
+	PUSH EAX
+	PUSH ECX
+	PUSH EDX
+
+	; display prompt
+	MOV  EDX, prompt
+	CALL WriteString
+	; get input up to count
+	MOV  EDX, strInput
+	MOV  ECX, count  ; buffer size according to Irvine
+	CALL ReadString
+
+	; restore registers
+	POP  EAX
+	POP  EDX
+	POP  ECX
+
+ENDM
+
+mDisplayString MACRO strOutput
+	; preserve registers
+	PUSH EDX
+
+	; print string
+	MOV  EDX, strOutput
+	CALL WriteString
+
+	; restore registers
+	POP EDX
+
+ENDM
+
 .data
 ; Global Constants (with text-equivalents for easier string interpolation)
 
