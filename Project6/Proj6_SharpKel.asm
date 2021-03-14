@@ -12,6 +12,9 @@ TITLE String Primitives and Macros     (Proj6_SharpKel.asm)
 INCLUDE Irvine32.inc
 ExitProcess proto, dwExitCode:dword
 
+MAX_STR_SIZE EQU 32
+COUNT        EQU 11
+
 mGetString MACRO prompt, strInput, count
 	; preserve registers
 	PUSH EAX
@@ -53,12 +56,18 @@ ENDM
 intro		BYTE "Getting low with I/0 Procedures", 0
 intro2		BYTE "Designed and created by: Kelley Sharp", 0
 
+; Prompt
+prompt      BYTE "Please enter a signed number: ", 0
+errorMsg    BYTE "ERROR: You did not enter an signed number or your number was too big.", 0
+
 ; Label/Misc Strings
 list_msg	BYTE "These are the numbers you entered:", 0 
 sum_msg		BYTE "The sum of the numbers is:", 0
 average_msg	BYTE "The rounded average is:", 0
 
-; Numerical variables
+; User data variables
+inputStr    BYTE MAX_STR_SIZE DUP(?)
+inputNum    SDWORD ?
 
 ; Summary & Conclusion Strings
 goodbye		BYTE "I hope you enjoyed using my program! The end.", 0
@@ -66,25 +75,26 @@ goodbye		BYTE "I hope you enjoyed using my program! The end.", 0
 .code
 main PROC
 
-	CALL introduction
-	CALL getUSerInput
-	CALL validateInput
-	CALL printNumbers
-	CALL calcSum
-	CALL calcAverage
-	CALL printSum
-	CALL printRoundedAverage
-	CALL farewell
+	CALL Introduction
+
+	PUSH OFFSET inputNum
+	PUSH COUNT
+	PUSH OFFSET inputStr
+	PUSH OFFSET errorMsg
+	PUSH OFFSET prompt
+	CALL ReadVal
+
+	CALL Farewell
 
 	Invoke ExitProcess, 0
 main ENDP
 
 ; ---------------------------------------------------------------------------------
-; Name: introduction
+; Name: Introduction
 ;
 ; Displays programmer's name, program's name, and instructions.
 ; ---------------------------------------------------------------------------------
-introduction PROC
+Introduction PROC
 	PUSH EBP
 	MOV  EBP, ESP 
 
@@ -93,28 +103,101 @@ introduction PROC
 	; Display Instructions
 
 
-introduction ENDP
+Introduction ENDP
 
 ; ---------------------------------------------------------------------------------
-; Name:
+; Name: Readval
 ;
-; 
+; Reads an input value from the user and applies validation
 ;
-; Preconditions: 
+; Preconditions: None
 ;
-; Postconditions: 
+; Postconditions: Sets the value of inputNum to the numeric equivalent of the last
+;				  valid string that was entered
 ;
 ; Receives: 
+;     prompt   [EBP+8]
+;     errorMsg [EBP+12]
+;     inputStr [EBP+16]
+;     count    [EBP+20]
+;     inputNum [EBP+24]
 ;
 ; ---------------------------------------------------------------------------------
+ReadVal PROC
+	LOCAL isNegative:BYTE
+	LOCAL isFirstChar:BYTE
+	; preserve registers
 
+	PUSH EAX
+	PUSH EBX
+	PUSH ECX
+	PUSH ESI
+
+	_getInput:
+		mGetString [EBP+8], [EBP+16], [EBP+20]
+
+		; prepare string to be looped over
+		MOV  ESI, [EBP+16]
+		CLD
+		MOV  ECX, 0
+		MOV  isFirstChar, 1
+
+	_loadNextByte:
+		MOV  EAX, 0
+		LODSB
+		CMP  isFirstChar, 0
+		JE   _checkByte
+
+	_checkSignByte:
+		CMP  AL, 45  ; "-" character
+		JE   _hasNegativeSign
+		CMP  AL, 43  ; "+" character
+		JE	_hasPositiveSign
+		; otherwise jump to checkByte normally
+		JMP _checkByte
+
+	_hasNegativeSign:
+		MOV isNegative, 1
+		MOV isFirstChar, 0
+
+	_hasPositiveSign:
+		MOV isNegative, 0
+		MOV isFirstChar, 0
+
+	_checkByte:
+		; 0 indicates the null-termination byte
+		CMP  AL, 0
+		JE   _stringEnd
+		; ensure it's a number
+		CMP  AL, 48
+
+	_stringEnd:
+		CMP  ECX, 0
+		JE   _error
+	
+	_error:
+		
+
+
+
+
+
+	; restore registers
+	POP  ESI
+	POP  ECX
+	POP  EBX
+	POP  EAX
+
+	RET  16
+
+ReadVal ENDP
 
 ; ---------------------------------------------------------------------------------
-; Name: farewell
+; Name: Farewell
 ;
 ; Displays parting message with a goodbye
 ; ---------------------------------------------------------------------------------	
-farewell PROC
+Farewell PROC
 	PUSH EBP
 	MOV  EBP, ESP
 
@@ -126,6 +209,6 @@ farewell PROC
 	POP EBP
 	RET  4
 
-farewell ENDP
+Farewell ENDP
 
 END main
