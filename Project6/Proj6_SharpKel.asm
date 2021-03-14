@@ -98,7 +98,6 @@ main PROC
 	PUSH OFFSET prompt
 	CALL ReadVal
 
-
 	;CALL Farewell
 
 	Invoke ExitProcess, 0
@@ -169,12 +168,13 @@ Introduction ENDP
 ;
 ; ---------------------------------------------------------------------------------
 ReadVal PROC
-	LOCAL isNegative:BYTE
-	LOCAL isFirstChar:BYTE
-	LOCAL currentNum:SDWORD
-	LOCAL nextDigit:SDWORD
-	; preserve registers
+	; local variables
+	LOCAL isNegative:BYTE ; byte flag to store whether the input is a negative number
+	LOCAL isFirstChar:BYTE ; byte flag for looping - first case is special
+	LOCAL currentNum:SDWORD ; store the current number, a running total until the end
+	LOCAL nextDigit:SDWORD ; tmp variable to add to current number
 
+	; preserve registers
 	PUSH EAX
 	PUSH EBX
 	PUSH ECX
@@ -219,8 +219,6 @@ ReadVal PROC
 		JMP  _continueLoop
 
 	_checkStrByte:
-		CMP   AL, 0
-		JE    _stringEnd
 		; ensure it's a valid digit 0-9
 		CMP   AL, 48
 		JB    _error
@@ -249,8 +247,6 @@ ReadVal PROC
 		JMP  _getInputAndInitialize
 
 	_stringEnd:
-		CMP   currentNum, 0
-		JE    _error
 		CMP   isNegative, 1
 		JE    _negate
 		JMP   _storeStr
