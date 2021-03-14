@@ -15,7 +15,7 @@ ExitProcess proto, dwExitCode:dword
 MAX_STR_SIZE EQU 32
 COUNT        EQU 11
 
-mGetString MACRO prompt, strInput, count
+mGetString MACRO prompt, strInput, count, strLen
 	; preserve registers
 	PUSH EAX
 	PUSH ECX
@@ -24,10 +24,12 @@ mGetString MACRO prompt, strInput, count
 	; display prompt
 	MOV  EDX, prompt
 	CALL WriteString
+
 	; get input up to count
-	MOV  EDX, strInput
+	MOV  EDX, strInput ; set up EDX to point to strInput
 	MOV  ECX, count  ; buffer size according to Irvine
 	CALL ReadString
+	MOV  strLen, EAX ; store length in strLen
 
 	; restore registers
 	POP  EAX
@@ -53,11 +55,11 @@ ENDM
 ; Global Constants (with text-equivalents for easier string interpolation)
 
 ; Intro Strings
-intro1		BYTE "Getting low with I/0 Procedures", 0
-intro2		BYTE "Designed and created by: Kelley Sharp", 0
-intro3		BYTE "Please enter 10 signed decimal integers.", 0
-intro4     BYTE "Each number needs to fit into a 32-bit register.", 0
-intro5     BYTE "Afterwards I will give you the full list of integers, their sum, and average.", 0
+intro1	    BYTE "Getting low with I/0 Procedures", 0
+intro2	    BYTE "Designed and created by: Kelley Sharp", 0
+intro3	    BYTE "Please enter 10 signed decimal integers.", 0
+intro4      BYTE "Each number needs to fit into a 32-bit register.", 0
+intro5      BYTE "Afterwards I will give you the full list of integers, their sum, and average.", 0
 
 ; Prompt
 prompt      BYTE "Please enter a signed number: ", 0
@@ -70,10 +72,13 @@ average_msg	BYTE "The rounded average is:", 0
 
 ; User data variables
 inputStr    BYTE MAX_STR_SIZE DUP(?)
+strLen		DWORD ?
 inputNum    SDWORD ?
 
 ; Summary & Conclusion Strings
 goodbye		BYTE "I hope you enjoyed using my program! The end.", 0
+
+debug BYTE "YEP", 0
 
 .code
 main PROC
@@ -85,12 +90,16 @@ main PROC
 	PUSH OFFSET intro1
 	CALL Introduction
 
-	;PUSH OFFSET inputNum
-	;PUSH COUNT
-	;PUSH OFFSET inputStr
-	;PUSH OFFSET errorMsg
-	;PUSH OFFSET prompt
-	;CALL ReadVal
+	PUSH strLen
+	PUSH OFFSET inputNum
+	PUSH COUNT
+	PUSH OFFSET inputStr
+	PUSH OFFSET errorMsg
+	PUSH OFFSET prompt
+	CALL ReadVal
+
+	MOV  EAX, inputNum
+	CALL WriteDec
 
 	;CALL Farewell
 
@@ -115,7 +124,7 @@ Introduction PROC
 	MOV  EBP, ESP
 	PUSH EDX
 
-	; display all intro prompts
+	; display name and title
 	MOV  EDX, [EBP+8]
 	CALL WriteString
 	CALL CrLf
@@ -124,6 +133,7 @@ Introduction PROC
 	CALL CrLf
 	CALL CrLf
 
+	; display instructions
 	MOV  EDX, [EBP+16]
 	CALL WriteString
 	CALL CrLf	
@@ -157,68 +167,107 @@ Introduction ENDP
 ;     inputStr [EBP+16]
 ;     count    [EBP+20]
 ;     inputNum [EBP+24]
+;     strLen   [EBP+28]
 ;
 ; ---------------------------------------------------------------------------------
 ReadVal PROC
 	LOCAL isNegative:BYTE
 	LOCAL isFirstChar:BYTE
+	LOCAL currentNum:DWORD
 	; preserve registers
 
 	PUSH EAX
 	PUSH EBX
 	PUSH ECX
+	PUSH EDX
 	PUSH ESI
+	PUSH EDI
 
-	_getInput:
-		mGetString [EBP+8], [EBP+16], [EBP+20]
-
+	_getInputAndInitialize:
+		mGetString [EBP+8], [EBP+16], [EBP+20], [EBP+28]
 		; prepare string to be looped over
-		MOV  ESI, [EBP+16]
+		MOV  ESI, [EBP+16] ; put string in ESI
+		MOV  ECX, [EBP+28] ; put length in ECX for loop
 		CLD
-		MOV  ECX, 0
 		MOV  isFirstChar, 1
+		MOV  currentNum, 0
 
 	_loadNextByte:
-		MOV  EAX, 0
+		; load in 1 byte at a time
+		MOV   EAX, 0
 		LODSB
-		CMP  isFirstChar, 0
-		JE   _checkByte
+		; skip ahead if not first byte
+		CMP   isFirstChar, 0
+		JE    _checkStrByte
 
 	_checkSignByte:
+		; the first char we check to see if there is a sign
 		CMP  AL, 45  ; "-" character
 		JE   _hasNegativeSign
 		CMP  AL, 43  ; "+" character
-		JE	_hasPositiveSign
+		JE	 _hasPositiveSign
 		; otherwise jump to checkByte normally
-		JMP _checkByte
+		JMP  _checkStrByte
 
 	_hasNegativeSign:
-		MOV isNegative, 1
-		MOV isFirstChar, 0
+		MOV  isNegative, 1
+		MOV  isFirstChar, 0
+		JMP  _continueLoop
 
 	_hasPositiveSign:
-		MOV isNegative, 0
-		MOV isFirstChar, 0
+		MOV  isNegative, 0
+		MOV  isFirstChar, 0
+		JMP  _continueLoop
 
-	_checkByte:
-		; 0 indicates the null-termination byte
-		CMP  AL, 0
-		JE   _stringEnd
-		; ensure it's a number
-		CMP  AL, 48
+	_checkStrByte:
+		CMP   AL, 0
+		JE    _stringEnd
+		; ensure it's a valid digit 0-9
+		CMP   AL, 48
+		JB    _error
+		CMP   AL, 57
+		JA    _error
+
+	_strToNum:
+		SUB   AL, 48
+		MOVZX EAX, AL
+		PUSH  EAX
+		MOV   EAX, currentNum
+		MOV   EBX, 10
+		MUL   EBX
+		POP	  EAX
+		ADD   currentNum, EAX
+
+	_continueLoop:
+		LOOP  _loadNextByte
+		JMP   _stringEnd
+
+	_error:
+		MOV   EDX, [EBP+12]
+		CALL  WriteString
+		CALL  CrLf
+		JMP  _getInputAndInitialize
 
 	_stringEnd:
-		CMP  ECX, 0
-		JE   _error
-	
-	_error:
-		MOV  EDX, [EBP+12]
-		CALL WriteString
-		CALL CrLf
+		CMP   currentNum, 0
+		JE    _error
+		CMP   isNegative, 1
+		JE    _negate
+		JMP   _storeStr
+
+	_negate:
+		NEG   currentNum
+
+	_storeStr:
+		MOV   EAX, currentNum
+		MOV   EDI, [EBP+24]
+		MOV   [EDI], EAX
 
 
 	; restore registers
+	POP  EDI
 	POP  ESI
+	POP  EDX
 	POP  ECX
 	POP  EBX
 	POP  EAX
