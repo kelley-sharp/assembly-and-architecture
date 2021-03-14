@@ -53,8 +53,11 @@ ENDM
 ; Global Constants (with text-equivalents for easier string interpolation)
 
 ; Intro Strings
-intro		BYTE "Getting low with I/0 Procedures", 0
+intro1		BYTE "Getting low with I/0 Procedures", 0
 intro2		BYTE "Designed and created by: Kelley Sharp", 0
+intro3		BYTE "Please enter 10 signed decimal integers.", 0
+intro4     BYTE "Each number needs to fit into a 32-bit register.", 0
+intro5     BYTE "Afterwards I will give you the full list of integers, their sum, and average.", 0
 
 ; Prompt
 prompt      BYTE "Please enter a signed number: ", 0
@@ -75,16 +78,21 @@ goodbye		BYTE "I hope you enjoyed using my program! The end.", 0
 .code
 main PROC
 
+	PUSH OFFSET intro5
+	PUSH OFFSET intro4
+	PUSH OFFSET intro3
+	PUSH OFFSET intro2
+	PUSH OFFSET intro1
 	CALL Introduction
 
-	PUSH OFFSET inputNum
-	PUSH COUNT
-	PUSH OFFSET inputStr
-	PUSH OFFSET errorMsg
-	PUSH OFFSET prompt
-	CALL ReadVal
+	;PUSH OFFSET inputNum
+	;PUSH COUNT
+	;PUSH OFFSET inputStr
+	;PUSH OFFSET errorMsg
+	;PUSH OFFSET prompt
+	;CALL ReadVal
 
-	CALL Farewell
+	;CALL Farewell
 
 	Invoke ExitProcess, 0
 main ENDP
@@ -93,16 +101,44 @@ main ENDP
 ; Name: Introduction
 ;
 ; Displays programmer's name, program's name, and instructions.
+;
+; Receives: 
+;     intro1   [EBP+8]
+;     intro2   [EBP+12]
+;     intro3   [EBP+16]
+;     intro4   [EBP+20]
+;     intro5   [EBP+24]
 ; ---------------------------------------------------------------------------------
 Introduction PROC
+	; preserve registers
 	PUSH EBP
-	MOV  EBP, ESP 
+	MOV  EBP, ESP
+	PUSH EDX
 
-	; Display programmer's name and program's name
+	; display all intro prompts
+	MOV  EDX, [EBP+8]
+	CALL WriteString
+	CALL CrLf
+	MOV  EDX, [EBP+12]
+	CALL WriteString
+	CALL CrLf
+	CALL CrLf
 
-	; Display Instructions
+	MOV  EDX, [EBP+16]
+	CALL WriteString
+	CALL CrLf	
+	MOV  EDX, [EBP+20]
+	CALL WriteString
+	CALL CrLf	
+	MOV  EDX, [EBP+24]
+	CALL WriteString
+	CALL CrLf
+	CALL CrLf
 
-
+	; restore registers
+	POP EDX
+	POP EBP
+	RET 20
 Introduction ENDP
 
 ; ---------------------------------------------------------------------------------
@@ -176,10 +212,9 @@ ReadVal PROC
 		JE   _error
 	
 	_error:
-		
-
-
-
+		MOV  EDX, [EBP+12]
+		CALL WriteString
+		CALL CrLf
 
 
 	; restore registers
@@ -188,7 +223,7 @@ ReadVal PROC
 	POP  EBX
 	POP  EAX
 
-	RET  16
+	RET  20
 
 ReadVal ENDP
 

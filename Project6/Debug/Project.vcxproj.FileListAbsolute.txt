@@ -6,3 +6,5 @@ C:\assembly-architecture-CS271\Project4\Debug\Project.exe
 C:\assembly-architecture-CS271\Project4\Debug\Project.pdb
 C:\assembly-architecture-CS271\Project5\Debug\Project.exe
 C:\assembly-architecture-CS271\Project5\Debug\Project.pdb
+C:\assembly-architecture-CS271\Project6\Debug\Project.exe
+C:\assembly-architecture-CS271\Project6\Debug\Project.pdb
