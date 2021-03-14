@@ -122,23 +122,18 @@ Introduction PROC
 	PUSH EDX
 
 	; display name and title
-	MOV  EDX, [EBP+8]
-	CALL WriteString
+	mDisplayString [EBP+8]
 	CALL CrLf
-	MOV  EDX, [EBP+12]
-	CALL WriteString
+	mDisplayString [EBP+12]
 	CALL CrLf
 	CALL CrLf
 
 	; display instructions
-	MOV  EDX, [EBP+16]
-	CALL WriteString
+	mDisplayString [EBP+16]
 	CALL CrLf	
-	MOV  EDX, [EBP+20]
-	CALL WriteString
+	mDisplayString [EBP+20]
 	CALL CrLf	
-	MOV  EDX, [EBP+24]
-	CALL WriteString
+	mDisplayString [EBP+24]
 	CALL CrLf
 	CALL CrLf
 
@@ -149,7 +144,7 @@ Introduction PROC
 Introduction ENDP
 
 ; ---------------------------------------------------------------------------------
-; Name: Readval
+; Name: ReadVal
 ;
 ; Reads an input value from the user and applies validation
 ;
@@ -211,11 +206,17 @@ ReadVal PROC
 	_hasNegativeSign:
 		MOV  isNegative, 1
 		MOV  isFirstChar, 0
+		; check edge case where user just enters "-"
+		CMP  ECX, 1
+		JE   _error
 		JMP  _continueLoop
 
 	_hasPositiveSign:
 		MOV  isNegative, 0
 		MOV  isFirstChar, 0
+		; check edge case where user just enters "+"
+		CMP  ECX, 1
+		JE   _error
 		JMP  _continueLoop
 
 	_checkStrByte:
@@ -241,8 +242,7 @@ ReadVal PROC
 		JMP   _stringEnd
 
 	_error:
-		MOV   EDX, [EBP+12]
-		CALL  WriteString
+		mDisplayString [EBP+12]
 		CALL  CrLf
 		JMP  _getInputAndInitialize
 
@@ -256,10 +256,9 @@ ReadVal PROC
 
 	_storeStr:
 		MOV   EAX, currentNum
-		; assign inputNum input parameter to currentNum local
+		; assign inputNum (output parameter) the value of currentNum local
 		MOV   EDI, [EBP+24] 
 		MOV   [EDI], EAX
-
 
 	; restore registers
 	POP  EDI
@@ -269,9 +268,23 @@ ReadVal PROC
 	POP  EBX
 	POP  EAX
 
-	RET  20
+	RET  24
 
 ReadVal ENDP
+
+; ---------------------------------------------------------------------------------
+; Name: WriteVal
+;
+; Prints a SDWORD value as a string of digits
+;
+; Preconditions: SDWORD in inputNum
+;
+; Postconditions: String printed to console
+;
+; Receives: 
+;     inputNum [EBP+8]
+;
+; ---------------------------------------------------------------------------------
 
 ; ---------------------------------------------------------------------------------
 ; Name: Farewell
