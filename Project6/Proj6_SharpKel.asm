@@ -98,8 +98,6 @@ main PROC
 	PUSH OFFSET prompt
 	CALL ReadVal
 
-	MOV  EAX, inputNum
-	CALL WriteDec
 
 	;CALL Farewell
 
@@ -173,7 +171,8 @@ Introduction ENDP
 ReadVal PROC
 	LOCAL isNegative:BYTE
 	LOCAL isFirstChar:BYTE
-	LOCAL currentNum:DWORD
+	LOCAL currentNum:SDWORD
+	LOCAL nextDigit:SDWORD
 	; preserve registers
 
 	PUSH EAX
@@ -229,14 +228,15 @@ ReadVal PROC
 		JA    _error
 
 	_strToNum:
+		; algorithm: (10 * currentNum) + nextDigit
 		SUB   AL, 48
-		MOVZX EAX, AL
-		PUSH  EAX
+		MOVZX EAX, AL  ; zero-extend AL so it fits into DWORD
+		MOV   nextDigit, EAX
 		MOV   EAX, currentNum
 		MOV   EBX, 10
 		MUL   EBX
-		POP	  EAX
-		ADD   currentNum, EAX
+		ADD   EAX, nextDigit
+		MOV   currentNum, EAX
 
 	_continueLoop:
 		LOOP  _loadNextByte
@@ -260,7 +260,8 @@ ReadVal PROC
 
 	_storeStr:
 		MOV   EAX, currentNum
-		MOV   EDI, [EBP+24]
+		; assign inputNum input parameter to currentNum local
+		MOV   EDI, [EBP+24] 
 		MOV   [EDI], EAX
 
 
