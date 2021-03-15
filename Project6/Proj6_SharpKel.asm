@@ -14,6 +14,7 @@ ExitProcess proto, dwExitCode:dword
 
 MAX_STR_SIZE EQU 32
 COUNT        EQU 12  ; we want 10 characters + a sign "+"/"-" and a null byte
+ARRAYSIZE    EQU 10
 
 mGetString MACRO prompt, strInput, count, strLen
 	; preserve registers
@@ -72,7 +73,10 @@ average_msg	BYTE "The rounded average is:", 0
 ; User data variables
 inputStr    BYTE   MAX_STR_SIZE  DUP(?) ; for ReadVal
 strLen		DWORD  ?  ; store the length of the input string
-inputNum    SDWORD ?  ; used as output parameter for ReadVal and input parameter for WriteVal
+numbers     SDWORD ARRAYSIZE DUP(?)
+sum         SDWORD 0
+avg         SDWORD 0
+
 
 ; Summary & Conclusion Strings
 goodbye		BYTE "I hope you enjoyed using my program! The end.", 0
@@ -90,15 +94,13 @@ main PROC
 	CALL Introduction
 
 	PUSH strLen
-	PUSH OFFSET inputNum
 	PUSH COUNT
 	PUSH OFFSET inputStr
 	PUSH OFFSET errorMsg
 	PUSH OFFSET prompt
-	CALL ReadVal
-
-	PUSH inputNum
-	CALL WriteVal
+	PUSH ARRAYSIZE
+	PUSH OFFSET numbers
+	CALL EnterNumbers	
 
 	;CALL Farewell
 
@@ -294,7 +296,6 @@ ReadVal ENDP
 WriteVal PROC
 	; local variables
 	LOCAL isNegative:BYTE ; byte flag to store whether the input is a negative number
-	LOCAL isFinalDigit:BYTE ; byte flag to store whether we're on the last digit
 	LOCAL currentNum:SDWORD
 	LOCAL currentDigit:SDWORD
 	LOCAL outputStr[15]:BYTE
@@ -400,6 +401,58 @@ WriteVal ENDP
 ;
 ; Displays parting message with a goodbye
 ; ---------------------------------------------------------------------------------	
+
+; ---------------------------------------------------------------------------------
+; Name: enterNumbers
+;
+; Calls ReadVal in a loop and puts the entries into an array
+;
+; Preconditions: empty numbers array
+;
+; Postconditions: filled numbers array
+;
+; Receives:
+;     numbers     [EBP+8]  the address of the numbers array
+;     ARRAYSIZE   [EBP+12] the constant ARRAYSIZE
+;     prompt	  [EBP+16] prompt for ReadVal
+;     errorMsg    [EBP+20] errorMessage for validation in ReadVal
+;     inputStr    [EBP+24] value to hold temporary string input
+;     count       [EBP+28] length of string input
+;     strLen      [EBP+36] max string length (constant)
+; ---------------------------------------------------------------------------------
+EnterNumbers PROC
+	; preserve registers
+	PUSH EBP
+	MOV  EBP, ESP
+	PUSH ECX
+	PUSH EDI
+	PUSHFD
+
+	_setupLoop:
+		MOV ECX, [EBP+12] ; loop through length of array
+		MOV EDI, [EBP+8] ; set EDI to first array element
+
+	_fillLoop:
+		PUSH strLen
+		PUSH EDI
+		PUSH [EBP+28]
+		PUSH [EBP+24]
+		PUSH [EBP+20]
+		PUSH [EBP+16]
+		CALL ReadVal
+		ADD EDI, 4
+		LOOP _fillLoop
+
+	; restore registers
+	POPFD
+	POP ECX
+	POP EDI
+	POP EBP
+
+	RET 28
+
+EnterNumbers ENDP
+
 Farewell PROC
 	PUSH EBP
 	MOV  EBP, ESP

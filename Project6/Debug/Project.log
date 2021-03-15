@@ -1,3 +1,2 @@
 ﻿  Assembling Proj6_SharpKel.asm...
-Proj6_SharpKel.asm(397): warning A6004: procedure argument or local not referenced : isFinalDigit
   Project.vcxproj -> C:\assembly-architecture-CS271\Project6\Debug\Project.exe
