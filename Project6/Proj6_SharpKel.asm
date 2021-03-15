@@ -14,7 +14,7 @@ ExitProcess proto, dwExitCode:dword
 
 MAX_STR_SIZE EQU 32
 COUNT        EQU 12  ; we want 10 characters + a sign "+"/"-" and a null byte
-ARRAYSIZE    EQU 5
+ARRAYSIZE    EQU 10
 
 mGetString MACRO prompt, strInput, count, strLen
 	; preserve registers
@@ -72,9 +72,9 @@ avgLabel	BYTE "The rounded average is: ", 0
 commaDL		BYTE ", ", 0   ; delimiter for list output
 
 ; User data variables
-inputStr    BYTE   MAX_STR_SIZE  DUP(?) ; for ReadVal
+inputStr    BYTE   MAX_STR_SIZE  DUP(?) ; tmp for ReadVal
 strLen		DWORD  ?  ; store the length of the input string
-numbers     SDWORD ARRAYSIZE DUP(?)
+numbers     SDWORD ARRAYSIZE	 DUP(?)
 sum         SDWORD 0
 avg         SDWORD 0
 
@@ -209,6 +209,7 @@ ReadVal PROC
 		CLD
 		MOV  isFirstChar, 1
 		MOV  currentNum, 0
+		MOV  isNegative, 0
 
 	_loadNextByte:
 		; load in 1 byte at a time
@@ -317,7 +318,7 @@ WriteVal PROC
 	LOCAL isNegative:BYTE ; byte flag to store whether the input is a negative number
 	LOCAL currentNum:SDWORD
 	LOCAL currentDigit:SDWORD
-	LOCAL outputStr[15]:BYTE
+	LOCAL outputStr[15]:BYTE ; store the string that will be printed
 	LOCAL remainderCount:DWORD
 
 	; preserve registers
@@ -343,11 +344,11 @@ WriteVal PROC
 	
 	_checkSign:
 		CMP  currentNum, 0
-		JL   _isNegative
+		JL   _setIsNegative
 		MOV  isNegative, 0
 		JMP  _processDigit
 
-	_isNegative:
+	_setIsNegative:
 		NEG  currentNum
 		MOV  isNegative, 1
 
@@ -497,6 +498,7 @@ PrintArray PROC
 	_displayLabel:
 		CALL CrLf
 		mDisplayString [EBP+16]
+		CALL CrLf
 
 	_fillLoop:
 		PUSH [EDI]
