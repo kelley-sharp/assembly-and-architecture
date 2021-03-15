@@ -14,7 +14,7 @@ ExitProcess proto, dwExitCode:dword
 
 MAX_STR_SIZE EQU 32
 COUNT        EQU 12  ; we want 10 characters + a sign "+"/"-" and a null byte
-ARRAYSIZE    EQU 10
+ARRAYSIZE    EQU 5
 
 mGetString MACRO prompt, strInput, count, strLen
 	; preserve registers
@@ -66,9 +66,10 @@ prompt      BYTE "Please enter a signed number: ", 0
 errorMsg    BYTE "ERROR: You did not enter an signed number or your number was too big.", 0
 
 ; Label/Misc Strings
-list_msg	BYTE "These are the numbers you entered:", 0 
-sum_msg		BYTE "The sum of the numbers is:", 0
-average_msg	BYTE "The rounded average is:", 0
+listMsg		BYTE "These are the numbers you entered: ", 0 
+sumMsg		BYTE "The sum of the numbers is: ", 0
+avgMsg		BYTE "The rounded average is: ", 0
+commaDL     BYTE ", ", 0   ; delimiter for list output
 
 ; User data variables
 inputStr    BYTE   MAX_STR_SIZE  DUP(?) ; for ReadVal
@@ -100,7 +101,13 @@ main PROC
 	PUSH OFFSET prompt
 	PUSH ARRAYSIZE
 	PUSH OFFSET numbers
-	CALL EnterNumbers	
+	CALL EnterNumbers
+
+	PUSH OFFSET commaDL
+	PUSH OFFSET listMsg
+	PUSH ARRAYSIZE
+	PUSH OFFSET numbers
+	CALL PrintArray
 
 	;CALL Farewell
 
@@ -403,7 +410,7 @@ WriteVal ENDP
 ; ---------------------------------------------------------------------------------	
 
 ; ---------------------------------------------------------------------------------
-; Name: enterNumbers
+; Name: EnterNumbers
 ;
 ; Calls ReadVal in a loop and puts the entries into an array
 ;
@@ -452,6 +459,96 @@ EnterNumbers PROC
 	RET 28
 
 EnterNumbers ENDP
+
+; ---------------------------------------------------------------------------------
+; Name: PrintArray
+;
+; Loop through the array and call WriteVal for each value
+;
+; Preconditions: filled numbers array
+;
+; Postconditions: printed comma-separated values to console
+;
+; Receives:
+;     numbers     [EBP+8]  the address of the numbers array
+;     ARRAYSIZE   [EBP+12] the constant ARRAYSIZE
+;     label		  [EBP+16] display text (offset)
+;     commaDL	  [EBP+20] a comma delimiter (offset)
+; ---------------------------------------------------------------------------------
+PrintArray PROC
+	; preserve registers
+	PUSH EBP
+	MOV  EBP, ESP
+	PUSH ECX
+	PUSH EDI
+	PUSHFD
+
+	_setupLoop:
+		MOV ECX, [EBP+12] ; loop through length of array
+		MOV EDI, [EBP+8] ; set EDI to first array element
+
+	_displayLabel:
+		CALL CrLf
+		MOV  EDX, [EBP+16]
+		CALL WriteString
+
+	_fillLoop:
+		PUSH [EDI]
+		CALL WriteVal
+		CMP  ECX, 1
+		JNE  _printDelimiter
+		JMP _continue
+
+	_printDelimiter:
+		; this puts a comma between all but the last
+		MOV  EDX, [EBP+20]
+		CALL WriteString
+
+	_continue:
+		ADD  EDI, 4
+		LOOP _fillLoop
+
+	; restore registers
+	POPFD
+	POP ECX
+	POP EDI
+	POP EBP
+
+	RET 16
+PrintArray ENDP
+; ---------------------------------------------------------------------------------
+; Name: ComputeSumAvg
+;
+; Loop through the array and generate the sum and (floored) avergage
+;
+; Preconditions: filled numbers array
+;
+; Postconditions: assigned value to output parameters sum and avg
+;
+; Receives:
+;     numbers     [EBP+8]  the address of the numbers array
+;     ARRAYSIZE   [EBP+12] the constant ARRAYSIZE
+;     sum		  [EBP+16] output parameter for sum data (reference)
+;     avg		  [EBP+20] output parameter for avg data (reference)
+; ---------------------------------------------------------------------------------
+ComputeSumAvg PROC
+	LOCAL runningTotal:SDWORD
+
+	; preserve registers
+	PUSH EAX
+	PUSH ECX
+	PUSH EDI
+	PUSHFD
+
+	; restore registers
+	POPFD
+	POP EDI
+	POP ECX
+	POP EAX
+
+	RET 16
+
+ComputeSumAvg ENDP
 
 Farewell PROC
 	PUSH EBP
