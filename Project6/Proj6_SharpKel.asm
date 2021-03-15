@@ -334,16 +334,18 @@ WriteVal PROC
 		JMP  _writeFirstDigit
 
 	_divideByTen:
-		CDQ
 		MOV  EAX, currentNum
+		CDQ
 		MOV  EBX, 10
 		IDIV EBX
 		; save the remainder on the stack
+		CMP  EDX, 0
+		JE   _writeFirstDigit
+		CMP  EAX, 10
+		JE   _writeFirstDigit
 		PUSH EDX
 		INC  remainderCount
 		MOV  currentNum, EAX
-		CMP  EDX, 0
-		JE   _writeFirstDigit
 		JMP  _processDigit
 
 	_writeFirstDigit:
