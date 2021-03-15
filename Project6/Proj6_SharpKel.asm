@@ -338,14 +338,10 @@ WriteVal PROC
 		CDQ
 		MOV  EBX, 10
 		IDIV EBX
-		; save the remainder on the stack
-		CMP  EDX, 0
-		JE   _writeFirstDigit
-		CMP  EAX, 10
-		JE   _writeFirstDigit
-		PUSH EDX
-		INC  remainderCount
 		MOV  currentNum, EAX
+		; save the remainder on the stack
+		PUSH EDX
+		INC  remainderCount		
 		JMP  _processDigit
 
 	_writeFirstDigit:
