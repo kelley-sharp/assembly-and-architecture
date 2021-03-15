@@ -13,7 +13,7 @@ INCLUDE Irvine32.inc
 ExitProcess proto, dwExitCode:dword
 
 MAX_STR_SIZE EQU 32
-COUNT        EQU 11
+COUNT        EQU 12
 
 mGetString MACRO prompt, strInput, count, strLen
 	; preserve registers
@@ -30,7 +30,6 @@ mGetString MACRO prompt, strInput, count, strLen
 	MOV  ECX, count  ; buffer size according to Irvine
 	CALL ReadString
 	MOV  strLen, EAX ; store length in strLen
-
 	; restore registers
 	POP  EAX
 	POP  EDX
@@ -237,7 +236,9 @@ ReadVal PROC
 		MOV   EAX, currentNum
 		MOV   EBX, 10
 		MUL   EBX
+		JO	  _error
 		ADD   EAX, nextDigit
+		JO	  _error
 		MOV   currentNum, EAX
 
 	_continueLoop:
@@ -256,6 +257,7 @@ ReadVal PROC
 
 	_negate:
 		NEG   currentNum
+		JO	  _error
 
 	_storeStr:
 		MOV   EAX, currentNum
@@ -345,8 +347,10 @@ WriteVal PROC
 		JMP  _processDigit
 
 	_writeFirstDigit:
+		; the first digit is the final state of currentNum
 		MOV  EAX, currentNum
 		MOV  currentDigit, EAX
+		; check if we need to prepend a negative sign
 		CMP  isNegative, 1
 		JE   _writeNegativeSign
 		JMP _appendToStr

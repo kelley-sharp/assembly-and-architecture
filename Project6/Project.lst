@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 19:04:56
+Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 19:27:29
 5String Primitives and Macros     (Proj6_SharpKel.asm	     Page 1 - 1
 
 
@@ -34,7 +34,7 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 19:04:56
 				ExitProcess proto, dwExitCode:dword
 
  = 00000020			MAX_STR_SIZE EQU 32
- = 0000000B			COUNT        EQU 11
+ = 0000000C			COUNT        EQU 12
 
 				mGetString MACRO prompt, strInput, count, strLen
 					; preserve registers
@@ -51,7 +51,6 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 19:04:56
 					MOV  ECX, count  ; buffer size according to Irvine
 					CALL ReadString
 					MOV  strLen, EAX ; store length in strLen
-
 					; restore registers
 					POP  EAX
 					POP  EDX
@@ -203,14 +202,14 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 19:04:56
 
  0000001E  FF 35 000001C9 R		PUSH strLen
  00000024  68 000001CD R		PUSH OFFSET inputNum
- 00000029  6A 0B			PUSH COUNT
+ 00000029  6A 0C			PUSH COUNT
  0000002B  68 000001A9 R		PUSH OFFSET inputStr
  00000030  68 0000010D R		PUSH OFFSET errorMsg
  00000035  68 000000EE R		PUSH OFFSET prompt
  0000003A  E8 00000070			CALL ReadVal
 
  0000003F  FF 35 000001CD R		PUSH inputNum
- 00000045  E8 00000128			CALL WriteVal
+ 00000045  E8 0000012E			CALL WriteVal
 
 					;CALL Farewell
 
@@ -360,23 +359,23 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 19:04:56
  00000103  C6 45 FE 00				MOV  isFirstChar, 0
 						; check edge case where user just enters "-"
  00000107  83 F9 01				CMP  ECX, 1
- 0000010A  74 35				JE   _error
- 0000010C  EB 2F				JMP  _continueLoop
+ 0000010A  74 39				JE   _error
+ 0000010C  EB 33				JMP  _continueLoop
 
  0000010E				_hasPositiveSign:
  0000010E  C6 45 FF 00				MOV  isNegative, 0
  00000112  C6 45 FE 00				MOV  isFirstChar, 0
 						; check edge case where user just enters "+"
  00000116  83 F9 01				CMP  ECX, 1
- 00000119  74 26				JE   _error
- 0000011B  EB 20				JMP  _continueLoop
+ 00000119  74 2A				JE   _error
+ 0000011B  EB 24				JMP  _continueLoop
 
  0000011D				_checkStrByte:
 						; ensure it's a valid digit 0-9
  0000011D  3C 30				CMP   AL, 48
- 0000011F  72 20				JB    _error
+ 0000011F  72 24				JB    _error
  00000121  3C 39				CMP   AL, 57
- 00000123  77 1C				JA    _error
+ 00000123  77 20				JA    _error
 
  00000125				_strToNum:
 						; algorithm: (10 * currentNum) + nextDigit
@@ -386,48 +385,51 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 19:04:56
  0000012D  8B 45 F8				MOV   EAX, currentNum
  00000130  BB 0000000A				MOV   EBX, 10
  00000135  F7 E3				MUL   EBX
- 00000137  03 45 F4				ADD   EAX, nextDigit
- 0000013A  89 45 F8				MOV   currentNum, EAX
+ 00000137  70 0C				JO	  _error
+ 00000139  03 45 F4				ADD   EAX, nextDigit
+ 0000013C  70 07				JO	  _error
+ 0000013E  89 45 F8				MOV   currentNum, EAX
 
- 0000013D				_continueLoop:
- 0000013D  E2 AA				LOOP  _loadNextByte
- 0000013F  EB 14				JMP   _stringEnd
+ 00000141				_continueLoop:
+ 00000141  E2 A6				LOOP  _loadNextByte
+ 00000143  EB 14				JMP   _stringEnd
 
- 00000141				_error:
+ 00000145				_error:
 						mDisplayString [EBP+12]
- 00000141  52		     1		PUSH EDX
- 00000142  8B 55 0C	     1		MOV  EDX, [EBP+12]
- 00000145  E8 00000000 E     1		CALL WriteString
- 0000014A  5A		     1		POP EDX
- 0000014B  E8 00000000 E			CALL  CrLf
- 00000150  E9 FFFFFF66				JMP  _getInputAndInitialize
+ 00000145  52		     1		PUSH EDX
+ 00000146  8B 55 0C	     1		MOV  EDX, [EBP+12]
+ 00000149  E8 00000000 E     1		CALL WriteString
+ 0000014E  5A		     1		POP EDX
+ 0000014F  E8 00000000 E			CALL  CrLf
+ 00000154  E9 FFFFFF62				JMP  _getInputAndInitialize
 
- 00000155				_stringEnd:
- 00000155  80 7D FF 01				CMP   isNegative, 1
- 00000159  74 02				JE    _negate
- 0000015B  EB 03				JMP   _storeStr
+ 00000159				_stringEnd:
+ 00000159  80 7D FF 01				CMP   isNegative, 1
+ 0000015D  74 02				JE    _negate
+ 0000015F  EB 05				JMP   _storeStr
 
- 0000015D				_negate:
- 0000015D  F7 5D F8				NEG   currentNum
+ 00000161				_negate:
+ 00000161  F7 5D F8				NEG   currentNum
+ 00000164  70 DF				JO	  _error
 
- 00000160				_storeStr:
- 00000160  8B 45 F8				MOV   EAX, currentNum
+ 00000166				_storeStr:
+ 00000166  8B 45 F8				MOV   EAX, currentNum
 						; assign inputNum (output parameter) the value of currentNum local
- 00000163  8B 7D 18				MOV   EDI, [EBP+24] 
- 00000166  89 07				MOV   [EDI], EAX
+ 00000169  8B 7D 18				MOV   EDI, [EBP+24] 
+ 0000016C  89 07				MOV   [EDI], EAX
 
 					; restore registers
- 00000168  5F				POP  EDI
- 00000169  5E				POP  ESI
- 0000016A  5A				POP  EDX
- 0000016B  59				POP  ECX
- 0000016C  5B				POP  EBX
- 0000016D  58				POP  EAX
+ 0000016E  5F				POP  EDI
+ 0000016F  5E				POP  ESI
+ 00000170  5A				POP  EDX
+ 00000171  59				POP  ECX
+ 00000172  5B				POP  EBX
+ 00000173  58				POP  EAX
 
- 0000016E  C9		   *	    leave  
- 0000016F  C2 0018			RET  24
+ 00000174  C9		   *	    leave  
+ 00000175  C2 0018			RET  24
 
- 00000172			ReadVal ENDP
+ 00000178			ReadVal ENDP
 
 				; ---------------------------------------------------------------------------------
 				; Name: WriteVal
@@ -441,7 +443,7 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 19:04:56
 				; Receives:
 				;     inputNum     [EBP+8]
 				; ---------------------------------------------------------------------------------
- 00000172			WriteVal PROC
+ 00000178			WriteVal PROC
 					; local variables
 					LOCAL isNegative:BYTE ; byte flag to store whether the input is a negative number
 					LOCAL isFinalDigit:BYTE ; byte flag to store whether we're on the last digit
@@ -451,130 +453,132 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 19:04:56
 					LOCAL remainderCount:DWORD
 
 					; preserve registers
- 00000172  55		   *	    push   ebp
- 00000173  8B EC	   *	    mov    ebp, esp
- 00000175  83 C4 E0	   *	    add    esp, 0FFFFFFE0h
- 00000178  50				PUSH   EAX
- 00000179  53				PUSH   EBX
- 0000017A  51				PUSH   ECX
- 0000017B  52				PUSH   EDX
- 0000017C  57				PUSH   EDI
- 0000017D  56				PUSH   ESI
- 0000017E  9C				PUSHFD
+ 00000178  55		   *	    push   ebp
+ 00000179  8B EC	   *	    mov    ebp, esp
+ 0000017B  83 C4 E0	   *	    add    esp, 0FFFFFFE0h
+ 0000017E  50				PUSH   EAX
+ 0000017F  53				PUSH   EBX
+ 00000180  51				PUSH   ECX
+ 00000181  52				PUSH   EDX
+ 00000182  57				PUSH   EDI
+ 00000183  56				PUSH   ESI
+ 00000184  9C				PUSHFD
 
- 0000017F				_initialize:
- 0000017F  8B 75 08				MOV  ESI, [EBP+8] ; put inputNum in ESI
- 00000182  8D 7D E5				LEA  EDI, outputStr  ; prepare outputStr for iteration
- 00000185  FC					CLD
- 00000186  C7 45 E0				MOV  remainderCount, 0
+ 00000185				_initialize:
+ 00000185  8B 75 08				MOV  ESI, [EBP+8] ; put inputNum in ESI
+ 00000188  8D 7D E5				LEA  EDI, outputStr  ; prepare outputStr for iteration
+ 0000018B  FC					CLD
+ 0000018C  C7 45 E0				MOV  remainderCount, 0
 	   00000000
- 0000018D  C6 45 FF 00				MOV  isNegative, 0
- 00000191  C7 45 F4				MOV  currentDigit, 0
+ 00000193  C6 45 FF 00				MOV  isNegative, 0
+ 00000197  C7 45 F4				MOV  currentDigit, 0
 	   00000000
 
- 00000198				_analyzeNumber:
- 00000198  8B C6				MOV EAX, ESI
- 0000019A  89 45 F8				MOV currentNum, EAX
+ 0000019E				_analyzeNumber:
+ 0000019E  8B C6				MOV EAX, ESI
+ 000001A0  89 45 F8				MOV currentNum, EAX
 					
- 0000019D				_checkSign:
- 0000019D  83 7D F8 00				CMP  currentNum, 0
- 000001A1  7C 06				JL   _isNegative
- 000001A3  C6 45 FF 00				MOV  isNegative, 0
- 000001A7  EB 07				JMP  _processDigit
+ 000001A3				_checkSign:
+ 000001A3  83 7D F8 00				CMP  currentNum, 0
+ 000001A7  7C 06				JL   _isNegative
+ 000001A9  C6 45 FF 00				MOV  isNegative, 0
+ 000001AD  EB 07				JMP  _processDigit
 
- 000001A9				_isNegative:
- 000001A9  F7 5D F8				NEG  currentNum
- 000001AC  C6 45 FF 01				MOV  isNegative, 1
+ 000001AF				_isNegative:
+ 000001AF  F7 5D F8				NEG  currentNum
+ 000001B2  C6 45 FF 01				MOV  isNegative, 1
 
- 000001B0				_processDigit:
- 000001B0  83 7D F8 0A				CMP  currentNum, 10
+ 000001B6				_processDigit:
+ 000001B6  83 7D F8 0A				CMP  currentNum, 10
 						; continue dividing by 10 and storing the remainder until we have a single digit
- 000001B4  7D 02				JGE  _divideByTen
- 000001B6  EB 14				JMP  _writeFirstDigit
+ 000001BA  7D 02				JGE  _divideByTen
+ 000001BC  EB 14				JMP  _writeFirstDigit
 
- 000001B8				_divideByTen:
- 000001B8  8B 45 F8				MOV  EAX, currentNum
- 000001BB  99					CDQ
- 000001BC  BB 0000000A				MOV  EBX, 10
- 000001C1  F7 FB				IDIV EBX
- 000001C3  89 45 F8				MOV  currentNum, EAX
+ 000001BE				_divideByTen:
+ 000001BE  8B 45 F8				MOV  EAX, currentNum
+ 000001C1  99					CDQ
+ 000001C2  BB 0000000A				MOV  EBX, 10
+ 000001C7  F7 FB				IDIV EBX
+ 000001C9  89 45 F8				MOV  currentNum, EAX
 						; save the remainder on the stack
- 000001C6  52					PUSH EDX
- 000001C7  FF 45 E0				INC  remainderCount		
- 000001CA  EB E4				JMP  _processDigit
+ 000001CC  52					PUSH EDX
+ 000001CD  FF 45 E0				INC  remainderCount		
+ 000001D0  EB E4				JMP  _processDigit
 
- 000001CC				_writeFirstDigit:
- 000001CC  8B 45 F8				MOV  EAX, currentNum
- 000001CF  89 45 F4				MOV  currentDigit, EAX
- 000001D2  80 7D FF 01				CMP  isNegative, 1
- 000001D6  74 02				JE   _writeNegativeSign
- 000001D8  EB 11				JMP _appendToStr
+ 000001D2				_writeFirstDigit:
+						; the first digit is the final state of currentNum
+ 000001D2  8B 45 F8				MOV  EAX, currentNum
+ 000001D5  89 45 F4				MOV  currentDigit, EAX
+						; check if we need to prepend a negative sign
+ 000001D8  80 7D FF 01				CMP  isNegative, 1
+ 000001DC  74 02				JE   _writeNegativeSign
+ 000001DE  EB 11				JMP _appendToStr
 
- 000001DA				_writeNegativeSign:
- 000001DA  B8 0000002D				MOV EAX, 45
- 000001DF  AA					STOSB
- 000001E0  EB 09				JMP _appendToStr
+ 000001E0				_writeNegativeSign:
+ 000001E0  B8 0000002D				MOV EAX, 45
+ 000001E5  AA					STOSB
+ 000001E6  EB 09				JMP _appendToStr
 
- 000001E2				_processRemainder:
- 000001E2  58					POP EAX
- 000001E3  FF 4D E0				DEC remainderCount
- 000001E6  89 45 F4				MOV currentDigit, EAX
- 000001E9  EB 00				JMP _appendToStr
+ 000001E8				_processRemainder:
+ 000001E8  58					POP EAX
+ 000001E9  FF 4D E0				DEC remainderCount
+ 000001EC  89 45 F4				MOV currentDigit, EAX
+ 000001EF  EB 00				JMP _appendToStr
 
- 000001EB				_appendToStr:
- 000001EB  8B 45 F4				MOV   EAX, currentDigit
- 000001EE  83 C0 30				ADD   EAX, 48  ; convert integer to ASCII char code
- 000001F1  AA					STOSB
- 000001F2  83 7D E0 00				CMP  remainderCount, 0
- 000001F6  7F EA				JG   _processRemainder
+ 000001F1				_appendToStr:
+ 000001F1  8B 45 F4				MOV   EAX, currentDigit
+ 000001F4  83 C0 30				ADD   EAX, 48  ; convert integer to ASCII char code
+ 000001F7  AA					STOSB
+ 000001F8  83 7D E0 00				CMP  remainderCount, 0
+ 000001FC  7F EA				JG   _processRemainder
 
- 000001F8				_strEnd:
- 000001F8  B8 00000000				MOV				EAX, 0 ; null byte (0) at the end of the string
- 000001FD  AA					STOSB
+ 000001FE				_strEnd:
+ 000001FE  B8 00000000				MOV				EAX, 0 ; null byte (0) at the end of the string
+ 00000203  AA					STOSB
 						; load the offset of outputStr and print it to console
- 000001FE  8D 55 E5				LEA				EDX, outputStr
+ 00000204  8D 55 E5				LEA				EDX, outputStr
 						mDisplayString	EDX
- 00000201  52		     1		PUSH EDX
- 00000202  8B D2	     1		MOV  EDX, EDX
- 00000204  E8 00000000 E     1		CALL WriteString
- 00000209  5A		     1		POP EDX
+ 00000207  52		     1		PUSH EDX
+ 00000208  8B D2	     1		MOV  EDX, EDX
+ 0000020A  E8 00000000 E     1		CALL WriteString
+ 0000020F  5A		     1		POP EDX
 
 
 					; restore registers
- 0000020A  9D				POPFD
- 0000020B  5E				POP  ESI
- 0000020C  5F				POP  EDI
- 0000020D  5A				POP  EDX
- 0000020E  59				POP  ECX
- 0000020F  5B				POP  EBX
- 00000210  58				POP  EAX
+ 00000210  9D				POPFD
+ 00000211  5E				POP  ESI
+ 00000212  5F				POP  EDI
+ 00000213  5A				POP  EDX
+ 00000214  59				POP  ECX
+ 00000215  5B				POP  EBX
+ 00000216  58				POP  EAX
 
- 00000211  C9		   *	    leave  
- 00000212  C2 0004			RET 4
+ 00000217  C9		   *	    leave  
+ 00000218  C2 0004			RET 4
 
- 00000215			WriteVal ENDP
-Proj6_SharpKel.asm(391) : warning A6004:procedure argument or local not referenced : isFinalDigit
+ 0000021B			WriteVal ENDP
+Proj6_SharpKel.asm(395) : warning A6004:procedure argument or local not referenced : isFinalDigit
 				; ---------------------------------------------------------------------------------
 				; Name: Farewell
 				;
 				; Displays parting message with a goodbye
 				; ---------------------------------------------------------------------------------	
- 00000215			Farewell PROC
- 00000215  55				PUSH EBP
- 00000216  8B EC			MOV  EBP, ESP
+ 0000021B			Farewell PROC
+ 0000021B  55				PUSH EBP
+ 0000021C  8B EC			MOV  EBP, ESP
 
- 00000218  E8 00000000 E		CALL CrLf
- 0000021D  8B 55 08			MOV  EDX, [EBP+8]
- 00000220  E8 00000000 E		CALL WriteString
- 00000225  E8 00000000 E		CALL CrLf
+ 0000021E  E8 00000000 E		CALL CrLf
+ 00000223  8B 55 08			MOV  EDX, [EBP+8]
+ 00000226  E8 00000000 E		CALL WriteString
+ 0000022B  E8 00000000 E		CALL CrLf
 
- 0000022A  5D				POP EBP
- 0000022B  C2 0004			RET  4
+ 00000230  5D				POP EBP
+ 00000231  C2 0004			RET  4
 
- 0000022E			Farewell ENDP
+ 00000234			Farewell ENDP
 
 				END main
-Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 19:04:56
+Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 19:27:29
 5String Primitives and Macros     (Proj6_SharpKel.asm	     Symbols 2 - 1
 
 
@@ -677,7 +681,7 @@ Segments and Groups:
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
 _DATA  . . . . . . . . . . . . .	32 Bit	 00000203 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 0000022E Para	  Public  'CODE'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00000234 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -694,7 +698,7 @@ Delay  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 DumpMem  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 DumpRegs . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 ExitProcess  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-Farewell . . . . . . . . . . . .	P Near	 00000215 _TEXT	Length= 00000019 Public STDCALL
+Farewell . . . . . . . . . . . .	P Near	 0000021B _TEXT	Length= 00000019 Public STDCALL
 FileTimeToDosDateTime  . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 FileTimeToSystemTime . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 FlushConsoleInputBuffer  . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -749,7 +753,7 @@ ReadInt  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 ReadKeyFlush . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 ReadKey  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 ReadString . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-ReadVal  . . . . . . . . . . . .	P Near	 000000AF _TEXT	Length= 000000C3 Public STDCALL
+ReadVal  . . . . . . . . . . . .	P Near	 000000AF _TEXT	Length= 000000C9 Public STDCALL
   isNegative . . . . . . . . . .	Byte	 bp - 00000001
   isFirstChar  . . . . . . . . .	Byte	 bp - 00000002
   currentNum . . . . . . . . . .	DWord	 bp - 00000008
@@ -761,11 +765,11 @@ ReadVal  . . . . . . . . . . . .	P Near	 000000AF _TEXT	Length= 000000C3 Public 
   _hasPositiveSign . . . . . . .	L Near	 0000010E _TEXT	
   _checkStrByte  . . . . . . . .	L Near	 0000011D _TEXT	
   _strToNum  . . . . . . . . . .	L Near	 00000125 _TEXT	
-  _continueLoop  . . . . . . . .	L Near	 0000013D _TEXT	
-  _error . . . . . . . . . . . .	L Near	 00000141 _TEXT	
-  _stringEnd . . . . . . . . . .	L Near	 00000155 _TEXT	
-  _negate  . . . . . . . . . . .	L Near	 0000015D _TEXT	
-  _storeStr  . . . . . . . . . .	L Near	 00000160 _TEXT	
+  _continueLoop  . . . . . . . .	L Near	 00000141 _TEXT	
+  _error . . . . . . . . . . . .	L Near	 00000145 _TEXT	
+  _stringEnd . . . . . . . . . .	L Near	 00000159 _TEXT	
+  _negate  . . . . . . . . . . .	L Near	 00000161 _TEXT	
+  _storeStr  . . . . . . . . . .	L Near	 00000166 _TEXT	
 SetConsoleCursorInfo . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 SetConsoleCursorPosition . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 SetConsoleMode . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -802,24 +806,24 @@ WriteStackFrameName  . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-WriteVal . . . . . . . . . . . .	P Near	 00000172 _TEXT	Length= 000000A3 Public STDCALL
+WriteVal . . . . . . . . . . . .	P Near	 00000178 _TEXT	Length= 000000A3 Public STDCALL
   isNegative . . . . . . . . . .	Byte	 bp - 00000001
   isFinalDigit . . . . . . . . .	Byte	 bp - 00000002
   currentNum . . . . . . . . . .	DWord	 bp - 00000008
   currentDigit . . . . . . . . .	DWord	 bp - 0000000C
   outputStr  . . . . . . . . . .	Byte	 bp - 0000001B
   remainderCount . . . . . . . .	DWord	 bp - 00000020
-  _initialize  . . . . . . . . .	L Near	 0000017F _TEXT	
-  _analyzeNumber . . . . . . . .	L Near	 00000198 _TEXT	
-  _checkSign . . . . . . . . . .	L Near	 0000019D _TEXT	
-  _isNegative  . . . . . . . . .	L Near	 000001A9 _TEXT	
-  _processDigit  . . . . . . . .	L Near	 000001B0 _TEXT	
-  _divideByTen . . . . . . . . .	L Near	 000001B8 _TEXT	
-  _writeFirstDigit . . . . . . .	L Near	 000001CC _TEXT	
-  _writeNegativeSign . . . . . .	L Near	 000001DA _TEXT	
-  _processRemainder  . . . . . .	L Near	 000001E2 _TEXT	
-  _appendToStr . . . . . . . . .	L Near	 000001EB _TEXT	
-  _strEnd  . . . . . . . . . . .	L Near	 000001F8 _TEXT	
+  _initialize  . . . . . . . . .	L Near	 00000185 _TEXT	
+  _analyzeNumber . . . . . . . .	L Near	 0000019E _TEXT	
+  _checkSign . . . . . . . . . .	L Near	 000001A3 _TEXT	
+  _isNegative  . . . . . . . . .	L Near	 000001AF _TEXT	
+  _processDigit  . . . . . . . .	L Near	 000001B6 _TEXT	
+  _divideByTen . . . . . . . . .	L Near	 000001BE _TEXT	
+  _writeFirstDigit . . . . . . .	L Near	 000001D2 _TEXT	
+  _writeNegativeSign . . . . . .	L Near	 000001E0 _TEXT	
+  _processRemainder  . . . . . .	L Near	 000001E8 _TEXT	
+  _appendToStr . . . . . . . . .	L Near	 000001F1 _TEXT	
+  _strEnd  . . . . . . . . . . .	L Near	 000001FE _TEXT	
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000051 Public STDCALL
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
@@ -842,7 +846,7 @@ Symbols:
 @stack . . . . . . . . . . . . .	Text   	 FLAT
 ALT_MASK . . . . . . . . . . . .	Number	 00000003h   
 CAPSLOCK_ON  . . . . . . . . . .	Number	 00000080h   
-COUNT  . . . . . . . . . . . . .	Number	 0000000Bh   
+COUNT  . . . . . . . . . . . . .	Number	 0000000Ch   
 CREATE_ALWAYS  . . . . . . . . .	Number	 00000002h   
 CREATE_NEW . . . . . . . . . . .	Number	 00000001h   
 CTRL_MASK  . . . . . . . . . . .	Number	 0000000Ch   
