@@ -71,14 +71,14 @@ sum_msg		BYTE "The sum of the numbers is:", 0
 average_msg	BYTE "The rounded average is:", 0
 
 ; User data variables
-inputStr    BYTE MAX_STR_SIZE DUP(?)
-strLen		DWORD ?
-inputNum    SDWORD ?
+inputStr    BYTE   MAX_STR_SIZE  DUP(?) ; for ReadVal
+strLen		DWORD  ?  ; store the length of the input string
+inputNum    SDWORD ?  ; used as output parameter for ReadVal and input parameter for WriteVal
 
 ; Summary & Conclusion Strings
 goodbye		BYTE "I hope you enjoyed using my program! The end.", 0
 
-debug BYTE "YEP", 0
+debug		BYTE "YEP", 0
 
 .code
 main PROC
@@ -97,6 +97,9 @@ main PROC
 	PUSH OFFSET errorMsg
 	PUSH OFFSET prompt
 	CALL ReadVal
+
+	PUSH inputNum
+	CALL WriteVal
 
 	;CALL Farewell
 
@@ -229,7 +232,7 @@ ReadVal PROC
 	_strToNum:
 		; algorithm: (10 * currentNum) + nextDigit
 		SUB   AL, 48
-		MOVZX EAX, AL  ; zero-extend AL so it fits into DWORD
+		MOVZX EAX, AL  ; zero-extend AL so it fits into SDWORD
 		MOV   nextDigit, EAX
 		MOV   EAX, currentNum
 		MOV   EBX, 10
@@ -281,11 +284,113 @@ ReadVal ENDP
 ;
 ; Postconditions: String printed to console
 ;
-; Receives: 
-;     inputNum [EBP+8]
-;
+; Receives:
+;     inputNum     [EBP+8]
 ; ---------------------------------------------------------------------------------
+WriteVal PROC
+	; local variables
+	LOCAL isNegative:BYTE ; byte flag to store whether the input is a negative number
+	LOCAL isFinalDigit:BYTE ; byte flag to store whether we're on the last digit
+	LOCAL currentNum:SDWORD
+	LOCAL currentDigit:SDWORD
+	LOCAL outputStr[15]:BYTE
+	LOCAL remainderCount:DWORD
 
+	; preserve registers
+	PUSH   EAX
+	PUSH   EBX
+	PUSH   ECX
+	PUSH   EDX
+	PUSH   EDI
+	PUSH   ESI
+	PUSHFD
+
+	_initialize:
+		MOV  ESI, [EBP+8] ; put inputNum in ESI
+		LEA  EDI, outputStr  ; prepare outputStr for iteration
+		CLD
+		MOV  remainderCount, 0
+		MOV  isNegative, 0
+		MOV  currentDigit, 0
+
+	_analyzeNumber:
+		MOV EAX, ESI
+		MOV currentNum, EAX
+	
+	_checkSign:
+		CMP  currentNum, 0
+		JL   _isNegative
+		MOV  isNegative, 0
+		JMP  _processDigit
+
+	_isNegative:
+		NEG  currentNum
+		MOV  isNegative, 1
+
+	_processDigit:
+		CMP  currentNum, 10
+		; continue dividing by 10 and storing the remainder until we have a single digit
+		JGE  _divideByTen
+		JMP  _writeFirstDigit
+
+	_divideByTen:
+		CDQ
+		MOV  EAX, currentNum
+		MOV  EBX, 10
+		IDIV EBX
+		; save the remainder on the stack
+		PUSH EDX
+		INC  remainderCount
+		MOV  currentNum, EAX
+		CMP  EDX, 0
+		JE   _writeFirstDigit
+		JMP  _processDigit
+
+	_writeFirstDigit:
+		MOV  EAX, currentNum
+		MOV  currentDigit, EAX
+		CMP  isNegative, 1
+		JE   _writeNegativeSign
+		JMP _appendToStr
+
+	_writeNegativeSign:
+		MOV EAX, 45
+		STOSB
+		JMP _appendToStr
+
+	_processRemainder:
+		POP EAX
+		DEC remainderCount
+		MOV currentDigit, EAX
+		JMP _appendToStr
+
+	_appendToStr:
+		MOV   EAX, currentDigit
+		ADD   EAX, 48  ; convert integer to ASCII char code
+		STOSB
+		CMP  remainderCount, 0
+		JG   _processRemainder
+
+	_strEnd:
+		MOV				EAX, 0 ; null byte (0) at the end of the string
+		STOSB
+		; load the offset of outputStr and print it to console
+		LEA				EDX, outputStr
+		mDisplayString	EDX
+
+
+	; restore registers
+	POPFD
+	POP  ESI
+	POP  EDI
+	POP  EDX
+	POP  ECX
+	POP  EBX
+	POP  EAX
+
+	RET 4
+
+WriteVal ENDP
 ; ---------------------------------------------------------------------------------
 ; Name: Farewell
 ;
