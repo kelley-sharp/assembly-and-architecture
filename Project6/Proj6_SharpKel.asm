@@ -66,10 +66,10 @@ prompt      BYTE "Please enter a signed number: ", 0
 errorMsg    BYTE "ERROR: You did not enter an signed number or your number was too big.", 0
 
 ; Label/Misc Strings
-listMsg		BYTE "These are the numbers you entered: ", 0 
-sumMsg		BYTE "The sum of the numbers is: ", 0
-avgMsg		BYTE "The rounded average is: ", 0
-commaDL     BYTE ", ", 0   ; delimiter for list output
+listLabel	BYTE "These are the numbers you entered: ", 0 
+sumLabel	BYTE "The sum of the numbers is: ", 0
+avgLabel	BYTE "The rounded average is: ", 0
+commaDL		BYTE ", ", 0   ; delimiter for list output
 
 ; User data variables
 inputStr    BYTE   MAX_STR_SIZE  DUP(?) ; for ReadVal
@@ -82,7 +82,6 @@ avg         SDWORD 0
 ; Summary & Conclusion Strings
 goodbye		BYTE "I hope you enjoyed using my program! The end.", 0
 
-debug		BYTE "YEP", 0
 
 .code
 main PROC
@@ -104,12 +103,25 @@ main PROC
 	CALL EnterNumbers
 
 	PUSH OFFSET commaDL
-	PUSH OFFSET listMsg
+	PUSH OFFSET listLabel
 	PUSH ARRAYSIZE
 	PUSH OFFSET numbers
 	CALL PrintArray
 
-	;CALL Farewell
+	PUSH OFFSET avg
+	PUSH OFFSET sum
+	PUSH ARRAYSIZE
+	PUSH OFFSET numbers
+	CALL ComputeSumAvg
+
+	PUSH OFFSET avgLabel
+	PUSH avg
+	PUSH OFFSET sumLabel
+	PUSH sum
+	CALL PrintSumAvg	
+
+	PUSH OFFSET goodbye
+	CALL Farewell
 
 	Invoke ExitProcess, 0
 main ENDP
@@ -403,11 +415,6 @@ WriteVal PROC
 	RET 4
 
 WriteVal ENDP
-; ---------------------------------------------------------------------------------
-; Name: Farewell
-;
-; Displays parting message with a goodbye
-; ---------------------------------------------------------------------------------	
 
 ; ---------------------------------------------------------------------------------
 ; Name: EnterNumbers
@@ -489,8 +496,7 @@ PrintArray PROC
 
 	_displayLabel:
 		CALL CrLf
-		MOV  EDX, [EBP+16]
-		CALL WriteString
+		mDisplayString [EBP+16]
 
 	_fillLoop:
 		PUSH [EDI]
@@ -501,8 +507,7 @@ PrintArray PROC
 
 	_printDelimiter:
 		; this puts a comma between all but the last
-		MOV  EDX, [EBP+20]
-		CALL WriteString
+		mDisplayString  [EBP+20]
 
 	_continue:
 		ADD  EDI, 4
@@ -515,6 +520,7 @@ PrintArray PROC
 	POP EBP
 
 	RET 16
+
 PrintArray ENDP
 ; ---------------------------------------------------------------------------------
 ; Name: ComputeSumAvg
@@ -533,30 +539,109 @@ PrintArray ENDP
 ; ---------------------------------------------------------------------------------
 ComputeSumAvg PROC
 	LOCAL runningTotal:SDWORD
+	LOCAL arrSize:SDWORD
 
 	; preserve registers
 	PUSH EAX
+	PUSH EBX
 	PUSH ECX
+	PUSH EDX
 	PUSH EDI
 	PUSHFD
+
+	_setupLoop:
+		MOV ECX, [EBP+12] ; loop through length of array
+		MOV EDI, [EBP+8] ; set EDI to first array element
+		MOV runningTotal, 0
+
+	_sumLoop:
+		MOV EAX, runningTotal
+		MOV EBX, [EDI]
+		ADD EAX, EBX
+		MOV runningTotal, EAX
+		ADD EDI, 4
+		LOOP _sumLoop
+
+	_storeSum:
+		MOV EAX, runningTotal
+		MOV EBX, [EBP+16]
+		; assign to sum memory location
+		MOV [EBX], EAX
+
+	_avg:
+		MOV EAX, [EBP+12]
+		MOV arrSize, EAX
+		MOV EAX, runningTotal
+		CDQ
+		IDIV arrSize
+	
+	_storeAvg:
+		MOV EBX, [EBP+20]
+		MOV [EBX], EAX
 
 	; restore registers
 	POPFD
 	POP EDI
+	POP EDX
 	POP ECX
+	POP EBX
 	POP EAX
 
 	RET 16
 
 ComputeSumAvg ENDP
 
+; ---------------------------------------------------------------------------------
+; Name: PrintSumAvg
+;
+; Displays the values of sum and avg with labels
+;
+; Receives: 
+;     sum      [EBP+8]
+;     sumLabel [EBP+12]
+;     avg      [EBP+16]
+;     avgLabel [EBP+20]
+; ---------------------------------------------------------------------------------
+PrintSumAvg PROC
+	; preserve registers
+	PUSH EBP
+	MOV  EBP, ESP
+	PUSH EDX
+
+	_printSum:
+		CALL CrLf
+		mDisplayString [EBP+12]
+		PUSH [EBP+8]
+		CALL WriteVal
+		CALL CrLf
+
+	_printAvg:
+		mDisplayString [EBP+20]
+		PUSH [EBP+16]
+		CALL WriteVal
+		CALL CrLf
+
+	; restore registers
+	POP EDX
+	POP EBP
+	RET 16
+PrintSumAvg ENDP
+
+
+; ---------------------------------------------------------------------------------
+; Name: Farewell
+;
+; Displays a parting message
+;
+; Receives: 
+;     goodbye   [EBP+8]
+; ---------------------------------------------------------------------------------
 Farewell PROC
 	PUSH EBP
 	MOV  EBP, ESP
 
 	CALL CrLf
-	MOV  EDX, [EBP+8]
-	CALL WriteString
+	mDisplayString [EBP+8]
 	CALL CrLf
 
 	POP EBP
