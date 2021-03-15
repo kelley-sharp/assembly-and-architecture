@@ -13,7 +13,7 @@ INCLUDE Irvine32.inc
 ExitProcess proto, dwExitCode:dword
 
 MAX_STR_SIZE EQU 32
-COUNT        EQU 12
+COUNT        EQU 12  ; we want 10 characters + a sign "+"/"-" and a null byte
 
 mGetString MACRO prompt, strInput, count, strLen
 	; preserve registers
@@ -178,6 +178,7 @@ ReadVal PROC
 	PUSH EDX
 	PUSH ESI
 	PUSH EDI
+	PUSHFD
 
 	_getInputAndInitialize:
 		mGetString [EBP+8], [EBP+16], [EBP+20], [EBP+28]
@@ -266,6 +267,7 @@ ReadVal PROC
 		MOV   [EDI], EAX
 
 	; restore registers
+	POPFD
 	POP  EDI
 	POP  ESI
 	POP  EDX
