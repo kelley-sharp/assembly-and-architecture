@@ -12,7 +12,6 @@ TITLE String Primitives and Macros     (Proj6_SharpKel.asm)
 INCLUDE Irvine32.inc
 ExitProcess proto, dwExitCode:dword
 
-MAX_STR_SIZE EQU 32
 COUNT        EQU 12  ; we want 10 characters + a sign "+"/"-" and a null byte
 ARRAYSIZE    EQU 10
 
@@ -31,6 +30,7 @@ mGetString MACRO prompt, strInput, count, strLen
 	MOV  ECX, count  ; buffer size according to Irvine
 	CALL ReadString
 	MOV  strLen, EAX ; store length in strLen
+
 	; restore registers
 	POP  EAX
 	POP  EDX
@@ -55,8 +55,8 @@ ENDM
 ; Global Constants (with text-equivalents for easier string interpolation)
 
 ; Intro Strings
-intro1	    BYTE "Getting low with I/0 Procedures", 0
-intro2	    BYTE "Designed and created by: Kelley Sharp", 0
+intro1	    BYTE "PROGRAMMING ASSIGNMENT 6: Getting low (level) with I/0 Procedures", 0
+intro2	    BYTE "Written by: Kelley Sharp", 0
 intro3	    BYTE "Please enter 10 signed decimal integers.", 0
 intro4      BYTE "Each number needs to fit into a 32-bit register.", 0
 intro5      BYTE "Afterwards I will give you the full list of integers, their sum, and average.", 0
@@ -72,9 +72,9 @@ avgLabel	BYTE "The rounded (floor) average is: ", 0
 commaDL		BYTE ", ", 0   ; delimiter for list output
 
 ; User data variables
-inputStr    BYTE   MAX_STR_SIZE  DUP(?) ; tmp for ReadVal
-strLen		DWORD  ?  ; store the length of the input string
-numbers     SDWORD ARRAYSIZE	 DUP(?)
+inputStr    BYTE   COUNT		DUP(?)  ; tmp storage for ReadVal
+strLen		DWORD  ?					; store the length of the input string
+numbers     SDWORD ARRAYSIZE	DUP(?)  ; store the input numbers
 sum         SDWORD 0
 avg         SDWORD 0
 
@@ -173,16 +173,16 @@ Introduction ENDP
 ;
 ; Preconditions: None
 ;
-; Postconditions: Sets the value of inputNum to the numeric equivalent of the last
+; Postconditions: Sets the value of inputNum data member to the integer equivalent of the last
 ;				  valid string that was entered
 ;
 ; Receives: 
-;     prompt   [EBP+8]
-;     errorMsg [EBP+12]
-;     inputStr [EBP+16]
-;     count    [EBP+20]
-;     inputNum [EBP+24]
-;     strLen   [EBP+28]
+;     prompt   [EBP+8]  what to print to user
+;     errorMsg [EBP+12] what to print if the user enters a bad input
+;     inputStr [EBP+16] output parameter by reference
+;     count    [EBP+20] size of the buffer
+;     inputNum [EBP+24] output parameter to store the parsed number
+;     strLen   [EBP+28] maximum string length size
 ;
 ; ---------------------------------------------------------------------------------
 ReadVal PROC
@@ -259,7 +259,7 @@ ReadVal PROC
 		MOV   EAX, currentNum
 		MOV   EBX, 10
 		MUL   EBX
-		JO	  _error
+		JO	  _error  ; check for overflow issues when doing arithmetic here
 		ADD   EAX, nextDigit
 		JO	  _error
 		MOV   currentNum, EAX
@@ -311,15 +311,15 @@ ReadVal ENDP
 ; Postconditions: String printed to console
 ;
 ; Receives:
-;     inputNum     [EBP+8]
+;     inputNum     [EBP+8] reference to the number the user entered
 ; ---------------------------------------------------------------------------------
 WriteVal PROC
 	; local variables
 	LOCAL isNegative:BYTE ; byte flag to store whether the input is a negative number
-	LOCAL currentNum:SDWORD
-	LOCAL currentDigit:SDWORD
+	LOCAL currentNum:SDWORD  ; this is to store the mathematical total
+	LOCAL currentDigit:SDWORD  ; this is to store a single digit
 	LOCAL outputStr[15]:BYTE ; store the string that will be printed
-	LOCAL remainderCount:DWORD
+	LOCAL remainderCount:DWORD  ; our algorithm needs to know how many remainders we got
 
 	; preserve registers
 	PUSH   EAX
@@ -332,13 +332,11 @@ WriteVal PROC
 
 	_initialize:
 		MOV  ESI, [EBP+8] ; put inputNum in ESI
-		LEA  EDI, outputStr  ; prepare outputStr for iteration
+		LEA  EDI, outputStr  ; prepare outputStr for iteration by loading offset
 		CLD
 		MOV  remainderCount, 0
 		MOV  isNegative, 0
 		MOV  currentDigit, 0
-
-	_analyzeNumber:
 		MOV EAX, ESI
 		MOV currentNum, EAX
 	
@@ -376,33 +374,32 @@ WriteVal PROC
 		; check if we need to prepend a negative sign
 		CMP  isNegative, 1
 		JE   _writeNegativeSign
-		JMP _appendToStr
+		JMP  _appendToStr
 
 	_writeNegativeSign:
-		MOV EAX, 45
+		MOV  EAX, 45
 		STOSB
 		JMP _appendToStr
 
 	_processRemainder:
-		POP EAX
-		DEC remainderCount
-		MOV currentDigit, EAX
-		JMP _appendToStr
+		POP  EAX
+		DEC  remainderCount
+		MOV  currentDigit, EAX
+		JMP  _appendToStr
 
 	_appendToStr:
 		MOV   EAX, currentDigit
 		ADD   EAX, 48  ; convert integer to ASCII char code
 		STOSB
-		CMP  remainderCount, 0
-		JG   _processRemainder
+		CMP   remainderCount, 0
+		JG    _processRemainder
 
 	_strEnd:
-		MOV				EAX, 0 ; null byte (0) at the end of the string
+		MOV		EAX, 0 ; null byte (0) at the end of the string
 		STOSB
 		; load the offset of outputStr and print it to console
-		LEA				EDX, outputStr
+		LEA		EDX, outputStr
 		mDisplayString	EDX
-
 
 	; restore registers
 	POPFD
@@ -455,7 +452,7 @@ EnterNumbers PROC
 		PUSH [EBP+20]
 		PUSH [EBP+16]
 		CALL ReadVal
-		ADD EDI, 4
+		ADD  EDI, 4
 		LOOP _fillLoop
 
 	; restore registers
@@ -505,7 +502,7 @@ PrintArray PROC
 		CALL WriteVal
 		CMP  ECX, 1
 		JNE  _printDelimiter
-		JMP _continue
+		JMP  _continue
 
 	_printDelimiter:
 		; this puts a comma between all but the last
@@ -571,19 +568,19 @@ ComputeSumAvg PROC
 		MOV [EBX], EAX
 
 	_avg:
-		MOV EAX, [EBP+12]
-		MOV arrSize, EAX
-		MOV EAX, runningTotal
+		MOV  EAX, [EBP+12]
+		MOV  arrSize, EAX
+		MOV  EAX, runningTotal
 		CDQ
 		IDIV arrSize
-		CMP EDX, 0
-		JNE _checkRound
-		JMP _storeAvg
+		CMP  EDX, 0
+		JNE  _checkRound
+		JMP  _storeAvg
 
 	_checkRound:
 		; floor-rounding for negative numbers means
 		CMP EAX, 0
-		JL _floorNegative
+		JL  _floorNegative
 		JMP _storeAvg
 
 	_floorNegative:

@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 22:02:27
+Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 22:23:37
 5String Primitives and Macros     (Proj6_SharpKel.asm	     Page 1 - 1
 
 
@@ -11,7 +11,7 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 22:02:27
 				; Project Number: 06                 Due Date: 3/14/2021
 				; Description: This program asks the user to enter 10 signed decimal integers,
 				;	no more than 32 bits long. After validation passes for 10 numbers, the program
-				;	will display the numbers back to the user along with the sum and rounded average.
+				;	will display the numbers back to the user along with the sum and rounded (floor) average.
 
 				INCLUDE Irvine32.inc
 			      C ; Include file for Irvine32.lib             (Irvine32.inc)
@@ -33,7 +33,6 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 22:02:27
 			      C 
 				ExitProcess proto, dwExitCode:dword
 
- = 00000020			MAX_STR_SIZE EQU 32
  = 0000000C			COUNT        EQU 12  ; we want 10 characters + a sign "+"/"-" and a null byte
  = 0000000A			ARRAYSIZE    EQU 10
 
@@ -52,6 +51,7 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 22:02:27
 					MOV  ECX, count  ; buffer size according to Irvine
 					CALL ReadString
 					MOV  strLen, EAX ; store length in strLen
+
 					; restore registers
 					POP  EAX
 					POP  EDX
@@ -76,22 +76,26 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 22:02:27
 				; Global Constants (with text-equivalents for easier string interpolation)
 
 				; Intro Strings
- 00000000 47 65 74 74 69	intro1	    BYTE "Getting low with I/0 Procedures", 0
-	   6E 67 20 6C 6F
-	   77 20 77 69 74
-	   68 20 49 2F 30
-	   20 50 72 6F 63
-	   65 64 75 72 65
-	   73 00
- 00000020 44 65 73 69 67	intro2	    BYTE "Designed and created by: Kelley Sharp", 0
-	   6E 65 64 20 61
-	   6E 64 20 63 72
-	   65 61 74 65 64
-	   20 62 79 3A 20
-	   4B 65 6C 6C 65
-	   79 20 53 68 61
-	   72 70 00
- 00000046 50 6C 65 61 73	intro3	    BYTE "Please enter 10 signed decimal integers.", 0
+ 00000000 50 52 4F 47 52	intro1	    BYTE "PROGRAMMING ASSIGNMENT 6: Getting low (level) with I/0 Procedures", 0
+	   41 4D 4D 49 4E
+	   47 20 41 53 53
+	   49 47 4E 4D 45
+	   4E 54 20 36 3A
+	   20 47 65 74 74
+	   69 6E 67 20 6C
+	   6F 77 20 28 6C
+	   65 76 65 6C 29
+	   20 77 69 74 68
+	   20 49 2F 30 20
+	   50 72 6F 63 65
+	   64 75 72 65 73
+	   00
+ 00000042 57 72 69 74 74	intro2	    BYTE "Written by: Kelley Sharp", 0
+	   65 6E 20 62 79
+	   3A 20 4B 65 6C
+	   6C 65 79 20 53
+	   68 61 72 70 00
+ 0000005B 50 6C 65 61 73	intro3	    BYTE "Please enter 10 signed decimal integers.", 0
 	   65 20 65 6E 74
 	   65 72 20 31 30
 	   20 73 69 67 6E
@@ -100,7 +104,7 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 22:02:27
 	   20 69 6E 74 65
 	   67 65 72 73 2E
 	   00
- 0000006F 45 61 63 68 20	intro4      BYTE "Each number needs to fit into a 32-bit register.", 0
+ 00000084 45 61 63 68 20	intro4      BYTE "Each number needs to fit into a 32-bit register.", 0
 	   6E 75 6D 62 65
 	   72 20 6E 65 65
 	   64 73 20 74 6F
@@ -110,7 +114,7 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 22:02:27
 	   62 69 74 20 72
 	   65 67 69 73 74
 	   65 72 2E 00
- 000000A0 41 66 74 65 72	intro5      BYTE "Afterwards I will give you the full list of integers, their sum, and average.", 0
+ 000000B5 41 66 74 65 72	intro5      BYTE "Afterwards I will give you the full list of integers, their sum, and average.", 0
 	   77 61 72 64 73
 	   20 49 20 77 69
 	   6C 6C 20 67 69
@@ -128,14 +132,14 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 22:02:27
 	   65 2E 00
 
 				; Prompt
- 000000EE 50 6C 65 61 73	prompt      BYTE "Please enter a signed number: ", 0
+ 00000103 50 6C 65 61 73	prompt      BYTE "Please enter a signed number: ", 0
 	   65 20 65 6E 74
 	   65 72 20 61 20
 	   73 69 67 6E 65
 	   64 20 6E 75 6D
 	   62 65 72 3A 20
 	   00
- 0000010D 45 52 52 4F 52	errorMsg    BYTE "ERROR: You did not enter an signed number or your number was too big.", 0
+ 00000122 45 52 52 4F 52	errorMsg    BYTE "ERROR: You did not enter an signed number or your number was too big.", 0
 	   3A 20 59 6F 75
 	   20 64 69 64 20
 	   6E 6F 74 20 65
@@ -151,7 +155,7 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 22:02:27
 	   62 69 67 2E 00
 
 				; Label/Misc Strings
- 00000153 54 68 65 73 65	listLabel	BYTE "These are the numbers you entered: ", 0 
+ 00000168 54 68 65 73 65	listLabel	BYTE "These are the numbers you entered: ", 0 
 	   20 61 72 65 20
 	   74 68 65 20 6E
 	   75 6D 62 65 72
@@ -159,33 +163,35 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 22:02:27
 	   20 65 6E 74 65
 	   72 65 64 3A 20
 	   00
- 00000177 54 68 65 20 73	sumLabel	BYTE "The sum of the numbers is: ", 0
+ 0000018C 54 68 65 20 73	sumLabel	BYTE "The sum of the numbers is: ", 0
 	   75 6D 20 6F 66
 	   20 74 68 65 20
 	   6E 75 6D 62 65
 	   72 73 20 69 73
 	   3A 20 00
- 00000193 54 68 65 20 72	avgLabel	BYTE "The rounded average is: ", 0
+ 000001A8 54 68 65 20 72	avgLabel	BYTE "The rounded (floor) average is: ", 0
 	   6F 75 6E 64 65
-	   64 20 61 76 65
-	   72 61 67 65 20
-	   69 73 3A 20 00
- 000001AC 2C 20 00		commaDL		BYTE ", ", 0   ; delimiter for list output
+	   64 20 28 66 6C
+	   6F 6F 72 29 20
+	   61 76 65 72 61
+	   67 65 20 69 73
+	   3A 20 00
+ 000001C9 2C 20 00		commaDL		BYTE ", ", 0   ; delimiter for list output
 
 				; User data variables
- 000001AF  00000020 [		inputStr    BYTE   MAX_STR_SIZE  DUP(?) ; tmp for ReadVal
+ 000001CC  0000000C [		inputStr    BYTE   COUNT		DUP(?)  ; tmp storage for ReadVal
 	    00
 	   ]
- 000001CF 00000000		strLen		DWORD  ?  ; store the length of the input string
- 000001D3  0000000A [		numbers     SDWORD ARRAYSIZE	 DUP(?)
+ 000001D8 00000000		strLen		DWORD  ?					; store the length of the input string
+ 000001DC  0000000A [		numbers     SDWORD ARRAYSIZE	DUP(?)  ; store the input numbers
 	    00000000
 	   ]
- 000001FB 00000000		sum         SDWORD 0
- 000001FF 00000000		avg         SDWORD 0
+ 00000204 00000000		sum         SDWORD 0
+ 00000208 00000000		avg         SDWORD 0
 
 
 				; Summary & Conclusion Strings
- 00000203 49 20 68 6F 70	goodbye		BYTE "I hope you enjoyed using my program! The end.", 0
+ 0000020C 49 20 68 6F 70	goodbye		BYTE "I hope you enjoyed using my program! The end.", 0
 	   65 20 79 6F 75
 	   20 65 6E 6A 6F
 	   79 65 64 20 75
@@ -200,41 +206,41 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 22:02:27
  00000000			.code
  00000000			main PROC
 
- 00000000  68 000000A0 R		PUSH OFFSET intro5
- 00000005  68 0000006F R		PUSH OFFSET intro4
- 0000000A  68 00000046 R		PUSH OFFSET intro3
- 0000000F  68 00000020 R		PUSH OFFSET intro2
+ 00000000  68 000000B5 R		PUSH OFFSET intro5
+ 00000005  68 00000084 R		PUSH OFFSET intro4
+ 0000000A  68 0000005B R		PUSH OFFSET intro3
+ 0000000F  68 00000042 R		PUSH OFFSET intro2
  00000014  68 00000000 R		PUSH OFFSET intro1
  00000019  E8 0000007B			CALL Introduction
 
- 0000001E  FF 35 000001CF R		PUSH strLen
+ 0000001E  FF 35 000001D8 R		PUSH strLen
  00000024  6A 0C			PUSH COUNT
- 00000026  68 000001AF R		PUSH OFFSET inputStr
- 0000002B  68 0000010D R		PUSH OFFSET errorMsg
- 00000030  68 000000EE R		PUSH OFFSET prompt
+ 00000026  68 000001CC R		PUSH OFFSET inputStr
+ 0000002B  68 00000122 R		PUSH OFFSET errorMsg
+ 00000030  68 00000103 R		PUSH OFFSET prompt
  00000035  6A 0A			PUSH ARRAYSIZE
- 00000037  68 000001D3 R		PUSH OFFSET numbers
+ 00000037  68 000001DC R		PUSH OFFSET numbers
  0000003C  E8 00000228			CALL EnterNumbers
 
- 00000041  68 000001AC R		PUSH OFFSET commaDL
- 00000046  68 00000153 R		PUSH OFFSET listLabel
+ 00000041  68 000001C9 R		PUSH OFFSET commaDL
+ 00000046  68 00000168 R		PUSH OFFSET listLabel
  0000004B  6A 0A			PUSH ARRAYSIZE
- 0000004D  68 000001D3 R		PUSH OFFSET numbers
+ 0000004D  68 000001DC R		PUSH OFFSET numbers
  00000052  E8 00000242			CALL PrintArray
 
- 00000057  68 000001FF R		PUSH OFFSET avg
- 0000005C  68 000001FB R		PUSH OFFSET sum
+ 00000057  68 00000208 R		PUSH OFFSET avg
+ 0000005C  68 00000204 R		PUSH OFFSET sum
  00000061  6A 0A			PUSH ARRAYSIZE
- 00000063  68 000001D3 R		PUSH OFFSET numbers
+ 00000063  68 000001DC R		PUSH OFFSET numbers
  00000068  E8 00000270			CALL ComputeSumAvg
 
- 0000006D  68 00000193 R		PUSH OFFSET avgLabel
- 00000072  FF 35 000001FF R		PUSH avg
- 00000078  68 00000177 R		PUSH OFFSET sumLabel
- 0000007D  FF 35 000001FB R		PUSH sum
+ 0000006D  68 000001A8 R		PUSH OFFSET avgLabel
+ 00000072  FF 35 00000208 R		PUSH avg
+ 00000078  68 0000018C R		PUSH OFFSET sumLabel
+ 0000007D  FF 35 00000204 R		PUSH sum
  00000083  E8 000002B0			CALL PrintSumAvg	
 
- 00000088  68 00000203 R		PUSH OFFSET goodbye
+ 00000088  68 0000020C R		PUSH OFFSET goodbye
  0000008D  E8 000002E2			CALL Farewell
 
 					Invoke ExitProcess, 0
@@ -309,16 +315,16 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 22:02:27
 				;
 				; Preconditions: None
 				;
-				; Postconditions: Sets the value of inputNum to the numeric equivalent of the last
+				; Postconditions: Sets the value of inputNum data member to the integer equivalent of the last
 				;				  valid string that was entered
 				;
 				; Receives: 
-				;     prompt   [EBP+8]
-				;     errorMsg [EBP+12]
-				;     inputStr [EBP+16]
-				;     count    [EBP+20]
-				;     inputNum [EBP+24]
-				;     strLen   [EBP+28]
+				;     prompt   [EBP+8]  what to print to user
+				;     errorMsg [EBP+12] what to print if the user enters a bad input
+				;     inputStr [EBP+16] output parameter by reference
+				;     count    [EBP+20] size of the buffer
+				;     inputNum [EBP+24] output parameter to store the parsed number
+				;     strLen   [EBP+28] maximum string length size
 				;
 				; ---------------------------------------------------------------------------------
  000000F7			ReadVal PROC
@@ -411,7 +417,7 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 22:02:27
  0000017A  8B 45 F8				MOV   EAX, currentNum
  0000017D  BB 0000000A				MOV   EBX, 10
  00000182  F7 E3				MUL   EBX
- 00000184  70 0C				JO	  _error
+ 00000184  70 0C				JO	  _error  ; check for overflow issues when doing arithmetic here
  00000186  03 45 F4				ADD   EAX, nextDigit
  00000189  70 07				JO	  _error
  0000018B  89 45 F8				MOV   currentNum, EAX
@@ -468,15 +474,15 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 22:02:27
 				; Postconditions: String printed to console
 				;
 				; Receives:
-				;     inputNum     [EBP+8]
+				;     inputNum     [EBP+8] reference to the number the user entered
 				; ---------------------------------------------------------------------------------
  000001C6			WriteVal PROC
 					; local variables
 					LOCAL isNegative:BYTE ; byte flag to store whether the input is a negative number
-					LOCAL currentNum:SDWORD
-					LOCAL currentDigit:SDWORD
+					LOCAL currentNum:SDWORD  ; this is to store the mathematical total
+					LOCAL currentDigit:SDWORD  ; this is to store a single digit
 					LOCAL outputStr[15]:BYTE ; store the string that will be printed
-					LOCAL remainderCount:DWORD
+					LOCAL remainderCount:DWORD  ; our algorithm needs to know how many remainders we got
 
 					; preserve registers
  000001C6  55		   *	    push   ebp
@@ -492,15 +498,13 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 22:02:27
 
  000001D3				_initialize:
  000001D3  8B 75 08				MOV  ESI, [EBP+8] ; put inputNum in ESI
- 000001D6  8D 7D E5				LEA  EDI, outputStr  ; prepare outputStr for iteration
+ 000001D6  8D 7D E5				LEA  EDI, outputStr  ; prepare outputStr for iteration by loading offset
  000001D9  FC					CLD
  000001DA  C7 45 E0				MOV  remainderCount, 0
 	   00000000
  000001E1  C6 45 FF 00				MOV  isNegative, 0
  000001E5  C7 45 F4				MOV  currentDigit, 0
 	   00000000
-
- 000001EC				_analyzeNumber:
  000001EC  8B C6				MOV EAX, ESI
  000001EE  89 45 F8				MOV currentNum, EAX
 					
@@ -538,37 +542,36 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 22:02:27
 						; check if we need to prepend a negative sign
  00000226  80 7D FF 01				CMP  isNegative, 1
  0000022A  74 02				JE   _writeNegativeSign
- 0000022C  EB 11				JMP _appendToStr
+ 0000022C  EB 11				JMP  _appendToStr
 
  0000022E				_writeNegativeSign:
- 0000022E  B8 0000002D				MOV EAX, 45
+ 0000022E  B8 0000002D				MOV  EAX, 45
  00000233  AA					STOSB
  00000234  EB 09				JMP _appendToStr
 
  00000236				_processRemainder:
- 00000236  58					POP EAX
- 00000237  FF 4D E0				DEC remainderCount
- 0000023A  89 45 F4				MOV currentDigit, EAX
- 0000023D  EB 00				JMP _appendToStr
+ 00000236  58					POP  EAX
+ 00000237  FF 4D E0				DEC  remainderCount
+ 0000023A  89 45 F4				MOV  currentDigit, EAX
+ 0000023D  EB 00				JMP  _appendToStr
 
  0000023F				_appendToStr:
  0000023F  8B 45 F4				MOV   EAX, currentDigit
  00000242  83 C0 30				ADD   EAX, 48  ; convert integer to ASCII char code
  00000245  AA					STOSB
- 00000246  83 7D E0 00				CMP  remainderCount, 0
- 0000024A  7F EA				JG   _processRemainder
+ 00000246  83 7D E0 00				CMP   remainderCount, 0
+ 0000024A  7F EA				JG    _processRemainder
 
  0000024C				_strEnd:
- 0000024C  B8 00000000				MOV				EAX, 0 ; null byte (0) at the end of the string
+ 0000024C  B8 00000000				MOV		EAX, 0 ; null byte (0) at the end of the string
  00000251  AA					STOSB
 						; load the offset of outputStr and print it to console
- 00000252  8D 55 E5				LEA				EDX, outputStr
+ 00000252  8D 55 E5				LEA		EDX, outputStr
 						mDisplayString	EDX
  00000255  52		     1		PUSH EDX
  00000256  8B D2	     1		MOV  EDX, EDX
  00000258  E8 00000000 E     1		CALL WriteString
  0000025D  5A		     1		POP EDX
-
 
 					; restore registers
  0000025E  9D				POPFD
@@ -615,14 +618,14 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 22:02:27
  00000272  8B 7D 08				MOV EDI, [EBP+8] ; set EDI to first array element
 
  00000275				_fillLoop:
- 00000275  FF 35 000001CF R			PUSH strLen
+ 00000275  FF 35 000001D8 R			PUSH strLen
  0000027B  57					PUSH EDI
  0000027C  FF 75 1C				PUSH [EBP+28]
  0000027F  FF 75 18				PUSH [EBP+24]
  00000282  FF 75 14				PUSH [EBP+20]
  00000285  FF 75 10				PUSH [EBP+16]
  00000288  E8 FFFFFE6A				CALL ReadVal
- 0000028D  83 C7 04				ADD EDI, 4
+ 0000028D  83 C7 04				ADD  EDI, 4
  00000290  E2 E3				LOOP _fillLoop
 
 					; restore registers
@@ -676,7 +679,7 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 22:02:27
  000002BB  E8 FFFFFF06				CALL WriteVal
  000002C0  83 F9 01				CMP  ECX, 1
  000002C3  75 02				JNE  _printDelimiter
- 000002C5  EB 0A				JMP _continue
+ 000002C5  EB 0A				JMP  _continue
 
  000002C7				_printDelimiter:
 						; this puts a comma between all but the last
@@ -684,7 +687,6 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 22:02:27
  000002C7  52		     1		PUSH EDX
  000002C8  8B 55 14	     1		MOV  EDX, [EBP+20]
  000002CB  E8 00000000 E     1		CALL WriteString
-
  000002D0  5A		     1		POP EDX
 
  000002D1				_continue:
@@ -751,19 +753,19 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 22:02:27
  0000030B  89 03				MOV [EBX], EAX
 
  0000030D				_avg:
- 0000030D  8B 45 0C				MOV EAX, [EBP+12]
- 00000310  89 45 F8				MOV arrSize, EAX
- 00000313  8B 45 FC				MOV EAX, runningTotal
+ 0000030D  8B 45 0C				MOV  EAX, [EBP+12]
+ 00000310  89 45 F8				MOV  arrSize, EAX
+ 00000313  8B 45 FC				MOV  EAX, runningTotal
  00000316  99					CDQ
  00000317  F7 7D F8				IDIV arrSize
- 0000031A  83 FA 00				CMP EDX, 0
- 0000031D  75 02				JNE _checkRound
- 0000031F  EB 08				JMP _storeAvg
+ 0000031A  83 FA 00				CMP  EDX, 0
+ 0000031D  75 02				JNE  _checkRound
+ 0000031F  EB 08				JMP  _storeAvg
 
  00000321				_checkRound:
 						; floor-rounding for negative numbers means
  00000321  83 F8 00				CMP EAX, 0
- 00000324  7C 02				JL _floorNegative
+ 00000324  7C 02				JL  _floorNegative
  00000326  EB 01				JMP _storeAvg
 
  00000328				_floorNegative:
@@ -857,7 +859,7 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 22:02:27
  0000038F			Farewell ENDP
 
 				END main
-Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 22:02:27
+Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 22:23:37
 5String Primitives and Macros     (Proj6_SharpKel.asm	     Symbols 2 - 1
 
 
@@ -959,7 +961,7 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 00000231 Para	  Public  'DATA'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 0000023A Para	  Public  'DATA'	
 _TEXT  . . . . . . . . . . . . .	32 Bit	 0000038F Para	  Public  'CODE'	
 
 
@@ -1114,7 +1116,6 @@ WriteVal . . . . . . . . . . . .	P Near	 000001C6 _TEXT	Length= 000000A3 Public 
   outputStr  . . . . . . . . . .	Byte	 bp - 0000001B
   remainderCount . . . . . . . .	DWord	 bp - 00000020
   _initialize  . . . . . . . . .	L Near	 000001D3 _TEXT	
-  _analyzeNumber . . . . . . . .	L Near	 000001EC _TEXT	
   _checkSign . . . . . . . . . .	L Near	 000001F1 _TEXT	
   _setIsNegative . . . . . . . .	L Near	 000001FD _TEXT	
   _processDigit  . . . . . . . .	L Near	 00000204 _TEXT	
@@ -1219,7 +1220,6 @@ KEY_EVENT  . . . . . . . . . . .	Number	 00000001h
 KEY_MASKS  . . . . . . . . . . .	Number	 0000001Fh   
 LEFT_ALT_PRESSED . . . . . . . .	Number	 00000002h   
 LEFT_CTRL_PRESSED  . . . . . . .	Number	 00000008h   
-MAX_STR_SIZE . . . . . . . . . .	Number	 00000020h   
 MB_ABORTRETRYIGNORE  . . . . . .	Number	 00000002h   
 MB_APPLMODAL . . . . . . . . . .	Number	 00000000h   
 MB_CANCELTRYCONTINUE . . . . . .	Number	 00000006h   
@@ -1347,38 +1347,38 @@ VK_UP  . . . . . . . . . . . . .	Number	 00000026h
 WINDOW_BUFFER_SIZE_EVENT . . . .	Number	 00000004h   
 WriteConsoleOutputCharacter  . .	Text   	 WriteConsoleOutputCharacterA
 WriteConsole . . . . . . . . . .	Text   	 WriteConsoleA
-avgLabel . . . . . . . . . . . .	Byte	 00000193 _DATA	
-avg  . . . . . . . . . . . . . .	DWord	 000001FF _DATA	
+avgLabel . . . . . . . . . . . .	Byte	 000001A8 _DATA	
+avg  . . . . . . . . . . . . . .	DWord	 00000208 _DATA	
 black  . . . . . . . . . . . . .	Number	 00000000h   
 blue . . . . . . . . . . . . . .	Number	 00000001h   
 brown  . . . . . . . . . . . . .	Number	 00000006h   
-commaDL  . . . . . . . . . . . .	Byte	 000001AC _DATA	
+commaDL  . . . . . . . . . . . .	Byte	 000001C9 _DATA	
 cyan . . . . . . . . . . . . . .	Number	 00000003h   
-errorMsg . . . . . . . . . . . .	Byte	 0000010D _DATA	
+errorMsg . . . . . . . . . . . .	Byte	 00000122 _DATA	
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
-goodbye  . . . . . . . . . . . .	Byte	 00000203 _DATA	
+goodbye  . . . . . . . . . . . .	Byte	 0000020C _DATA	
 gray . . . . . . . . . . . . . .	Number	 00000008h   
 green  . . . . . . . . . . . . .	Number	 00000002h   
-inputStr . . . . . . . . . . . .	Byte	 000001AF _DATA	
+inputStr . . . . . . . . . . . .	Byte	 000001CC _DATA	
 intro1 . . . . . . . . . . . . .	Byte	 00000000 _DATA	
-intro2 . . . . . . . . . . . . .	Byte	 00000020 _DATA	
-intro3 . . . . . . . . . . . . .	Byte	 00000046 _DATA	
-intro4 . . . . . . . . . . . . .	Byte	 0000006F _DATA	
-intro5 . . . . . . . . . . . . .	Byte	 000000A0 _DATA	
+intro2 . . . . . . . . . . . . .	Byte	 00000042 _DATA	
+intro3 . . . . . . . . . . . . .	Byte	 0000005B _DATA	
+intro4 . . . . . . . . . . . . .	Byte	 00000084 _DATA	
+intro5 . . . . . . . . . . . . .	Byte	 000000B5 _DATA	
 lightBlue  . . . . . . . . . . .	Number	 00000009h   
 lightCyan  . . . . . . . . . . .	Number	 0000000Bh   
 lightGray  . . . . . . . . . . .	Number	 00000007h   
 lightGreen . . . . . . . . . . .	Number	 0000000Ah   
 lightMagenta . . . . . . . . . .	Number	 0000000Dh   
 lightRed . . . . . . . . . . . .	Number	 0000000Ch   
-listLabel  . . . . . . . . . . .	Byte	 00000153 _DATA	
+listLabel  . . . . . . . . . . .	Byte	 00000168 _DATA	
 magenta  . . . . . . . . . . . .	Number	 00000005h   
-numbers  . . . . . . . . . . . .	DWord	 000001D3 _DATA	
-prompt . . . . . . . . . . . . .	Byte	 000000EE _DATA	
+numbers  . . . . . . . . . . . .	DWord	 000001DC _DATA	
+prompt . . . . . . . . . . . . .	Byte	 00000103 _DATA	
 red  . . . . . . . . . . . . . .	Number	 00000004h   
-strLen . . . . . . . . . . . . .	DWord	 000001CF _DATA	
-sumLabel . . . . . . . . . . . .	Byte	 00000177 _DATA	
-sum  . . . . . . . . . . . . . .	DWord	 000001FB _DATA	
+strLen . . . . . . . . . . . . .	DWord	 000001D8 _DATA	
+sumLabel . . . . . . . . . . . .	Byte	 0000018C _DATA	
+sum  . . . . . . . . . . . . . .	DWord	 00000204 _DATA	
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
 wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
 yellow . . . . . . . . . . . . .	Number	 0000000Eh   
