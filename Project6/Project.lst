@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 21:54:04
+Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 22:02:27
 5String Primitives and Macros     (Proj6_SharpKel.asm	     Page 1 - 1
 
 
@@ -232,10 +232,10 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 21:54:04
  00000072  FF 35 000001FF R		PUSH avg
  00000078  68 00000177 R		PUSH OFFSET sumLabel
  0000007D  FF 35 000001FB R		PUSH sum
- 00000083  E8 000002A1			CALL PrintSumAvg	
+ 00000083  E8 000002B0			CALL PrintSumAvg	
 
  00000088  68 00000203 R		PUSH OFFSET goodbye
- 0000008D  E8 000002D3			CALL Farewell
+ 0000008D  E8 000002E2			CALL Farewell
 
 					Invoke ExitProcess, 0
  00000092  6A 00	   *	    push   +000000000h
@@ -756,23 +756,35 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 21:54:04
  00000313  8B 45 FC				MOV EAX, runningTotal
  00000316  99					CDQ
  00000317  F7 7D F8				IDIV arrSize
+ 0000031A  83 FA 00				CMP EDX, 0
+ 0000031D  75 02				JNE _checkRound
+ 0000031F  EB 08				JMP _storeAvg
+
+ 00000321				_checkRound:
+						; floor-rounding for negative numbers means
+ 00000321  83 F8 00				CMP EAX, 0
+ 00000324  7C 02				JL _floorNegative
+ 00000326  EB 01				JMP _storeAvg
+
+ 00000328				_floorNegative:
+ 00000328  48					DEC EAX
 					
- 0000031A				_storeAvg:
- 0000031A  8B 5D 14				MOV EBX, [EBP+20]
- 0000031D  89 03				MOV [EBX], EAX
+ 00000329				_storeAvg:
+ 00000329  8B 5D 14				MOV EBX, [EBP+20]
+ 0000032C  89 03				MOV [EBX], EAX
 
 					; restore registers
- 0000031F  9D				POPFD
- 00000320  5F				POP EDI
- 00000321  5A				POP EDX
- 00000322  59				POP ECX
- 00000323  5B				POP EBX
- 00000324  58				POP EAX
+ 0000032E  9D				POPFD
+ 0000032F  5F				POP EDI
+ 00000330  5A				POP EDX
+ 00000331  59				POP ECX
+ 00000332  5B				POP EBX
+ 00000333  58				POP EAX
 
- 00000325  C9		   *	    leave  
- 00000326  C2 0010			RET 16
+ 00000334  C9		   *	    leave  
+ 00000335  C2 0010			RET 16
 
- 00000329			ComputeSumAvg ENDP
+ 00000338			ComputeSumAvg ENDP
 
 				; ---------------------------------------------------------------------------------
 				; Name: PrintSumAvg
@@ -785,38 +797,38 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 21:54:04
 				;     avg      [EBP+16]
 				;     avgLabel [EBP+20]
 				; ---------------------------------------------------------------------------------
- 00000329			PrintSumAvg PROC
+ 00000338			PrintSumAvg PROC
 					; preserve registers
- 00000329  55				PUSH EBP
- 0000032A  8B EC			MOV  EBP, ESP
- 0000032C  52				PUSH EDX
+ 00000338  55				PUSH EBP
+ 00000339  8B EC			MOV  EBP, ESP
+ 0000033B  52				PUSH EDX
 
- 0000032D				_printSum:
- 0000032D  E8 00000000 E			CALL CrLf
+ 0000033C				_printSum:
+ 0000033C  E8 00000000 E			CALL CrLf
 						mDisplayString [EBP+12]
- 00000332  52		     1		PUSH EDX
- 00000333  8B 55 0C	     1		MOV  EDX, [EBP+12]
- 00000336  E8 00000000 E     1		CALL WriteString
- 0000033B  5A		     1		POP EDX
- 0000033C  FF 75 08				PUSH [EBP+8]
- 0000033F  E8 FFFFFE82				CALL WriteVal
- 00000344  E8 00000000 E			CALL CrLf
+ 00000341  52		     1		PUSH EDX
+ 00000342  8B 55 0C	     1		MOV  EDX, [EBP+12]
+ 00000345  E8 00000000 E     1		CALL WriteString
+ 0000034A  5A		     1		POP EDX
+ 0000034B  FF 75 08				PUSH [EBP+8]
+ 0000034E  E8 FFFFFE73				CALL WriteVal
+ 00000353  E8 00000000 E			CALL CrLf
 
- 00000349				_printAvg:
+ 00000358				_printAvg:
 						mDisplayString [EBP+20]
- 00000349  52		     1		PUSH EDX
- 0000034A  8B 55 14	     1		MOV  EDX, [EBP+20]
- 0000034D  E8 00000000 E     1		CALL WriteString
- 00000352  5A		     1		POP EDX
- 00000353  FF 75 10				PUSH [EBP+16]
- 00000356  E8 FFFFFE6B				CALL WriteVal
- 0000035B  E8 00000000 E			CALL CrLf
+ 00000358  52		     1		PUSH EDX
+ 00000359  8B 55 14	     1		MOV  EDX, [EBP+20]
+ 0000035C  E8 00000000 E     1		CALL WriteString
+ 00000361  5A		     1		POP EDX
+ 00000362  FF 75 10				PUSH [EBP+16]
+ 00000365  E8 FFFFFE5C				CALL WriteVal
+ 0000036A  E8 00000000 E			CALL CrLf
 
 					; restore registers
- 00000360  5A				POP EDX
- 00000361  5D				POP EBP
- 00000362  C2 0010			RET 16
- 00000365			PrintSumAvg ENDP
+ 0000036F  5A				POP EDX
+ 00000370  5D				POP EBP
+ 00000371  C2 0010			RET 16
+ 00000374			PrintSumAvg ENDP
 
 
 				; ---------------------------------------------------------------------------------
@@ -827,25 +839,25 @@ Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 21:54:04
 				; Receives: 
 				;     goodbye   [EBP+8]
 				; ---------------------------------------------------------------------------------
- 00000365			Farewell PROC
- 00000365  55				PUSH EBP
- 00000366  8B EC			MOV  EBP, ESP
+ 00000374			Farewell PROC
+ 00000374  55				PUSH EBP
+ 00000375  8B EC			MOV  EBP, ESP
 
- 00000368  E8 00000000 E		CALL CrLf
-					mDisplayString [EBP+8]
- 0000036D  52		     1		PUSH EDX
- 0000036E  8B 55 08	     1		MOV  EDX, [EBP+8]
- 00000371  E8 00000000 E     1		CALL WriteString
- 00000376  5A		     1		POP EDX
  00000377  E8 00000000 E		CALL CrLf
+					mDisplayString [EBP+8]
+ 0000037C  52		     1		PUSH EDX
+ 0000037D  8B 55 08	     1		MOV  EDX, [EBP+8]
+ 00000380  E8 00000000 E     1		CALL WriteString
+ 00000385  5A		     1		POP EDX
+ 00000386  E8 00000000 E		CALL CrLf
 
- 0000037C  5D				POP EBP
- 0000037D  C2 0004			RET  4
+ 0000038B  5D				POP EBP
+ 0000038C  C2 0004			RET  4
 
- 00000380			Farewell ENDP
+ 0000038F			Farewell ENDP
 
 				END main
-Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 21:54:04
+Microsoft (R) Macro Assembler Version 14.28.29335.0	    03/14/21 22:02:27
 5String Primitives and Macros     (Proj6_SharpKel.asm	     Symbols 2 - 1
 
 
@@ -948,7 +960,7 @@ Segments and Groups:
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
 _DATA  . . . . . . . . . . . . .	32 Bit	 00000231 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000380 Para	  Public  'CODE'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 0000038F Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -958,14 +970,16 @@ Procedures, parameters, and locals:
 CloseFile  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 CloseHandle  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Clrscr . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-ComputeSumAvg  . . . . . . . . .	P Near	 000002DD _TEXT	Length= 0000004C Public STDCALL
+ComputeSumAvg  . . . . . . . . .	P Near	 000002DD _TEXT	Length= 0000005B Public STDCALL
   runningTotal . . . . . . . . .	DWord	 bp - 00000004
   arrSize  . . . . . . . . . . .	DWord	 bp - 00000008
   _setupLoop . . . . . . . . . .	L Near	 000002E9 _TEXT	
   _sumLoop . . . . . . . . . . .	L Near	 000002F6 _TEXT	
   _storeSum  . . . . . . . . . .	L Near	 00000305 _TEXT	
   _avg . . . . . . . . . . . . .	L Near	 0000030D _TEXT	
-  _storeAvg  . . . . . . . . . .	L Near	 0000031A _TEXT	
+  _checkRound  . . . . . . . . .	L Near	 00000321 _TEXT	
+  _floorNegative . . . . . . . .	L Near	 00000328 _TEXT	
+  _storeAvg  . . . . . . . . . .	L Near	 00000329 _TEXT	
 CreateFileA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 CreateOutputFile . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Crlf . . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -976,7 +990,7 @@ EnterNumbers . . . . . . . . . .	P Near	 00000269 _TEXT	Length= 00000030 Public 
   _setupLoop . . . . . . . . . .	L Near	 0000026F _TEXT	
   _fillLoop  . . . . . . . . . .	L Near	 00000275 _TEXT	
 ExitProcess  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-Farewell . . . . . . . . . . . .	P Near	 00000365 _TEXT	Length= 0000001B Public STDCALL
+Farewell . . . . . . . . . . . .	P Near	 00000374 _TEXT	Length= 0000001B Public STDCALL
 FileTimeToDosDateTime  . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 FileTimeToSystemTime . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 FlushConsoleInputBuffer  . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -1022,9 +1036,9 @@ PrintArray . . . . . . . . . . .	P Near	 00000299 _TEXT	Length= 00000044 Public 
   _fillLoop  . . . . . . . . . .	L Near	 000002B9 _TEXT	
   _printDelimiter  . . . . . . .	L Near	 000002C7 _TEXT	
   _continue  . . . . . . . . . .	L Near	 000002D1 _TEXT	
-PrintSumAvg  . . . . . . . . . .	P Near	 00000329 _TEXT	Length= 0000003C Public STDCALL
-  _printSum  . . . . . . . . . .	L Near	 0000032D _TEXT	
-  _printAvg  . . . . . . . . . .	L Near	 00000349 _TEXT	
+PrintSumAvg  . . . . . . . . . .	P Near	 00000338 _TEXT	Length= 0000003C Public STDCALL
+  _printSum  . . . . . . . . . .	L Near	 0000033C _TEXT	
+  _printAvg  . . . . . . . . . .	L Near	 00000358 _TEXT	
 Random32 . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 RandomRange  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Randomize  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL

@@ -7,7 +7,7 @@ TITLE String Primitives and Macros     (Proj6_SharpKel.asm)
 ; Project Number: 06                 Due Date: 3/14/2021
 ; Description: This program asks the user to enter 10 signed decimal integers,
 ;	no more than 32 bits long. After validation passes for 10 numbers, the program
-;	will display the numbers back to the user along with the sum and rounded average.
+;	will display the numbers back to the user along with the sum and rounded (floor) average.
 
 INCLUDE Irvine32.inc
 ExitProcess proto, dwExitCode:dword
@@ -68,7 +68,7 @@ errorMsg    BYTE "ERROR: You did not enter an signed number or your number was t
 ; Label/Misc Strings
 listLabel	BYTE "These are the numbers you entered: ", 0 
 sumLabel	BYTE "The sum of the numbers is: ", 0
-avgLabel	BYTE "The rounded average is: ", 0
+avgLabel	BYTE "The rounded (floor) average is: ", 0
 commaDL		BYTE ", ", 0   ; delimiter for list output
 
 ; User data variables
@@ -576,6 +576,18 @@ ComputeSumAvg PROC
 		MOV EAX, runningTotal
 		CDQ
 		IDIV arrSize
+		CMP EDX, 0
+		JNE _checkRound
+		JMP _storeAvg
+
+	_checkRound:
+		; floor-rounding for negative numbers means
+		CMP EAX, 0
+		JL _floorNegative
+		JMP _storeAvg
+
+	_floorNegative:
+		DEC EAX
 	
 	_storeAvg:
 		MOV EBX, [EBP+20]
